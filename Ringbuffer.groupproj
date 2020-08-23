@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{13D1619B-75D0-4BD8-8D2E-93144EFBF190}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="Ringpuffer.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="RingpufferTests.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="Ringpuffer">
+        <MSBuild Projects="Ringpuffer.dproj"/>
+    </Target>
+    <Target Name="Ringpuffer:Clean">
+        <MSBuild Projects="Ringpuffer.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Ringpuffer:Make">
+        <MSBuild Projects="Ringpuffer.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="RingpufferTests">
+        <MSBuild Projects="RingpufferTests.dproj"/>
+    </Target>
+    <Target Name="RingpufferTests:Clean">
+        <MSBuild Projects="RingpufferTests.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="RingpufferTests:Make">
+        <MSBuild Projects="RingpufferTests.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="Ringpuffer;RingpufferTests"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="Ringpuffer:Clean;RingpufferTests:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="Ringpuffer:Make;RingpufferTests:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

@@ -1,0 +1,8 @@
+CircularBuffer - a generic circular buffer implementation for Delphi
+Version 1.0
+
+Copyright (c) 2014 - 2020 Markus Humm (markus [dot] humm [at] googlemail [dot] com) (main contact)
+
+This software is licensed to you under the Apache License 2.0.
+A copy of the license text can be found in the LICENSE.txt file in this project or
+alternatively at http://www.apache.org/licenses/LICENSE-2.0
