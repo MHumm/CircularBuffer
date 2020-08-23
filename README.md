@@ -1,7 +1,7 @@
 # CircularBuffer
 Generic circular buffer/ring buffer implementation
 
-#Supported Delphi versions
+# Supported Delphi versions
 At least from XE8 onwards, but most likely eralier versions 
 supporting generics as well.
 
