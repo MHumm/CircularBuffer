@@ -23,235 +23,306 @@ uses
 
 type
   /// <summary>
-  ///   Diese Exception wird ausgelöst, wenn mehr Daten in den Puffer geschrieben
-  ///   werden sollten wie Platz im Puffer ist
+  ///   raised when there are more data written to the buffer than it can hold
   /// </summary>
   EBufferFullException  = class(Exception);
   /// <summary>
-  ///   Diese Exception wird ausgelöst, wenn versucht wird ein einzelnes Element
-  ///   aus einem komplett leeren Puffer zu entnehmen.
+  ///   raised when a single element is taken from an empty buffer
   /// </summary>
   EBufferEmptyException = class(Exception);
 
   /// <summary>
-  ///   Art eines Ereignisses des Ringpuffers: Add wenn mindestens ein Element
-  ///   hinzugefügt wurde, Remove wenn mindestens ein Element entnommen oder
-  ///   gelöscht wurde aber auch wenn der Puffer komplett gelöscht wurde
+  ///   types of ring buffer events: <br />
   /// </summary>
-  TRingbufferEventType = (evAdd, evRemove);
+  TRingbufferEventType = (
+    /// <summary>
+    ///   at least one element was added
+    /// </summary>
+    evAdd,
+    /// <summary>
+    ///   at least one element was removed or deleted or the buffer is cleared
+    /// </summary>
+    evRemove);
 
   /// <summary>
-  ///   Dieses Ereignis wird bei allen Operationen ausgelöst, die einen Einfluss
-  ///   auf den Füllstand des Ringpuffers haben. Hinzufügen, Entfernen, Löschen...
+  ///   Event type triggered by all operations manipulating the number of elements in the ring buffer: Add, Remove,
+  ///   Delete...
   /// </summary>
   /// <param name="Count">
-  ///   Neue Anzahl der im Puffer befindlichen Elemente
+  ///   new number of elements in the buffer
   /// </param>
   /// <param name="Event">
-  ///   Art des auslösenden Events: wenn Add wurde der Füllstand erhöht, wenn
-  ///   Remove wurde er verringert.
+  ///   type of event:
+  ///   <list type="bullet">
+  ///     <item>
+  ///       evAdd when Count was increased,
+  ///     </item>
+  ///     <item>
+  ///       evRemove when Count was decreased
+  ///     </item>
+  ///   </list>
   /// </param>
   TRingbufferNotify = procedure(Count: UInt32; Event:TRingbufferEventType) of Object;
 
   /// <summary>
-  ///   Umsetzung eines generischen Ringpuffers für alle möglichen Variablentypen
-  ///   jedoch ohne Besitzer darin gespeicherter Objekte zu sein. Für einen
-  ///   Ringpuffer mit Freigabe von Objekten am Ende die Klasse TObjectRingbuffer<T>
-  ///   verwenden.
+  ///   Implementation of a generic ring buffer for all types without taking any ownership. For a ring buffer freeing
+  ///   all contained objects on Destroy use <c>TObjectRingBuffer&lt;T&gt;</c>.
   /// </summary>
+  /// <seealso cref="TObjectRingBuffer&lt;T&gt;">
+  ///   TObjectRingBuffer&lt;T&gt;
+  /// </seealso>
   TRingbuffer<T> = class(TObject)
   type
     /// <summary>
-    ///   Rückgabe und Übergabetyp für viele Operatoren
+    ///   return and parameter type for most of the operators
     /// </summary>
     TRingbufferArray = TArray<T>; //array of T;
   strict protected
     /// <summary>
-    ///   Hier werden alle Elemente drin gespeichert. Die Größe wird über den
-    ///   Size Parameter des Constructors bestimmt
+    ///   Static storage for all elements. The size is determined in the constructor.
     /// </summary>
     FItems        : TRingbufferArray;
     /// <summary>
-    ///   Index des aktuell ersten Eintrags des Puffers
+    ///   Index of the first buffer item
     /// </summary>
     FStart        : UInt32;
     /// <summary>
-    ///   Index des nächsten freien Eintrags im Puffer, an diese Stelle des
-    ///   Puffers kann also sofort ein Element geschrieben werden. Ist FNextFree
-    ///   gleich FStart ist der Puffer entweder leer oder ganz voll. Wie es
-    ///   tatsächlich ist bestimmt dann FContainsData. Ist es true ist er voll.
+    ///   Index of the next free buffer item, where an element can be written directly
     /// </summary>
+    /// <remarks>
+    ///   If <c>FNextFree = FStart</c> the buffer is either empty or full. The actual state is determined by <c>
+    ///   FContainsData</c>: True means <i>the buffer is full</i>.
+    /// </remarks>
     FNextFree     : UInt32;
     /// <summary>
-    ///   Wenn FStart = FNextFree muss der Puffer nicht unbedingt leer sein,
-    ///   sondern er könnte auch komplett gefüllt sein. Ist dieses Flag true
-    ///   dann ist er in diesem Zustand tatsächlich komplett gefüllt.
+    ///   Indicates whether the buffer actually contains data.
     /// </summary>
+    /// <remarks>
+    ///   If <c>FStart = FNextFree</c> the buffer is either empty or full. This field gives the missing information.
+    /// </remarks>
     FContainsData : Boolean;
     /// <summary>
-    ///   Dieses Ereignis wird bei allen Operationen ausgelöst, die einen Einfluss
-    ///   auf den Füllstand des Ringpuffers haben. Hinzufügen, Entfernen, Löschen...
+    ///   This event is triggered by all operations manipulating the number of elements in the ring buffer: Add,
+    ///   Remove, Delete... <br />
     /// </summary>
     FNotify       : TRingbufferNotify;
 
     /// <summary>
-    ///   Liefert die Anzahl der im Puffer befindlichen Einträge
+    ///   Returns the number of items currently in the ring buffer
     /// </summary>
     function GetCount: UInt32;
     /// <summary>
-    ///   Liefert die Anzahl der maximal im Puffer speicherbaren Einträge
+    ///   Returns the number of elements that can be stored in the ring buffer
     /// </summary>
     function GetSize: UInt32;
     /// <summary>
-    ///   Erhöht den Ende-Marker und fall dieser über die obere Array Grenze
-    ///   läuft wird er von 0 ausgehend weiter berechnet. Es wird davon
-    ///   ausgegangen, dass die Konstellation Ende-Marker + Increment > Start-Marker
-    ///   nicht auftreten kann da diese vom Aufrufer bereits abgefangen wurde.
+    ///   Increments the Tail marker, wrapping it to 0 when necessary
     /// </summary>
     /// <param name="Increment">
-    ///   Wert um den der Ende-Marker erhöht werden soll
+    ///   How much items the Tail should be advanced
     /// </param>
+    /// <remarks>
+    ///   The method assumes that the case <c>Tail+ Increment &gt; First</c> is already taken care of by the caller
+    /// </remarks>
 { TODO : Am Ende inline-Direktive aktivieren! }
     procedure AdvanceNextFree(Increment: UInt32); // inline;
     /// <summary>
-    ///   Prototyp für die Routine zur Freigabe von Objekten. Bleibt in dieser
-    ///   Klasse leer, wird aber von TObjectRingbuffer überschrieben.
+    ///   Prototype method for freeing objects
     /// </summary>
     /// <param name="StartIndex">
-    ///   Index des ersten zu löschenden Eintrags. Muss kleiner gleich Endindex
-    ///   sein und läuft von 0 bis Count-1. Über die obere Arraygrenze hinausge-
-    ///   hende Pufferinhalte können somit nicht auf einmal gelöscht werden
+    ///   Index of the first item to be deleted. Must be less than <c>EndIndex</c> and in the range <c>0 .. Count - 1</c>
+    ///   . Thus wrapped buffer content cannot be deleted in one go.
     /// </param>
     /// <param name="EndIndex">
-    ///   Index des letzten zu löschenden Eintrags. Muss größer gleich Endindex
-    ///   sein und läuft von 0 bis Count-1
+    ///   Index of the last item to be deleted. Must be larger than <c>StartIndex</c> and in the range <c>0 .. Count -
+    ///   1.</c>
     /// </param>
+    /// <remarks>
+    ///   The current implementation is empty, but is overridden in <c>TObjectRiungBuffer&lt;T&gt;</c>.
+    /// </remarks>
     procedure FreeOrNilItems(StartIndex, EndIndex: UInt32); virtual;
   public
     /// <summary>
-    ///   Erzeugt den Puffer und dimensioniert ihn
+    ///   Creates the ring buffer with the given size
     /// </summary>
     /// <param name="Size">
-    ///   Anzahl der Elemente die im Puffer Platz finden sollen
+    ///   Number of elements the ring buffer will hold
     /// </param>
     constructor Create(Size: UInt32); overload;
     /// <summary>
-    ///   Gibt den Puffer frei, jedoch nicht in diesem gespeicherte Objekte. Soll
-    ///   der Ringpuffer auch für das Speichermanagement der Objekte zuständig
-    ///   sein ist der TObjectRingbuffer zu verwenden!
+    ///   Frees the ring buffer memory
     /// </summary>
+    /// <example>
+    ///   Any object instances in the ring buffer will not be freed. If the ring buffer shall be responsible for
+    ///   managing the lifetime of those objects <c>TObjectRingbuffer&lt;T&gt;</c> would be the better choice!
+    /// </example>
     destructor  Destroy; override;
 
     /// <summary>
-    ///   Hängt einen Wert an den Puffer an. Ist die Kapazität des Puffers
-    ///   erschöpft, wird eine EBufferFullException geworfen.
+    ///   Appends the given item to the ring buffer
     /// </summary>
     /// <param name="Item">
     ///   Anzuhängendes Element
     /// </param>
+    /// <exception cref="EBufferFullException">
+    ///   not enough capacity
+    /// </exception>
+    /// <remarks>
+    ///   If there is not enough capacity an <c>EBufferFullException</c> is raised. <br />
+    /// </remarks>
     procedure   Add(Item: T); overload; virtual;
     /// <summary>
-    ///   Fügt mehrere Werte auf einmal zum Puffer hinzu
+    ///   Appends multiple items to the ring buffer
     /// </summary>
     /// <param name="Items">
-    ///   Array mit den hinzuzufügenden Elementen. Größe des Arrays muss kleiner
-    ///   als die freie Speicherkapazität des Puffers sein, anderenfalls wird
-    ///   eine EBufferFullException geworfen.
+    ///   array of elements to append
     /// </param>
+    /// <exception cref="EBufferFullException">
+    ///   not enough capacity
+    /// </exception>
+    /// <remarks>
+    ///   The size of the array must be less than the free capacity of the buffer. Otherwise an <c>EBufferFullException</c>
+    ///    is raised.
+    /// </remarks>
     procedure   Add(Items:TRingbufferArray); overload; virtual;
 
     /// <summary>
-    ///   Liefert das am frühesten in den Puffer geschriebene Element und
-    ///   entfernt es aus dem Puffer. Ist der Puffer leer wird eine
-    ///   EBufferEmptyException ausgelöst
+    ///   Returns the first element from the ring buffer and removes it
     /// </summary>
     /// <returns>
     ///   Das Element aus dem Puffer welches am längsten im Puffer ist
     /// </returns>
+    /// <exception cref="EBufferEmptyException">
+    ///   buffer is empty
+    /// </exception>
+    /// <remarks>
+    ///   If the buffer is empty an <c>EBufferEmptyException</c> is raised
+    /// </remarks>
     function    Remove:T; overload; virtual;
     /// <summary>
-    ///   Liefert mehrere Elemente aus dem Puffer. Ist der Puffer leer wird eine
-    ///   EBufferEmptyException ausgelöst
+    ///   Returns the first <c>RemoveCount</c> elements from the buffer
     /// </summary>
     /// <param name="RemoveCount">
-    ///   Anzahl der zurückzuliefernden Elemente. Befinden sich weniger Elemente
-    ///   als angefordert im Puffer werden weniger zurückgeliefert. Werden mehr
-    ///   Elemente angefordert als im Puffer Platz haben (Puffergröße) wird eine
-    ///   EArgumentOutOfRangeException ausgelöst.
+    ///   Number of elements to retrieve
     /// </param>
     /// <returns>
     ///   Array mit einer maximalen Länge von Count
     /// </returns>
+    /// <exception cref="EBufferEmptyException">
+    ///   buffer is empty
+    /// </exception>
+    /// <exception cref="EArgumentOutOfRangeException">
+    ///   <c>RemoveCount</c> exceeds buffer size
+    /// </exception>
+    /// <remarks>
+    ///   <list type="bullet">
+    ///     <item>
+    ///       If there are less elements in the buffer as requested, only the vailable elements are returned
+    ///     </item>
+    ///     <item>
+    ///       If the buffer is empty an EBufferEmptyException is raised.
+    ///     </item>
+    ///     <item>
+    ///       If more elements are requested than the capacity of the buffer an EArgumentOutOfRangeException is
+    ///       raised
+    ///     </item>
+    ///   </list>
+    /// </remarks>
     function    Remove(RemoveCount: UInt32):TRingbufferArray; overload; virtual;
     /// <summary>
-    ///   Löscht die angegebene Anzahl an Elementen ab dem Beginn des Puffers.
-    ///   Die Elemente werden dabei allerdings nicht irgendwie überschrieben,
-    ///   sie sind nur nach dem Löschvorgang nicht mehr zugänglich.
+    ///   Removes the given number of elements from the buffers Head
     /// </summary>
     /// <param name="Count">
-    ///   Anzahl zu löschender Elemente. Sollen mehr Elemente gelöscht werden
-    ///   als Elemente im Puffer sind wird einfach der Pufferinhalt gelöscht.
-    ///   Sollen mehr Elemente als die Puffergröße gelöscht werden wird eine
-    ///   EArgumentOutOfRangeException ausgelöst.
+    ///   Number of elements to be deleted
     /// </param>
+    /// <exception cref="EArgumentOutOfRangeException">
+    ///   <c>Count</c> exceeds buffer size
+    /// </exception>
+    /// <remarks>
+    ///   <para>
+    ///     Elements are not overridden, but cannot be accessed after being deleted.
+    ///   </para>
+    ///   <para>
+    ///     If more elements are to be deleted than are available in the buffer, the buffer is cleared.
+    ///   </para>
+    ///   <para>
+    ///     If more elements are to be deleted than the capacity of the buffer an <b>EArgumentOutOfRangeException</b>
+    ///     is raised.
+    ///   </para>
+    /// </remarks>
     procedure   Delete(Count: UInt32); virtual;
     /// <summary>
-    ///   Leert den Puffer in dem Start und Ende Zeiger zurück auf Initialwert
-    ///   gesetzt werden. Die Daten werden dadurch nicht überschrieben, sind aber
-    ///   nicht mehr (legal) zugänglich
+    ///   Clears the buffer and initializes Head and Tail
     /// </summary>
+    /// <remarks>
+    ///   There is no data overridden, but cannot be accessed any more.
+    /// </remarks>
     procedure   Clear; virtual;
 
     /// <summary>
-    ///   Liefert ein einzelnes Element des Puffers, jedoch ohne dieses zu
-    ///   entfernen
+    ///   Returns an item from the buffer from the given position without removing it
     /// </summary>
     /// <param name="Index">
-    ///   Index des zu liefernden Elements des Puffers. Index geht von 0 bis
-    ///   Count-1. Wird ein Index angegeben der größer als Count-1 ist wird eine
-    ///   EArgumentOutOfRangeException Exception geworfen
+    ///   Index of the item to be returned. Range is <c>0 .. Count-1</c>. <c>0</c> is same as Head.
     /// </param>
     /// <returns>
-    ///   Element an der durch den Index angegebenen Stelle im Puffer. Das
-    ///   Element verbleibt im Puffer.
+    ///   Item at <c>Index</c> position. The item stays in the buffer.
     /// </returns>
+    /// <exception cref="EArgumentOutOfRangeException">
+    ///   <c>Index</c> exceeds available elements
+    /// </exception>
+    /// <remarks>
+    ///   The allowed range for Index is 0 .. Count-1. If the index is outside this range an
+    ///   EArgumentOutOfRangeException is raised. <br />
+    /// </remarks>
     function    Peek(Index: UInt32):T; overload;
     /// <summary>
-    ///   Liefert mehrere Elemente des Puffers, jedoch ohne diese zu entfernen
+    ///   Retrieves multiple items from the buffer without removing them
     /// </summary>
     /// <param name="Index">
-    ///   Index des zu liefernden Elements des Puffers. Index geht von 0 bis
-    ///   Count-1. Wird ein Index angegeben der größer als Count-1 ist wird eine
-    ///   EArgumentOutOfRangeException Exception geworfen
+    ///   Index of the first element retrieved. Rangs is <c>0 .. Count-1</c>.
     /// </param>
     /// <param name="Count">
-    ///   Anzahl der zu liefernden Elemente. Bei 0 wird ein leeres Array
-    ///   geliefert und wenn mehr Elemente angefordert wurden als im Puffer
-    ///   vorhanden sind werden soviele zurückgegeben wie im Puffer vorhanden
-    ///   sind. Werden mehr Elemente angefordert als im Puffer je Platz haben
-    ///   wird eine EArgumentOutOfRangeException Exception geworfen
+    ///   Number of items to retrieve.
     /// </param>
     /// <returns>
-    ///   Maximal Count Elemente ab der durch Index angegebenen Stelle im Puffer.
-    ///   Der Pufferinhalt und Zustand bleibt dabei unverändert
+    ///   The items from <c>Index</c> position up to the requested count or less. The buffer content is not changed.
     /// </returns>
+    /// <exception cref="EArgumentOutOfRangeException">
+    ///   <c>Index</c> exceeds <c>Count - 1</c> or the buffer capacity
+    /// </exception>
+    /// <remarks>
+    ///   <para>
+    ///     If Index is larger than <c>Count - 1</c> an <b>EArgumentOutOfRangeException</b> is raised.
+    ///   </para>
+    ///   <para>
+    ///     <c>Count = 0</c> returns an empty array.
+    ///   </para>
+    ///   <para>
+    ///     If more items are requested than are available in the buffer the number of items returned is capped to
+    ///     the possible number.
+    ///   </para>
+    ///   <para>
+    ///     If more items are requested than the buffer capacity an <b>EArgumentOutOfRangeException</b> is raised.
+    ///   </para>
+    /// </remarks>
     function    Peek(Index, Count: UInt32):TRingbufferArray overload;
 
     /// <summary>
-    ///   Liefert die Anzahl der maximal im Puffer speicherbaren Einträge
+    ///   Returns the number of elements that can be stored in the ring buffer
     /// </summary>
     property Size   : UInt32
       read   GetSize;
 
     /// <summary>
-    ///   Liefert die Anzahl der derzeit im Puffer befindlichen Einträge
+    ///   Returns the number of items currently in the ring buffer
     /// </summary>
     property Count  : UInt32
       read   GetCount;
 
     /// <summary>
-    ///   Dieses Ereignis wird bei allen Operationen ausgelöst, die einen Einfluss
-    ///   auf den Füllstand des Ringpuffers haben. Hinzufügen, Entfernen, Löschen...
+    ///   This event is triggered by all operations manipulating the number of elements in the ring buffer: Add,Remove,
+    ///   Delete...
     /// </summary>
     property Notify : TRingbufferNotify
       read   FNotify
@@ -259,86 +330,87 @@ type
   end;
 
   /// <summary>
-  ///   Ringpuffer zur Speicherung von Objekten inklusive der Möglichkeit
-  ///   Besitzer der Objekte zu sein und damit beim Freigeben auch die noch
-  ///   enthaltenen Objekte freigeben zu können.
+  ///   Ringpuffer for object instances with an option to take ownership of these instances. This allows to free all
+  ///   objects still present in the buffer when it is destroyed.
   /// </summary>
   TObjectRingbuffer<T:class> = class(TRingbuffer<T>)
   strict private
     /// <summary>
-    ///   Wenn true ist das Object Besitzer der im Puffer abgelegten Objektinstanzen
+    ///   Indicates whether the ring buffer takes ownership of the instances
     /// </summary>
     FOwnsObjects : Boolean;
     /// <summary>
-    ///   Gibt alle im Puffer gespeicherten Objekte frei und setzt die Referennz
-    ///   im Puffer auf nil
+    ///   Destroys all object instances currently in the buffer and sets the references to <c>nil</c>
     /// </summary>
     procedure FreeContents;
     /// <summary>
-    ///   Wenn FOwnsObjects true ist werden alle Objekte freigegeben. Ist
-    ///   FOwnsObjects false aber der Code läuft auf einer ARC Plattform werden
-    ///   die Referenzen trotzdem genillt, damit nicht aus versehen Speicherlecks
-    ///   entstehen können.
+    ///   If <c>FOwnsObjects</c> is set all instances are destroyed and set to <c>nil</c>. If <c>FOwnsObjects</c> is
+    ///   not set and the code is running on an ARC platform target all the references are still set to <c>nil</c> to
+    ///   avoid memory leaks.
     /// </summary>
     procedure FreeIfOwnedOrARC;
   strict protected
     /// <summary>
-    ///   Gibt die Objekte eines Bereichs des Puffers frei oder setzt deren
-    ///   Referenz auf nil. Ist FOwnsObjects true werden die Objekte freigegeben,
-    ///   falls nicht nur die Speicherplätze im Puffer auf NIL gesetzt. Letzteres
-    ///   hat auf ARC basierten Plattformen den Effekt, dass der Referenzzähler
-    ///   um eins verringert wird. Dadurch werden Speicherlecks verhindert, die
-    ///   sonst beim Entnehmen von Einträgen auftreten könnten.
+    ///   Destroys all instances in a given range of the buffer and/or sets its references to nil.
     /// </summary>
     /// <param name="StartIndex">
-    ///   Index des ersten zu löschenden Eintrags. Muss kleiner gleich Endindex
-    ///   sein und läuft von 0 bis Count-1. Über die obere Arraygrenze hinausge-
-    ///   hende Pufferinhalte können somit nicht auf einmal gelöscht werden
+    ///   Index of the first item to be deleted. Must be less than <c>EndIndex</c> and in the range <c>0 .. Count - 1</c>
+    ///   . Thus wrapped buffer content cannot be deleted in one go.
     /// </param>
     /// <param name="EndIndex">
-    ///   Index des letzten zu löschenden Eintrags. Muss größer gleich Endindex
-    ///   sein und läuft von 0 bis Count-1
+    ///   Index of the last item to be deleted. Must be larger than <c>StartIndex</c> and in the range <c>0 .. Count -1</c>
+    ///   .
     /// </param>
+    /// <remarks>
+    ///   If <c>FOwnsObjects</c> is set all instances are destroyed and its references set to <c>nil</c>, otherwise
+    ///   only the references are set to <c>nil</c>. The latter will decrement the reference count on ARC platforms to
+    ///   avoid memory leaks.
+    /// </remarks>
     procedure FreeOrNilItems(StartIndex, EndIndex: UInt32); override;
   public
     /// <summary>
-    ///   Erzeugt den Puffer und dimensioniert ihn
+    ///   Creates the buffer with the given size
     /// </summary>
     /// <param name="Size">
-    ///   Anzahl der Elemente die im Puffer Platz finden sollen
+    ///   Number of items the buffer can hold
     /// </param>
     /// <param name="OwnsObjects">
-    ///   Wenn true werden die im Puffer gespeicherten Objekte vom Puffer
-    ///   besessen, d.h. beim Freigeben oder Löschen werden diese auch freigegebem
+    ///   True if the buffer shall take ownership over the instances
     /// </param>
     constructor Create(Size: UInt32; OwnsObjects: Boolean = false); overload;
     /// <summary>
-    ///   Gibt, sofern OwnsObjects gesetzt ist, die noch im Puffer befindlichen
-    ///   Objekte frei
+    ///   Frees all remaining object instances if <c>OwnsObjects</c> is set.
     /// </summary>
     destructor  Destroy; override;
 
     /// <summary>
-    ///   Löscht die angegebene Anzahl an Elementen ab dem Beginn des Puffers.
-    ///   Die gelöschten Objekte werden dabei freigegeben, wenn OwnsObjects true ist
+    ///   Removes the given number of elements from the buffers <br />
     /// </summary>
     /// <param name="Count">
-    ///   Anzahl zu löschender Elemente. Sollen mehr Elemente gelöscht werden
-    ///   als Elemente im Puffer sind wird einfach der Pufferinhalt gelöscht.
-    ///   Sollen mehr Elemente als die Puffergröße gelöscht werden wird eine
-    ///   EArgumentOutOfRangeException ausgelöst.
+    ///   Number of elements to be deleted
     /// </param>
+    /// <exception cref="EArgumentOutOfRangeException">
+    ///   Count exceeds buffer size <br />
+    /// </exception>
+    /// <remarks>
+    ///   <para>
+    ///     If <c>OwnsObjects</c> is set all instances are destroyed.
+    ///   </para>
+    ///   <para>
+    ///     If more elements are to be deleted than are available in the buffer, the buffer is cleared. <br /><br />
+    ///     If more elements are to be deleted than the capacity of the buffer an <b>EArgumentOutOfRangeException</b>
+    ///     is raised. <br />
+    ///   </para>
+    /// </remarks>
     procedure   Delete(Count: UInt32); override;
     /// <summary>
-    ///   Leert den Puffer in dem Start und Ende Zeiger zurück auf Initialwert
-    ///   gesetzt werden. Außerdem werden alle enthaltenen Objekte freigegeben,
-    ///   sofern OwnsObjects true ist
+    ///   Clears the buffer and initializes Head and Tail. If <c>OwnsObjects</c> is set all object instances are
+    ///   destroyed. <br />
     /// </summary>
     procedure   Clear; override;
 
     /// <summary>
-    ///   Wenn true werden die im Puffer gespeicherten Objekte vom Puffer
-    ///   besessen, d.h. beim Freigeben oder Löschen werden diese auch freigegebem
+    ///   Indicates whether the ring buffer takes ownership of the instances <br />
     /// </summary>
     property OwnsObjects: Boolean
       read   FOwnsObjects
