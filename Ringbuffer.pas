@@ -77,6 +77,24 @@ type
     ///   return and parameter type for most of the operators
     /// </summary>
     TRingbufferArray = TArray<T>; //array of T;
+  strict private
+    /// <summary>
+    ///   Copies items into the already allocated Dest array. Since this is
+    ///   coded the naive way it is only meant for managed types where move is wrong.
+    /// </summary>
+    /// <param name="Dest">
+    ///   Already allocated target array where the copied items will be stored in
+    /// </param>
+    /// <param name="StartIndex">
+    ///   Index of the first item to be copied
+    /// </param>
+    /// <param name="Count">
+    ///   Number of items to copy
+    /// </param>
+    /// <remarks>
+    ///   This method expects that the parameters given are valid!
+    /// </remarks>
+    procedure CopyItems(var Dest: TRingbufferArray; StartIndex, Count: UInt32); inline;
   strict protected
     /// <summary>
     ///   Static storage for all elements. The size is determined in the constructor.
@@ -148,7 +166,7 @@ type
     /// <param name="Size">
     ///   Number of elements the ring buffer will hold
     /// </param>
-    constructor Create(Size: UInt32); overload;
+    constructor Create(Size: UInt32);
     /// <summary>
     ///   Frees the ring buffer memory
     /// </summary>
@@ -622,41 +640,78 @@ begin
                                               ' Max. Index: '+Count.ToString);
 end;
 
+procedure TRingbuffer<T>.CopyItems(var Dest: TRingbufferArray; StartIndex, Count: UInt32);
+var
+  i, n : Integer;
+begin
+  assert(assigned(Dest), 'Destination array not assigned');
+  assert(StartIndex < self.Count,
+         'StartIndex too high. StartIndex: ' + StartIndex.ToString +
+         ' Count: ' + self.Count.ToString);
+  assert(Count <= self.Count,
+         'Cannot copy ' + Count.ToString + ' items when only ' +
+         self.Count.ToString + ' are in the buffer');
+
+  n := 0;
+  for i := StartIndex to StartIndex + Count-1 do
+  begin
+    Dest[n] := self.FItems[i];
+    inc(n);
+  end;
+end;
+
 function TRingbuffer<T>.Peek(Index, Count: UInt32): TRingbufferArray;
 var
-  RemoveableCount   : UInt32;  // Anzahl entfernbarer Elemente, meist Count
-  RemainingCount    : UInt32;  // Anzahl Elemente von Start bis Pufferende
+  RemoveableCount   : UInt32;  // Number of removeable items, most times count
+  RemainingCount    : UInt32;  // Number of items from Start until Pufferende
+  i                 : UInt32;
 begin
-  // wurden mehr Elemente angefordert als überhaupt je in den Puffer passen?
-  // ist der Index im gültigen bereich?
+  // Have more items been requested than fitting into the buffer?
+  // Is the index in the valid range?
   if (Count <= Size) and (Index < self.Count) then
   begin
     // Ist überhaupt was im Puffer?
     if (self.Count > 0) then
     begin
-      // es sind soviele Elemente im Puffer wie entfernt werden sollen
+      // there are as many items in the buffer as shall be copied
       if (Count <= self.Count) then
         RemoveableCount := Count
       else
-        // Nein, also nur soviele entfernen wie überhaupt möglich
+        // No, just remove as many as possible
         RemoveableCount := self.Count;
 
       SetLength(result, RemoveableCount);
 
-      // geht der aktuelle Puffer inhalt über die obere Grenze (d.h. klappt um)?
+      // wraps the current buffer contents at the upper border of the buffer?
       if ((FStart+Index+RemoveableCount) < Size)  then
-        // Nein, also Elemente direkt kopierbar
-        Move(FItems[FStart+Index], result[0], RemoveableCount * SizeOf(FItems[0]))
+      begin
+        // No, one can copy directly
+        if not IsManagedType(T) then
+          Move(FItems[FStart+Index], result[0], RemoveableCount * SizeOf(FItems[0]))
+        else
+        begin
+          for i := FStart+Index to FStart+Index+RemoveableCount do
+            result[i] := FItems[i];
+        end;
+      end
       else
       begin
-        // 2 Kopieroperationen nötig
+        // Yes, two copy operations necessary
         RemainingCount := (Size-(FStart+Index));
-        // von Startzeiger bis Pufferende
-        Move(FItems[FStart+Index], result[0], RemainingCount * SizeOf(FItems[0]));
 
-        // von Pufferstart bis Endezeiger
+        if not IsManagedType(T) then
+          // from Startindex until buffer end
+          Move(FItems[FStart+Index], result[0], RemainingCount * SizeOf(FItems[0]))
+        else
+          CopyItems(result, FStart+Index, RemainingCount);
+
+        // from start of the buffer until end-pointer
         RemoveableCount := RemoveableCount-RemainingCount;
-        Move(FItems[0], result[RemainingCount], RemoveableCount * SizeOf(FItems[0]));
+
+        if not IsManagedType(T) then
+          Move(FItems[0], result[RemainingCount], RemoveableCount * SizeOf(FItems[0]))
+        else
+          CopyItems(result, FStart+Index, RemoveableCount);
       end;
     end
     else
@@ -773,7 +828,7 @@ begin
   end
   else
     raise EBufferEmptyException.Create('Attempt to remove an item from a '+
-                                      'completely empty buffer');
+                                       'completely empty buffer');
 end;
 
 { TObjectRingbuffer<T> --------------------------------------------------------}
@@ -886,9 +941,9 @@ procedure TObjectRingbuffer<T>.FreeOrNilItems(StartIndex, EndIndex: UInt32);
 var
   i : UInt32;
 begin
-  assert(EndIndex <= Size, 'Zu hoher Endindex angegeben. Ist: '+
-         EndIndex.ToString+' Erlaubt: '+Size.ToString);
-  assert(StartIndex <= EndIndex, 'Ungültiger Bereich angegeben: '+
+  assert(EndIndex <= Size, 'Endindex too high. Is: '+
+         EndIndex.ToString+' Allowed: '+Size.ToString);
+  assert(StartIndex <= EndIndex, 'Invalid range specified: '+
          StartIndex.ToString+'/'+EndIndex.ToString);
 
   if FOwnsObjects then
