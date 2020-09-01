@@ -19,7 +19,7 @@ unit Ringbuffer;
 interface
 
 uses
-  SysUtils;
+  SysUtils, Generics.Collections;
 
 type
   /// <summary>
@@ -76,8 +76,12 @@ type
     /// <summary>
     ///   return and parameter type for most of the operators
     /// </summary>
-    TRingbufferArray = TArray<T>; //array of T;
+    TRingbufferArray = TArray<T>;
   strict private
+    /// <summary>
+    ///   Indicates whether the ring buffer takes ownership of the instances
+    /// </summary>
+    FOwnsObjects : Boolean;
     /// <summary>
     ///   Copies items into the already allocated Dest array. Since this is
     ///   coded the naive way it is only meant for managed types where move is wrong.
@@ -95,6 +99,18 @@ type
     ///   This method expects that the parameters given are valid!
     /// </remarks>
     procedure CopyItems(var Dest: TRingbufferArray; StartIndex, Count: UInt32); inline;
+    /// <summary>
+    ///   Prototype method for freeing objects
+    /// </summary>
+    /// <param name="StartIndex">
+    ///   Index of the first item to be deleted. Must be less than <c>EndIndex</c> and in the range <c>0 .. Count - 1</c>
+    ///   . Thus wrapped buffer content cannot be deleted in one go.
+    /// </param>
+    /// <param name="EndIndex">
+    ///   Index of the last item to be deleted. Must be larger than <c>StartIndex</c> and in the range <c>0 .. Count -
+    ///   1.</c>
+    /// </param>
+    procedure FreeManagedItems(StartIndex, EndIndex: UInt32);
   strict protected
     /// <summary>
     ///   Static storage for all elements. The size is determined in the constructor.
@@ -345,6 +361,18 @@ type
     property Notify : TRingbufferNotify
       read   FNotify
       write  FNotify;
+
+    /// <summary>
+    ///   Indicates whether the ring buffer takes ownership of the instances <br />
+    /// </summary>
+    property OwnsObjects: Boolean
+      read   FOwnsObjects
+      write  FOwnsObjects;
+  end;
+
+  ITest = Interface
+  ['{ECFF1393-55E8-4DF1-93D7-6C86EFCEDAC9}']
+    procedure DoIt;
   end;
 
   /// <summary>
@@ -576,7 +604,14 @@ begin
 end;
 
 destructor TRingbuffer<T>.Destroy;
+var
+  i : Integer;
 begin
+  // prevent leaking managed items
+  if IsManagedType(T) then
+    for i := Low(FItems) to High(FItems) do
+      FItems[i] := Default(T);
+
   SetLength(FItems, 0);
 
   inherited;
@@ -829,6 +864,25 @@ begin
   else
     raise EBufferEmptyException.Create('Attempt to remove an item from a '+
                                        'completely empty buffer');
+end;
+
+procedure TRingbuffer<T>.FreeManagedItems(StartIndex, EndIndex: UInt32);
+var
+  i : UInt32;
+begin
+  assert(EndIndex <= Size, 'Endindex too high. Is: '+
+         EndIndex.ToString+' Allowed: '+Size.ToString);
+  assert(StartIndex <= EndIndex, 'Invalid range specified: '+
+         StartIndex.ToString+'/'+EndIndex.ToString);
+
+  if FOwnsObjects then
+  begin
+    for i := StartIndex to EndIndex do
+//      FreeAndNil(TObject(FItems[i]));
+  end
+  else
+    for i := StartIndex to EndIndex do
+      FItems[i] := Default(T);
 end;
 
 { TObjectRingbuffer<T> --------------------------------------------------------}
