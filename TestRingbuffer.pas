@@ -212,6 +212,8 @@ type
   TestTRingbufferString = class(BaseTestTRingbuffer)
   strict private
     FRingbuffer: TRingbuffer<string>;
+  private
+    procedure InitBuffer(var Buffer: TRingbuffer<string>.TRingbufferArray);
   public
     procedure SetUp; override;
     procedure TearDown; override;
@@ -3351,10 +3353,7 @@ var
   Item : string;
   i    : Byte;
 begin
-  SetLength(Items, FRingbuffer.Size);
-
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add(Items);
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong count');
@@ -3373,9 +3372,7 @@ var
   Items: TRingbuffer<string>.TRingbufferArray;
   i    : Byte;
 begin
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   // Buffer is completely full, but still starts at 0
   FRingbuffer.Add(Items);
@@ -3408,9 +3405,7 @@ var
   Items: TRingbuffer<string>.TRingbufferArray;
   i    : Byte;
 begin
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   // Buffer is completely full, but still starts at 0
   FRingbuffer.Add(Items);
@@ -3474,9 +3469,7 @@ var
   Items: TRingbuffer<string>.TRingbufferArray;
   i    : Byte;
 begin
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add('Item1');
   CheckAndClearEventFlags(evAdd);
@@ -3703,9 +3696,7 @@ var
 
 begin
   // Fill buffer completely
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add(Items);
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong number of items');
@@ -3726,12 +3717,9 @@ procedure TestTRingbufferString.TestRemoveArrayException;
 var
   Items       : TRingbuffer<string>.TRingbufferArray;
   ReturnValue : TRingbuffer<string>.TRingbufferArray;
-  i           : Byte;
 begin
   // Fill buffer completely
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add(Items);
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong number of items in buffer!');
@@ -3783,9 +3771,7 @@ var
   Item        : string;
 begin
   // Fill buffer completely
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i-1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
@@ -3814,9 +3800,7 @@ var
   s           : string;
 begin
   // Fill buffer completely
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add(Items);
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong number of elements in buffer');
@@ -3851,9 +3835,7 @@ var
   Item        : string;
 begin
   // Fill buffer completely
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add(Items);
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wroing number of items in buffer');
@@ -3947,9 +3929,7 @@ begin
   // Fill buffer completely, remove one item and refill and then remove all
   // items in a loop (that's the real test because there will be 1 item overflow
   // over the end of the array).
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
@@ -3984,9 +3964,7 @@ begin
   // Fill buffer completely, remove one item and refill and then remove all
   // items in a loop (that's the real test because there will be 1 item overflow
   // over the end of the array).
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
@@ -4025,9 +4003,7 @@ var
   i           : Integer;
 begin
   // Fill buffer
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add(Items);
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong item count in buffer');
@@ -4053,13 +4029,10 @@ end;
 
 procedure TestTRingbufferString.TestDeleteAll;
 var
-  Items       : TRingbuffer<string>.TRingbufferArray;
-  i           : Byte;
+  Items : TRingbuffer<string>.TRingbufferArray;
 begin
   // Fill buffer
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
@@ -4109,9 +4082,7 @@ var
   i           : Byte;
 begin
   // Fill buffer completely
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
@@ -4135,9 +4106,7 @@ var
   i           : Byte;
 begin
   // Fill buffer completely
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
@@ -4168,9 +4137,7 @@ var
   i           : Byte;
 begin
   // Fill buffer completely
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
@@ -4325,9 +4292,7 @@ var
   Item        : string;
 begin
   // Fill buffer completely
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
@@ -4356,9 +4321,7 @@ var
   s           : string;
 begin
   // Fill buffer completely
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
@@ -4392,9 +4355,7 @@ var
   Item        : string;
 begin
   // Fill buffer completely
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
@@ -4448,18 +4409,25 @@ begin
   StopExpectingException();
 end;
 
+procedure TestTRingbufferString.InitBuffer(var Buffer:TRingbuffer<string>.TRingbufferArray);
+var
+  i : Integer;
+begin
+  SetLength(Buffer, FRingbuffer.Size);
+  for i := 0 to FRingbuffer.Size-1 do
+    Buffer[i] := 'Item' + (i+1000).ToString;
+end;
+
 procedure TestTRingbufferString.TestPeekWrap1;
 var
   Items: TRingbuffer<string>.TRingbufferArray;
   i    : Byte;
   Item : string;
 begin
-  // FIll buffer completely, remove one item and refill. Then remove all items
+  // Fill buffer completely, remove one item and refill. Then remove all items
   // in a loop (the real test, because that creates an overflow of 1 item over
   // the high end of the array)
-  SetLength(Items, FRingbuffer.Size);
-  for i := 0 to FRingbuffer.Size-1 do
-    Items[i] := 'Item' + (i+1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);

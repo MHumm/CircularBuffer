@@ -493,6 +493,7 @@ procedure TRingbuffer<T>.Add(Items: TRingbufferArray);
 var
   FreeItemsAfterEnd : UInt32; // Anzahl freier Elemente zwischen Ende Marker und
                               // Ende des Arrays
+  i                 : Integer;
 begin
   assert(length(Items) > 0, 'Hinzufügen eines leeren Arrays ist nicht sinnvoll');
 
@@ -508,16 +509,34 @@ begin
       // geht derzeit auch nicht über die obere Grenze hinaus, oder muss es
       // gesplittet werden? Typecast nach Int64 um W1023 Warnung zu unterdrücken
       if (Int64(Size-FNextFree) >= length(Items)) then
-        Move(Items[0], FItems[FNextFree], length(Items) * SizeOf(Items[0]))
+      begin
+        if not IsManagedType(T) then
+          Move(Items[0], FItems[FNextFree], length(Items) * SizeOf(Items[0]))
+        else
+          for i := 0 to length(Items) - 1 do
+            FItems[FNextFree + i] := Items[i];
+      end
       else
       begin
         // restlichen Platz im Puffer berechnen
         FreeItemsAfterEnd := Size - FNextFree;
-        // von Ende-Marker bis zum Array Ende
-        Move(Items[0], FItems[FNextFree], FreeItemsAfterEnd * SizeOf(Items[0]));
-        // restliche Daten vom Anfang an
-        Move(Items[FreeItemsAfterEnd], FItems[0],
-             (UInt32(length(Items))-FreeItemsAfterEnd) * SizeOf(Items[0]));
+
+        if not IsManagedType(T) then
+        begin
+          // von Ende-Marker bis zum Array Ende
+          Move(Items[0], FItems[FNextFree], FreeItemsAfterEnd * SizeOf(Items[0]));
+          // restliche Daten vom Anfang an
+          Move(Items[FreeItemsAfterEnd], FItems[0],
+               (UInt32(length(Items))-FreeItemsAfterEnd) * SizeOf(Items[0]));
+        end
+        else
+        begin
+          for i := 0 to FreeItemsAfterEnd - 1 do
+            FItems[FNextFree + i] := Items[i];
+
+          for i := FreeItemsAfterEnd to (UInt32(length(Items))-FreeItemsAfterEnd) - 1 do
+            FItems[i] := Items[i];
+        end;
       end;
 
       // Endeindex erhöhen
@@ -660,12 +679,12 @@ var
 begin
   if (Index < Count) then
   begin
-    // Puffer läuft derzeit nicht über seine obere Grenze hinaus
+    // buffer doesn't wrap at the high array bound yet
     if ((FStart+Index) < Size) then
       result := FItems[FStart+Index]
     else
     begin
-      // um wieviel geht es über die obere Grenze hinaus?
+      // how much does the buffer exceed the upper array bounds?
       reminder := (FStart+Index)-Size;
       result   := FItems[reminder];
     end;
@@ -844,9 +863,9 @@ begin
   begin
     result := FItems[FStart];
 
-    // das Element freigeben oder den Referenzzähler erniedrigen. Kann nur in
-    // Kindklassen eine Auswirkung haben, da hier eine leere Operation
-    FreeOrNilItems(FStart, FStart);
+    // for managed types we need to free it or decrement reference counter
+    if IsManagedType(T) then
+      FreeManagedItems(FStart, FStart);
 
     // Anfangsmarker verschieben
     inc(FStart);
@@ -879,10 +898,10 @@ begin
   begin
     for i := StartIndex to EndIndex do
 //      FreeAndNil(TObject(FItems[i]));
-  end
-  else
-    for i := StartIndex to EndIndex do
-      FItems[i] := Default(T);
+  end;
+
+  for i := StartIndex to EndIndex do
+    FItems[i] := Default(T);
 end;
 
 { TObjectRingbuffer<T> --------------------------------------------------------}
