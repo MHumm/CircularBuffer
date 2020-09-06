@@ -785,6 +785,7 @@ var
   RemainingCount    : UInt32;  // Anzahl Elemente von Start bis Pufferende
   StillContainsData : Boolean; // Enthält der Puffer nach der Remove Operation
                                // immer noch Daten?
+  i                 : Integer;
 begin
   // wurden mehr Elemente angefordert als überhaupt je in den Puffer passen?
   if (RemoveCount <= Size) then
@@ -807,37 +808,50 @@ begin
       // geht der aktuelle Puffer inhalt über die obere Grenze (d.h. klappt um)?
       if ((FStart + RemoveableCount) < Size)  then
       begin
+        // Nein, also Elemente direkt kopierbar
+        if not IsManagedType(T) then
+          Move(FItems[FStart], result[0], RemoveableCount * SizeOf(FItems[0]))
+        else
+          for i := FStart to FStart + RemoveableCount - 1 do
+            result[i-FStart] := FItems[i];
+
+        inc(FStart, RemoveableCount);
+
         // die Elemente freigeben oder den Referenzzähler erniedrigen. Kann nur
         // in Kindklassen eine Auswirkung haben, da hier eine leere Operation
         if (RemoveableCount > 0) then
           FreeOrNilItems(FStart, FStart + RemoveableCount - 1);
-
-        // Nein, also Elemente direkt kopierbar
-        Move(FItems[FStart], result[0], RemoveableCount * SizeOf(FItems[0]));
-        inc(FStart, RemoveableCount);
       end
       else
       begin
         // 2 Kopieroperationen nötig
         RemainingCount := (Size-FStart);
 
+        // von Startzeiger bis Pufferende
+        if not IsManagedType(T) then
+          Move(FItems[FStart], result[0], RemainingCount * SizeOf(FItems[0]))
+        else
+          for i := FStart to FStart + RemainingCount - 1 do
+            result[i-FStart] := FItems[i];
+
         // die Elemente freigeben oder den Referenzzähler erniedrigen. Kann nur
         // in Kindklassen eine Auswirkung haben, da hier eine leere Operation
         if (RemoveableCount > 0) then
           FreeOrNilItems(FStart, FStart + RemainingCount - 1);
 
-        // von Startzeiger bis Pufferende
-        Move(FItems[FStart], result[0], RemainingCount * SizeOf(FItems[0]));
-
         // von Pufferstart bis Endezeiger
         RemoveableCount := RemoveableCount-RemainingCount;
+
+        if not IsManagedType(T) then
+          Move(FItems[0], result[RemainingCount], RemoveableCount * SizeOf(FItems[0]))
+        else
+          for i := FStart to FStart + RemoveableCount - 1 do
+            result[i-FStart] := FItems[i];
 
         // die Elemente freigeben oder den Referenzzähler erniedrigen. Kann nur
         // in Kindklassen eine Auswirkung haben, da hier eine leere Operation
         if (RemoveableCount > 0) then
           FreeOrNilItems(FStart, FStart + RemoveableCount - 1);
-
-        Move(FItems[0], result[RemainingCount], RemoveableCount * SizeOf(FItems[0]));
 
         FStart := RemoveableCount;
       end;
