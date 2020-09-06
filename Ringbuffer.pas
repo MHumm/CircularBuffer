@@ -718,6 +718,7 @@ function TRingbuffer<T>.Peek(Index, Count: UInt32): TRingbufferArray;
 var
   RemoveableCount   : UInt32;  // Number of removeable items, most times count
   RemainingCount    : UInt32;  // Number of items from Start until Pufferende
+  i                 : Integer;
 begin
   // Have more items been requested than fitting into the buffer?
   // Is the index in the valid range?
@@ -762,7 +763,8 @@ begin
         if not IsManagedType(T) then
           Move(FItems[0], result[RemainingCount], RemoveableCount * SizeOf(FItems[0]))
         else
-          CopyItems(result, RemainingCount, RemoveableCount);
+          for i := 0 to RemoveableCount - 1 do
+            result[RemainingCount + i] := FItems[i];
       end;
     end
     else
