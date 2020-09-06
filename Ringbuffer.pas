@@ -493,7 +493,7 @@ procedure TRingbuffer<T>.Add(Items: TRingbufferArray);
 var
   FreeItemsAfterEnd : UInt32; // Anzahl freier Elemente zwischen Ende Marker und
                               // Ende des Arrays
-  i                 : Integer;
+  i                 : UInt32;
 begin
   assert(length(Items) > 0, 'Hinzufügen eines leeren Arrays ist nicht sinnvoll');
 
@@ -534,8 +534,8 @@ begin
           for i := 0 to FreeItemsAfterEnd - 1 do
             FItems[FNextFree + i] := Items[i];
 
-          for i := FreeItemsAfterEnd to (UInt32(length(Items))-FreeItemsAfterEnd) - 1 do
-            FItems[i] := Items[i];
+          for i := FreeItemsAfterEnd to length(Items) - 1 do
+            FItems[i-FreeItemsAfterEnd] := Items[i];
         end;
       end;
 
@@ -718,7 +718,7 @@ function TRingbuffer<T>.Peek(Index, Count: UInt32): TRingbufferArray;
 var
   RemoveableCount   : UInt32;  // Number of removeable items, most times count
   RemainingCount    : UInt32;  // Number of items from Start until Pufferende
-  i                 : Integer;
+  i                 : UInt32;
 begin
   // Have more items been requested than fitting into the buffer?
   // Is the index in the valid range?
@@ -783,7 +783,7 @@ var
   RemainingCount    : UInt32;  // Anzahl Elemente von Start bis Pufferende
   StillContainsData : Boolean; // Enthält der Puffer nach der Remove Operation
                                // immer noch Daten?
-  i                 : Integer;
+  i                 : UInt32;
 begin
   // wurden mehr Elemente angefordert als überhaupt je in den Puffer passen?
   if (RemoveCount <= Size) then
@@ -843,13 +843,13 @@ begin
         if not IsManagedType(T) then
           Move(FItems[0], result[RemainingCount], RemoveableCount * SizeOf(FItems[0]))
         else
-          for i := FStart to FStart + RemoveableCount - 1 do
-            result[i-FStart] := FItems[i];
+          for i := 0 to RemoveableCount - 1 do
+            result[RemainingCount + i] := FItems[i];
 
         // die Elemente freigeben oder den Referenzzähler erniedrigen. Kann nur
         // in Kindklassen eine Auswirkung haben, da hier eine leere Operation
         if (RemoveableCount > 0) then
-          FreeOrNilItems(FStart, FStart + RemoveableCount - 1);
+          FreeOrNilItems(0, RemoveableCount - 1);
 
         FStart := RemoveableCount;
       end;
