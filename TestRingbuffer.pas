@@ -962,7 +962,6 @@ begin
   ReturnValue := FRingbuffer.Remove(0);
 
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Entnehmen von nix darf Puffergröße nicht ändern');
-  CheckAndClearEventFlags(evRemove);
 
   // Pufferinhalt prüfen
   for i := 0 to FRingbuffer.Size-1 do
@@ -2365,7 +2364,6 @@ begin
   ReturnValue := FRingbuffer.Remove(0);
 
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Entnehmen von nix darf Puffergröße nicht ändern');
-  CheckAndClearEventFlags(evRemove);
 
   // Pufferinhalt prüfen
   for i := 0 to FRingbuffer.Size-1 do
@@ -3781,13 +3779,12 @@ begin
   ReturnValue := FRingbuffer.Remove(0);
 
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Removing 0 items may not alter count!');
-  CheckAndClearEventFlags(evRemove);
 
   // Pufferinhalt prüfen
   for i := 0 to FRingbuffer.Size-1 do
   begin
     Item := FRingbuffer.Peek(i);
-    CheckEquals('Item' + (i-1000).ToString, Item, 'Wrong value');
+    CheckEquals('Item' + (i+1000).ToString, Item, 'Wrong value');
   end;
   CheckAndClearNoEventFlagsSet;
 end;

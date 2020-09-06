@@ -785,86 +785,91 @@ var
                                // immer noch Daten?
   i                 : UInt32;
 begin
-  // wurden mehr Elemente angefordert als überhaupt je in den Puffer passen?
-  if (RemoveCount <= Size) then
+  if (RemoveCount > 0) then
   begin
-    // Ist überhaupt was im Puffer?
-    if (Count > 0) then
+    // wurden mehr Elemente angefordert als überhaupt je in den Puffer passen?
+    if (RemoveCount <= Size) then
     begin
-      // es sind soviele Elemente im Puffer wie entfernt werden sollen
-      if (RemoveCount <= Count) then
-        RemoveableCount := RemoveCount
-      else
-        // Nein, also nur soviele entfernen wie überhaupt möglich
-        RemoveableCount := Count;
-
-      SetLength(result, RemoveableCount);
-      // wenn alle Elemente entfernt werden sollen muss Flag hinterher auf False
-      // gesetzt werden
-      StillContainsData := RemoveCount <> Count;
-
-      // geht der aktuelle Puffer inhalt über die obere Grenze (d.h. klappt um)?
-      if ((FStart + RemoveableCount) < Size)  then
+      // Ist überhaupt was im Puffer?
+      if (Count > 0) then
       begin
-        // Nein, also Elemente direkt kopierbar
-        if not IsManagedType(T) then
-          Move(FItems[FStart], result[0], RemoveableCount * SizeOf(FItems[0]))
+        // es sind soviele Elemente im Puffer wie entfernt werden sollen
+        if (RemoveCount <= Count) then
+          RemoveableCount := RemoveCount
         else
-          for i := FStart to FStart + RemoveableCount - 1 do
-            result[i-FStart] := FItems[i];
+          // Nein, also nur soviele entfernen wie überhaupt möglich
+          RemoveableCount := Count;
 
-        inc(FStart, RemoveableCount);
+        SetLength(result, RemoveableCount);
+        // wenn alle Elemente entfernt werden sollen muss Flag hinterher auf False
+        // gesetzt werden
+        StillContainsData := RemoveCount <> Count;
 
-        // die Elemente freigeben oder den Referenzzähler erniedrigen. Kann nur
-        // in Kindklassen eine Auswirkung haben, da hier eine leere Operation
-        if (RemoveableCount > 0) then
-          FreeOrNilItems(FStart, FStart + RemoveableCount - 1);
+        // geht der aktuelle Puffer inhalt über die obere Grenze (d.h. klappt um)?
+        if ((FStart + RemoveableCount) < Size)  then
+        begin
+          // Nein, also Elemente direkt kopierbar
+          if not IsManagedType(T) then
+            Move(FItems[FStart], result[0], RemoveableCount * SizeOf(FItems[0]))
+          else
+            for i := FStart to FStart + RemoveableCount - 1 do
+              result[i-FStart] := FItems[i];
+
+          inc(FStart, RemoveableCount);
+
+          // die Elemente freigeben oder den Referenzzähler erniedrigen. Kann nur
+          // in Kindklassen eine Auswirkung haben, da hier eine leere Operation
+          if (RemoveableCount > 0) then
+            FreeOrNilItems(FStart, FStart + RemoveableCount - 1);
+        end
+        else
+        begin
+          // 2 Kopieroperationen nötig
+          RemainingCount := (Size-FStart);
+
+          // von Startzeiger bis Pufferende
+          if not IsManagedType(T) then
+            Move(FItems[FStart], result[0], RemainingCount * SizeOf(FItems[0]))
+          else
+            for i := FStart to FStart + RemainingCount - 1 do
+              result[i-FStart] := FItems[i];
+
+          // die Elemente freigeben oder den Referenzzähler erniedrigen. Kann nur
+          // in Kindklassen eine Auswirkung haben, da hier eine leere Operation
+          if (RemoveableCount > 0) then
+            FreeOrNilItems(FStart, FStart + RemainingCount - 1);
+
+          // von Pufferstart bis Endezeiger
+          RemoveableCount := RemoveableCount-RemainingCount;
+
+          if not IsManagedType(T) then
+            Move(FItems[0], result[RemainingCount], RemoveableCount * SizeOf(FItems[0]))
+          else
+            for i := 0 to RemoveableCount - 1 do
+              result[RemainingCount + i] := FItems[i];
+
+          // die Elemente freigeben oder den Referenzzähler erniedrigen. Kann nur
+          // in Kindklassen eine Auswirkung haben, da hier eine leere Operation
+          if (RemoveableCount > 0) then
+            FreeOrNilItems(0, RemoveableCount - 1);
+
+          FStart := RemoveableCount;
+        end;
+
+        FContainsData := StillContainsData;
+
+        if assigned(FNotify) then
+          FNotify(RemoveCount, evRemove);
       end
       else
-      begin
-        // 2 Kopieroperationen nötig
-        RemainingCount := (Size-FStart);
-
-        // von Startzeiger bis Pufferende
-        if not IsManagedType(T) then
-          Move(FItems[FStart], result[0], RemainingCount * SizeOf(FItems[0]))
-        else
-          for i := FStart to FStart + RemainingCount - 1 do
-            result[i-FStart] := FItems[i];
-
-        // die Elemente freigeben oder den Referenzzähler erniedrigen. Kann nur
-        // in Kindklassen eine Auswirkung haben, da hier eine leere Operation
-        if (RemoveableCount > 0) then
-          FreeOrNilItems(FStart, FStart + RemainingCount - 1);
-
-        // von Pufferstart bis Endezeiger
-        RemoveableCount := RemoveableCount-RemainingCount;
-
-        if not IsManagedType(T) then
-          Move(FItems[0], result[RemainingCount], RemoveableCount * SizeOf(FItems[0]))
-        else
-          for i := 0 to RemoveableCount - 1 do
-            result[RemainingCount + i] := FItems[i];
-
-        // die Elemente freigeben oder den Referenzzähler erniedrigen. Kann nur
-        // in Kindklassen eine Auswirkung haben, da hier eine leere Operation
-        if (RemoveableCount > 0) then
-          FreeOrNilItems(0, RemoveableCount - 1);
-
-        FStart := RemoveableCount;
-      end;
-
-      FContainsData := StillContainsData;
-
-      if assigned(FNotify) then
-        FNotify(RemoveCount, evRemove);
+        SetLength(result, 0);
     end
     else
-      SetLength(result, 0);
+      raise EArgumentOutOfRangeException.Create('Too many elements requested: '+RemoveCount.ToString+
+                                                ' Max. possible number: '+Size.ToString);
   end
   else
-    raise EArgumentOutOfRangeException.Create('Too many elements requested: '+RemoveCount.ToString+
-                                              ' Max. possible number: '+Size.ToString);
+    SetLength(Result, 0);
 end;
 
 function TRingbuffer<T>.Remove: T;
