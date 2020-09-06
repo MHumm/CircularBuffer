@@ -100,17 +100,19 @@ type
     /// </remarks>
     procedure CopyItems(var Dest: TRingbufferArray; StartIndex, Count: UInt32); inline;
     /// <summary>
-    ///   Prototype method for freeing objects
+    ///   Frees all object instances in the buffer if OwnsObject is true and
+    ///   the type is an object based type
     /// </summary>
     /// <param name="StartIndex">
-    ///   Index of the first item to be deleted. Must be less than <c>EndIndex</c> and in the range <c>0 .. Count - 1</c>
-    ///   . Thus wrapped buffer content cannot be deleted in one go.
+    ///   Index of the first item to be deleted. Must be less than <c>EndIndex</c>
+    ///   and in the range <c>0 .. Count - 1</c>. Thus wrapped buffer content
+    ///   cannot be deleted in one go.
     /// </param>
     /// <param name="EndIndex">
-    ///   Index of the last item to be deleted. Must be larger than <c>StartIndex</c> and in the range <c>0 .. Count -
-    ///   1.</c>
+    ///   Index of the last item to be deleted. Must be larger than <c>StartIndex</c>
+    ///   and in the range <c>0 .. Count - 1.</c>
     /// </param>
-    procedure FreeManagedItems(StartIndex, EndIndex: UInt32);
+    procedure FreeObjectsIfOwned(StartIndex, EndIndex: UInt32);
   strict protected
     /// <summary>
     ///   Static storage for all elements. The size is determined in the constructor.
@@ -158,8 +160,7 @@ type
     /// <remarks>
     ///   The method assumes that the case <c>Tail+ Increment &gt; First</c> is already taken care of by the caller
     /// </remarks>
-{ TODO : Am Ende inline-Direktive aktivieren! }
-    procedure AdvanceNextFree(Increment: UInt32); // inline;
+    procedure AdvanceNextFree(Increment: UInt32); inline;
     /// <summary>
     ///   Prototype method for freeing objects
     /// </summary>
@@ -224,7 +225,7 @@ type
     ///   Returns the first element from the ring buffer and removes it
     /// </summary>
     /// <returns>
-    ///   Das Element aus dem Puffer welches am längsten im Puffer ist
+    ///   The element from the buffer which was longest in the buffer
     /// </returns>
     /// <exception cref="EBufferEmptyException">
     ///   buffer is empty
@@ -370,100 +371,6 @@ type
       write  FOwnsObjects;
   end;
 
-  ITest = Interface
-  ['{ECFF1393-55E8-4DF1-93D7-6C86EFCEDAC9}']
-    procedure DoIt;
-  end;
-
-  /// <summary>
-  ///   Ringpuffer for object instances with an option to take ownership of these instances. This allows to free all
-  ///   objects still present in the buffer when it is destroyed.
-  /// </summary>
-  TObjectRingbuffer<T:class> = class(TRingbuffer<T>)
-  strict private
-    /// <summary>
-    ///   Indicates whether the ring buffer takes ownership of the instances
-    /// </summary>
-    FOwnsObjects : Boolean;
-    /// <summary>
-    ///   Destroys all object instances currently in the buffer and sets the references to <c>nil</c>
-    /// </summary>
-    procedure FreeContents;
-    /// <summary>
-    ///   If <c>FOwnsObjects</c> is set all instances are destroyed and set to <c>nil</c>. If <c>FOwnsObjects</c> is
-    ///   not set and the code is running on an ARC platform target all the references are still set to <c>nil</c> to
-    ///   avoid memory leaks.
-    /// </summary>
-    procedure FreeIfOwnedOrARC;
-  strict protected
-    /// <summary>
-    ///   Destroys all instances in a given range of the buffer and/or sets its references to nil.
-    /// </summary>
-    /// <param name="StartIndex">
-    ///   Index of the first item to be deleted. Must be less than <c>EndIndex</c> and in the range <c>0 .. Count - 1</c>
-    ///   . Thus wrapped buffer content cannot be deleted in one go.
-    /// </param>
-    /// <param name="EndIndex">
-    ///   Index of the last item to be deleted. Must be larger than <c>StartIndex</c> and in the range <c>0 .. Count -1</c>
-    ///   .
-    /// </param>
-    /// <remarks>
-    ///   If <c>FOwnsObjects</c> is set all instances are destroyed and its references set to <c>nil</c>, otherwise
-    ///   only the references are set to <c>nil</c>. The latter will decrement the reference count on ARC platforms to
-    ///   avoid memory leaks.
-    /// </remarks>
-    procedure FreeOrNilItems(StartIndex, EndIndex: UInt32); override;
-  public
-    /// <summary>
-    ///   Creates the buffer with the given size
-    /// </summary>
-    /// <param name="Size">
-    ///   Number of items the buffer can hold
-    /// </param>
-    /// <param name="OwnsObjects">
-    ///   True if the buffer shall take ownership over the instances
-    /// </param>
-    constructor Create(Size: UInt32; OwnsObjects: Boolean = false); overload;
-    /// <summary>
-    ///   Frees all remaining object instances if <c>OwnsObjects</c> is set.
-    /// </summary>
-    destructor  Destroy; override;
-
-    /// <summary>
-    ///   Removes the given number of elements from the buffers <br />
-    /// </summary>
-    /// <param name="Count">
-    ///   Number of elements to be deleted
-    /// </param>
-    /// <exception cref="EArgumentOutOfRangeException">
-    ///   Count exceeds buffer size <br />
-    /// </exception>
-    /// <remarks>
-    ///   <para>
-    ///     If <c>OwnsObjects</c> is set all instances are destroyed.
-    ///   </para>
-    ///   <para>
-    ///     If more elements are to be deleted than are available in the buffer, the buffer is cleared. <br /><br />
-    ///     If more elements are to be deleted than the capacity of the buffer an <b>EArgumentOutOfRangeException</b>
-    ///     is raised. <br />
-    ///   </para>
-    /// </remarks>
-    procedure   Delete(Count: UInt32); override;
-    /// <summary>
-    ///   Clears the buffer and initializes Head and Tail. If <c>OwnsObjects</c> is set all object instances are
-    ///   destroyed. <br />
-    /// </summary>
-    procedure   Clear; override;
-
-    /// <summary>
-    ///   Indicates whether the ring buffer takes ownership of the instances <br />
-    /// </summary>
-    property OwnsObjects: Boolean
-      read   FOwnsObjects
-      write  FOwnsObjects;
-  end;
-
-
 implementation
 
 { TRingbuffer<T> }
@@ -566,22 +473,38 @@ begin
 end;
 
 procedure TRingbuffer<T>.Clear;
+var
+  i : Integer;
 begin
   FStart        := 0;
   FNextFree     := 0;
   FContainsData := false;
+
+  FreeObjectsIfOwned(FStart, Size - 1);
+
+  if (Count > Count - (Size -FStart)) then
+    FreeObjectsIfOwned(0, Count - (Size -FStart));
+
+  if IsManagedType(T) then
+    for i := 0 to High(FItems) do
+      FItems[i] := Default(T);
 
   if assigned(FNotify) then
     FNotify(0, evRemove);
 end;
 
 constructor TRingbuffer<T>.Create(Size: UInt32);
+var
+  i : Integer;
 begin
   assert(Size >= 2, 'Puffer mit weniger als 2 Elementen sind nicht sinnvoll!');
 
   inherited Create;
 
   SetLength(FItems, Size);
+  for i :=  0 to High(FItems) do
+    FItems[i] := Default(T);
+
   FStart        := 0;
   FNextFree     := 0;
   FContainsData := false;
@@ -591,6 +514,7 @@ end;
 procedure TRingbuffer<T>.Delete(Count: UInt32);
 var
   Remaining : UInt32; // Verbleibende Speicherplätze bis zur oberen Array Grenze
+  i         : Integer;
 begin
   if (Count <= Size) then
   begin
@@ -600,13 +524,42 @@ begin
       Remaining := Size - FStart;
       // Pufferinhalt geht nicht über obere Array Grenze hinaus?
       if (Count < Remaining) then
-        // Startmarker verschieben
-        FStart := FStart + Count
+      begin
+        if (Count > 0) then
+        begin
+          if IsManagedType(T) then
+            for i := FStart to FStart + Count - 1 do
+              FItems[i] := Default(T);
+
+          FreeObjectsIfOwned(FStart, FStart + Count - 1);
+
+          // Startmarker verschieben
+          FStart := FStart + Count;
+        end;
+      end
       else
-        // Anzahl der Positionen um die insgesamt verschoben werden soll - Anzahl
-        // der Positionen bis zum oberen Array Ende abziehen ergibt neue
-        // Startposition vom Array-Anfang aus gesehen.
-        FStart := (Count - Remaining);
+      begin
+        if (Count > 0) then
+        begin
+          FreeObjectsIfOwned(FStart, FStart + Remaining - 1);
+          FreeObjectsIfOwned(0, Count - Remaining - 1);
+
+          if IsManagedType(T) then
+          begin
+            // clear until the high end
+            for i := FStart to Size - 1 do
+              FItems[i] := Default(T);
+
+            for i := 0 to Count - Remaining - 1 do
+              FItems[i] := Default(T);
+          end;
+
+          // Anzahl der Positionen um die insgesamt verschoben werden soll - Anzahl
+          // der Positionen bis zum oberen Array Ende abziehen ergibt neue
+          // Startposition vom Array-Anfang aus gesehen.
+          FStart := (Count - Remaining);
+        end;
+      end;
 
       // nur benachrichtigen wenn überhaupt was gelöscht werden sollte
       if assigned(FNotify) and (Count > 0) then
@@ -623,13 +576,8 @@ begin
 end;
 
 destructor TRingbuffer<T>.Destroy;
-var
-  i : Integer;
 begin
-  // prevent leaking managed items
-  if IsManagedType(T) then
-    for i := Low(FItems) to High(FItems) do
-      FItems[i] := Default(T);
+  FreeObjectsIfOwned(0, Size);
 
   SetLength(FItems, 0);
 
@@ -813,14 +761,14 @@ begin
             Move(FItems[FStart], result[0], RemoveableCount * SizeOf(FItems[0]))
           else
             for i := FStart to FStart + RemoveableCount - 1 do
+            begin
               result[i-FStart] := FItems[i];
+              // Take care of the reference counting by setting it to default
+              // for the type
+              FItems[i]        := Default(T);
+            end;
 
           inc(FStart, RemoveableCount);
-
-          // die Elemente freigeben oder den Referenzzähler erniedrigen. Kann nur
-          // in Kindklassen eine Auswirkung haben, da hier eine leere Operation
-          if (RemoveableCount > 0) then
-            FreeOrNilItems(FStart, FStart + RemoveableCount - 1);
         end
         else
         begin
@@ -832,12 +780,12 @@ begin
             Move(FItems[FStart], result[0], RemainingCount * SizeOf(FItems[0]))
           else
             for i := FStart to FStart + RemainingCount - 1 do
+            begin
               result[i-FStart] := FItems[i];
-
-          // die Elemente freigeben oder den Referenzzähler erniedrigen. Kann nur
-          // in Kindklassen eine Auswirkung haben, da hier eine leere Operation
-          if (RemoveableCount > 0) then
-            FreeOrNilItems(FStart, FStart + RemainingCount - 1);
+              // Take care of the reference counting by setting it to default
+              // for the type
+              FItems[i]        := Default(T);
+            end;
 
           // von Pufferstart bis Endezeiger
           RemoveableCount := RemoveableCount-RemainingCount;
@@ -846,12 +794,12 @@ begin
             Move(FItems[0], result[RemainingCount], RemoveableCount * SizeOf(FItems[0]))
           else
             for i := 0 to RemoveableCount - 1 do
+            begin
               result[RemainingCount + i] := FItems[i];
-
-          // die Elemente freigeben oder den Referenzzähler erniedrigen. Kann nur
-          // in Kindklassen eine Auswirkung haben, da hier eine leere Operation
-          if (RemoveableCount > 0) then
-            FreeOrNilItems(0, RemoveableCount - 1);
+              // Take care of the reference counting by setting it to default
+              // for the type
+              FItems[i]                  := Default(T);
+            end;
 
           FStart := RemoveableCount;
         end;
@@ -883,7 +831,7 @@ begin
 
     // for managed types we need to free it or decrement reference counter
     if IsManagedType(T) then
-      FreeManagedItems(FStart, FStart);
+      FItems[FStart] := Default(T);
 
     // Anfangsmarker verschieben
     inc(FStart);
@@ -903,7 +851,7 @@ begin
                                        'completely empty buffer');
 end;
 
-procedure TRingbuffer<T>.FreeManagedItems(StartIndex, EndIndex: UInt32);
+procedure TRingbuffer<T>.FreeObjectsIfOwned(StartIndex, EndIndex: UInt32);
 var
   i : UInt32;
 begin
@@ -912,139 +860,14 @@ begin
   assert(StartIndex <= EndIndex, 'Invalid range specified: '+
          StartIndex.ToString+'/'+EndIndex.ToString);
 
-  if FOwnsObjects then
+  if FOwnsObjects and (GetTypeKind(T) = tkClass) then
   begin
     for i := StartIndex to EndIndex do
-//      FreeAndNil(TObject(FItems[i]));
+      PObject(@FItems[i])^.Free;
+
+    for i := StartIndex to EndIndex do
+      FItems[i] := Default(T);
   end;
-
-  for i := StartIndex to EndIndex do
-    FItems[i] := Default(T);
-end;
-
-{ TObjectRingbuffer<T> --------------------------------------------------------}
-
-procedure TObjectRingbuffer<T>.Clear;
-begin
-  // Objekte ggf. freigeben oder bei ARC Referenzzähler erniedrigen um
-  // Speicherlecks zu vermeiden
-  FreeIfOwnedOrARC;
-
-  inherited;
-end;
-
-constructor TObjectRingbuffer<T>.Create(Size: UInt32; OwnsObjects: Boolean);
-begin
-  inherited Create(Size);
-
-  FOwnsObjects := OwnsObjects;
-end;
-
-procedure TObjectRingbuffer<T>.Delete(Count: UInt32);
-begin
-  // Sicherheitsprüfung aus dem geerbten Delete muss hier leider dupliziert
-  // werden, da sonst ggf. Elemente freigegeben werden, obwohl Delete später
-  // eine Exception auslöst, weil mehr Elemente gelöscht werden sollten als im
-  // Puffer sind!
-  if (Count <= Size) then
-  begin
-    // Freigaberoutine berücksichtigt kein Überlauf über obere Array Grenze, aber
-    // FOwnsObjects wird automatisch berücksichtigt
-    if (FStart + Count <= Size) then
-      FreeOrNilItems(FStart, FStart + Count)
-    else
-    begin
-      // Elemente von Start bis zur oberen Array-Grenze behandeln
-      FreeOrNilItems(FStart, Size);
-      // Rest ausrechnen und behandeln
-      FreeOrNilItems(0, (Count - ((Size - FStart) + 1)) - 1);
-    end;
-
-    inherited;
-  end
-  else
-    raise EArgumentOutOfRangeException.Create('Cannot delete more that buffer '+
-                                              'size elements. Size: '+Size.ToString+
-                                              ' Elements to be deleted: '+Count.ToString);
-end;
-
-destructor TObjectRingbuffer<T>.Destroy;
-begin
-  // Objekte ggf. freigeben oder bei ARC Referenzzähler erniedrigen um
-  // Speicherlecks zu vermeiden
-  FreeIfOwnedOrARC;
-
-  inherited;
-end;
-
-procedure TObjectRingbuffer<T>.FreeIfOwnedOrARC;
-begin
-  if FOwnsObjects then
-    FreeContents
-  else
-  begin
-    // wenn ARC vorhanden alle Objektreferenzen nillen, da sonst möglicherweise
-    // Speicherlecks entstehen.
-    {$IFDEF AUTOREFCOUNT}
-    FreeContents;
-    {$ENDIF}
-  end;
-end;
-
-procedure TObjectRingbuffer<T>.FreeContents;
-var
-  x : T;
-  i : Integer;
-begin
-  // es dürfen nur die Objekte freigegeben werden, die im derzeit belegten Teil
-  // des Ringpuffers gespeichert sind.
-
-  // belegter Teil des Puffers geht derzeit nicht über die Grenze hinaus
-  if (FStart < FNextFree) then
-  begin
-    for i := FStart to FNextFree do
-      if assigned(FItems[i]) then
-        FreeAndNil(FItems[i]);
-  end
-  else
-    if (FStart > FNextFree) then
-    begin
-      // Bis zum oberen Ende freigeben
-      for i := FStart to High(FItems) do
-        if assigned(FItems[i]) then
-          FreeAndNil(FItems[i]);
-
-      // vom Start bis zum Ende Marker freigeben
-      for i := 0 to FNextFree do
-        if assigned(FItems[i]) then
-          FreeAndNil(FItems[i]);
-    end
-    else
-      // FStart = FNextFree, d.h. Puffer entweder ganz leer oder ganz voll!
-      // Wenn FContainsData = true, ist der Puffer ganz voll
-      if FContainsData then
-        for i := 0 to high(FItems) do
-          if assigned(FItems[i]) then
-            FreeAndNil(FItems[i]);
-end;
-
-procedure TObjectRingbuffer<T>.FreeOrNilItems(StartIndex, EndIndex: UInt32);
-var
-  i : UInt32;
-begin
-  assert(EndIndex <= Size, 'Endindex too high. Is: '+
-         EndIndex.ToString+' Allowed: '+Size.ToString);
-  assert(StartIndex <= EndIndex, 'Invalid range specified: '+
-         StartIndex.ToString+'/'+EndIndex.ToString);
-
-  if FOwnsObjects then
-  begin
-    for i := StartIndex to EndIndex do
-      FreeAndNil(FItems[i]);
-  end
-  else
-    for i := StartIndex to EndIndex do
-      FItems[i] := nil;
 end;
 
 end.

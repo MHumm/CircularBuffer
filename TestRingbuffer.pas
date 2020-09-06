@@ -284,30 +284,6 @@ type
     constructor Create(Name: string; Age, NumberOfChildren: Integer);
   end;
 
-  /// <summary>
-  ///   Testmethoden für Klasse TObjectRingbuffer. Da die Grundlagen bereits in
-  ///   den anderen Testklassen getestet werden werden hier nur noch die für die
-  ///   Speicherverwaltung nötigen Details getestet.
-  /// </summary>
-  TestTObjectRingbuffer = class(BaseTestTRingbuffer)
-  strict private
-    /// <summary>
-    ///   Zu testende Objektinstanz. Achtung: OwnsObjects muss bei Bedarf in
-    ///   jedem Test selbst gesetzt werden!
-    /// </summary>
-    FObjectRingbuffer: TObjectRingbuffer<TTestItem>;
-  public
-    procedure SetUp; override;
-    procedure TearDown; override;
-  published
-    procedure TestCreate;
-
-    procedure TestPeek;
-    procedure TestRemove;
-    procedure TestDelete;
-    procedure TestClear;
-  end;
-
 implementation
 
 procedure BaseTestTRingbuffer.CheckAndClearEventFlags(EventType: TRingbufferEventType);
@@ -3098,74 +3074,6 @@ begin
   CheckAndClearNoEventFlagsSet;
 end;
 
-{ TestTRingbuffer -------------------------------------------------------------}
-
-procedure TestTObjectRingbuffer.SetUp;
-begin
-  FObjectRingbuffer        := TObjectRingbuffer<TTestItem>.Create(5);
-  FObjectRingbuffer.Notify := OnNotify;
-end;
-
-procedure TestTObjectRingbuffer.TearDown;
-begin
-  FObjectRingbuffer.Free;
-  FObjectRingbuffer := nil;
-end;
-
-procedure TestTObjectRingbuffer.TestClear;
-begin
-
-end;
-
-procedure TestTObjectRingbuffer.TestCreate;
-//var
-//  OwnsObjects: Boolean;
-//  Size: Cardinal;
-begin
-//
-end;
-
-procedure TestTObjectRingbuffer.TestDelete;
-begin
-
-end;
-
-procedure TestTObjectRingbuffer.TestPeek;
-var
-  Items     : TRingbuffer<TTestItem>.TRingbufferArray;
-  PeekItems : TRingbuffer<TTestItem>.TRingbufferArray;
-  i         : Integer;
-begin
-  FObjectRingbuffer.OwnsObjects := true;
-
-  // Testdaten vorbereiten
-  SetLength(Items, 5);
-  for i := 0 to length(Items)-1 do
-    Items[i] := TTestItem.Create('Testname'+i.ToString, 30+i, 2);
-
-  FObjectRingbuffer.Add(Items);
-
-  // Daten mittels Peek holen, prüfen und Peek-Array nicht freigeben
-  PeekItems := FObjectRingbuffer.Peek(0, 3);
-
-  for i := Low(PeekItems) to High(PeekItems) do
-  begin
-    CheckEquals('Testname'+i.ToString, PeekItems[i].Name, 'falscher Name');
-    CheckEquals(30+i,                  PeekItems[i].Age,  'falsches Alter');
-    CheckEquals(1, PeekItems[i].AgeChildren[0], 'falsches Alter Kind 1');
-    CheckEquals(2, PeekItems[i].AgeChildren[1], 'falsches Alter Kind 2');
-  end;
-
-  // Speicher freigeben
-  SetLength(Items, 0);
-  SetLength(PeekItems, 0);
-end;
-
-procedure TestTObjectRingbuffer.TestRemove;
-begin
-
-end;
-
 { TTestItem }
 
 constructor TTestItem.Create(Name: string; Age, NumberOfChildren: Integer);
@@ -4498,6 +4406,5 @@ initialization
   RegisterTest(TestTRingbuffer.Suite);
   RegisterTest(TestTRingbufferInt.Suite);
   RegisterTest(TestTRingbufferString.Suite);
-  RegisterTest(TestTObjectRingbuffer.Suite);
 end.
 
