@@ -3305,9 +3305,7 @@ var
 begin
   FRingbuffer.Notify := nil;
 
-  SetLength(Items, 5);
-  for i := 0 to High(Items) do
-    Items[i] := 'Item' + (i + 1000).ToString;
+  InitBuffer(Items);
 
   FRingbuffer.Add(Items);
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count,     'Count is wrong ('+

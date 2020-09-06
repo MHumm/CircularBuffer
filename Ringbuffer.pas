@@ -806,7 +806,7 @@ begin
         StillContainsData := RemoveCount <> Count;
 
         // geht der aktuelle Puffer inhalt über die obere Grenze (d.h. klappt um)?
-        if ((FStart + RemoveableCount) < Size)  then
+        if ((FStart + RemoveableCount) <= Size)  then
         begin
           // Nein, also Elemente direkt kopierbar
           if not IsManagedType(T) then
