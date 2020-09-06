@@ -744,8 +744,9 @@ begin
           Move(FItems[FStart+Index], result[0], RemoveableCount * SizeOf(FItems[0]))
         else
         begin
-          for i := FStart+Index to FStart+Index+RemoveableCount do
-            result[i] := FItems[i];
+          if RemoveableCount > 0 then
+            for i := FStart+Index to FStart+Index+RemoveableCount do
+              result[i] := FItems[i];
         end;
       end
       else
@@ -765,7 +766,7 @@ begin
         if not IsManagedType(T) then
           Move(FItems[0], result[RemainingCount], RemoveableCount * SizeOf(FItems[0]))
         else
-          CopyItems(result, FStart+Index, RemoveableCount);
+          CopyItems(result, 0, RemoveableCount);
       end;
     end
     else
