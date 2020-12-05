@@ -577,7 +577,7 @@ end;
 
 destructor TRingbuffer<T>.Destroy;
 begin
-  FreeObjectsIfOwned(0, Size);
+  FreeObjectsIfOwned(0, Size-1);
 
   SetLength(FItems, 0);
 

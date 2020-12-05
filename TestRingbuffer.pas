@@ -99,7 +99,7 @@ type
     procedure TestAddArrayWrap3;
     procedure TestAddArrayEndLessStart1;
     procedure TestAddArrayEndLessStart3;
-    procedure TestAddArrayEnptyArray;
+    procedure TestAddArrayEmptyArray;
     procedure TestAddArrayException;
 
     procedure TestClear;
@@ -164,7 +164,7 @@ type
     procedure TestAddArrayWrap3;
     procedure TestAddArrayEndLessStart1;
     procedure TestAddArrayEndLessStart3;
-    procedure TestAddArrayEnptyArray;
+    procedure TestAddArrayEmptyArray;
     procedure TestAddArrayException;
 
     procedure TestClear;
@@ -231,7 +231,7 @@ type
     procedure TestAddArrayWrap3;
     procedure TestAddArrayEndLessStart1;
     procedure TestAddArrayEndLessStart3;
-    procedure TestAddArrayEnptyArray;
+    procedure TestAddArrayEmptyArray;
     procedure TestAddArrayException;
 
     procedure TestClear;
@@ -282,6 +282,74 @@ type
     AgeChildren : array of Integer;
 
     constructor Create(Name: string; Age, NumberOfChildren: Integer);
+  end;
+
+  /// <summary>
+  ///   Testmethoden für Klasse TObjectRingbuffer. Da die Grundlagen bereits in
+  ///   den anderen Testklassen getestet werden werden hier nur noch die für die
+  ///   Speicherverwaltung nötigen Details getestet.
+  /// </summary>
+  TestRingbufferObjects = class(BaseTestTRingbuffer)
+  strict private
+    FRingbuffer: TRingbuffer<TTestItem>;
+  private
+    procedure InitBuffer(var Buffer: TRingbuffer<TTestItem>.TRingbufferArray);
+  public
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestCreate;
+
+    procedure TestAddWhenEmpty;
+    procedure TestAddWrapAround;
+    procedure TestAddException;
+
+    procedure TestAddArrayWhenEmpty;
+    procedure TestAddArrayWhenEmptyFull;
+    procedure TestAddArrayPartiallyFilled;
+    procedure TestAddArrayWrap1;
+    procedure TestAddArrayWrap3;
+    procedure TestAddArrayEndLessStart1;
+    procedure TestAddArrayEndLessStart3;
+    procedure TestAddArrayEmptyArray;
+    procedure TestAddArrayException;
+
+    procedure TestClear;
+
+    procedure TestRemove;
+    procedure TestRemoveWrap1;
+    procedure TestRemoveWrap3;
+    procedure TestRemoveException;
+    procedure TestRemoveArray;
+    procedure TestRemoveArrayWrap1;
+    procedure TestRemoveArrayWrap3;
+    procedure TestRemoveArrayException;
+    procedure TestRemoveArraySize0;
+
+    procedure TestPeek;
+    procedure TestPeekWrap1;
+    procedure TestPeekWrap3;
+    procedure TestPeekException;
+    procedure TestPeekArray;
+    procedure TestPeekArrayWrap1;
+    procedure TestPeekArrayWrap3;
+    procedure TestPeekArrayException;
+    procedure TestPeekArraySize0;
+
+    procedure TestDelete;
+    procedure TestDeleteWrap1;
+    procedure TestDeleteWrap3;
+    procedure TestDeleteException;
+    procedure TestDeleteSize0;
+    procedure TestDeleteAll;
+
+    // Tests ohne Benachrichtigungsmechanismus
+    procedure TestAddNoNotify;
+    procedure TestArrayAddNoNotify;
+    procedure TestRemoveNoNotify;
+    procedure TestRemoveArrayNoNotify;
+    procedure TestDeleteNoNotify;
+    procedure TestClearNoNotify;
   end;
 
 implementation
@@ -585,7 +653,7 @@ begin
   CheckEquals(200, FRingbuffer.Peek(4), 'Später hinzugefügtes Element hat falschen Wert');
 end;
 
-procedure TestTRingbuffer.TestAddArrayEnptyArray;
+procedure TestTRingbuffer.TestAddArrayEmptyArray;
 var
   Items: TRingbuffer<Byte>.TRingbufferArray;
 begin
@@ -1985,7 +2053,7 @@ begin
   CheckAndClearNoEventFlagsSet;
 end;
 
-procedure TestTRingbufferInt.TestAddArrayEnptyArray;
+procedure TestTRingbufferInt.TestAddArrayEmptyArray;
 var
   Items: TRingbuffer<Integer>.TRingbufferArray;
 begin
@@ -3343,7 +3411,7 @@ begin
   CheckAndClearNoEventFlagsSet;
 end;
 
-procedure TestTRingbufferString.TestAddArrayEnptyArray;
+procedure TestTRingbufferString.TestAddArrayEmptyArray;
 var
   Items: TRingbuffer<string>.TRingbufferArray;
 begin
@@ -4401,10 +4469,1349 @@ begin
   CheckAndClearNoEventFlagsSet;
 end;
 
+{ TestRingbufferObjects }
+
+procedure TestRingbufferObjects.InitBuffer(
+  var Buffer: TRingbuffer<TTestItem>.TRingbufferArray);
+var
+  i : Integer;
+begin
+  SetLength(Buffer, FRingbuffer.Size);
+  for i := 0 to FRingbuffer.Size-1 do
+    Buffer[i] := TTestItem.Create('Item' + (i+1000).ToString, i, i + Integer(FRingbuffer.Size));
+end;
+
+procedure TestRingbufferObjects.SetUp;
+begin
+  FRingbuffer             := TRingbuffer<TTestItem>.Create(5);
+  FRingbuffer.Notify      := OnNotify;
+  FRingbuffer.OwnsObjects := true;
+  ClearEventFlags;
+end;
+
+procedure TestRingbufferObjects.TearDown;
+begin
+  FRingbuffer.Free;
+  FRingbuffer := nil;
+end;
+
+procedure TestRingbufferObjects.TestAddArrayEndLessStart1;
+var
+  Items: TRingbuffer<TTestItem>.TRingbufferArray;
+  i    : Byte;
+begin
+  InitBuffer(Items);
+
+  // Buffer is completely full, but still starts at 0
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+
+  for i := 0 to FRingbuffer.Size-1 do
+    CheckEquals('Item' + (i+1000).ToString, FRingbuffer.Peek(i).Name, 'Wrong value in buffer');
+
+  // remove 1 item, start is 1 now and the end pointer still 0 and thus
+  // end index < start index
+  FRingbuffer.Remove;
+  CheckAndClearEventFlags(evRemove);
+
+  // Add one single element as array
+  SetLength(Items, 1);
+  Items[0].Name := 'Item-100';
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+
+  for i := 0 to FRingbuffer.Size-2 do
+    CheckEquals('Item' + (i+1+1000).ToString, FRingbuffer.Peek(i).Name, 'Wrong value in buffer');
+  // check item added later
+  CheckEquals('Item-100', FRingbuffer.Peek(FRingbuffer.Size-1).Name, 'Item added later has wrong value');
+  CheckAndClearNoEventFlagsSet;
+end;
+
+procedure TestRingbufferObjects.TestAddArrayEndLessStart3;
+var
+  Items: TRingbuffer<TTestItem>.TRingbufferArray;
+  i    : Byte;
+begin
+  InitBuffer(Items);
+
+  // Buffer is completely full, but still starts at 0
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+
+  for i := 0 to FRingbuffer.Size-1 do
+    CheckEquals('Item' + (i+1000).ToString, FRingbuffer.Peek(i).Name, 'Wrong value in buffer');
+
+  // Remove 3 elements, start is 3 now and end index still 0
+  // and thus end index < start index
+  FRingbuffer.Remove;
+  FRingbuffer.Remove;
+  FRingbuffer.Remove;
+  CheckAndClearEventFlags(evRemove);
+
+  // add 3 items
+  SetLength(Items, FRingbuffer.Size-2);
+  Items[0].Name := 'Item10000';
+  Items[1].Name := 'Item15000';
+  Items[2].Name := 'Item20000';
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+
+  for i := 0 to 1 do
+    CheckEquals('Item'+(i+3+1000).ToString, FRingbuffer.Peek(i).Name, 'Wrong value in buffer');
+  // check items added later
+  CheckEquals('Item10000', FRingbuffer.Peek(2).Name, 'Item added later has wrong value');
+  CheckEquals('Item15000', FRingbuffer.Peek(3).Name, 'Item added later has wrong value');
+  CheckEquals('Item20000', FRingbuffer.Peek(4).Name, 'Item added later has wrong value');
+  CheckAndClearNoEventFlagsSet;
+end;
+
+procedure TestRingbufferObjects.TestAddArrayEmptyArray;
+var
+  Items: TRingbuffer<TTestItem>.TRingbufferArray;
+begin
+  CheckEquals(0, FRingbuffer.Count, 'Buffer needs to be empty');
+
+  // Tests adding a complete array
+  // This test is meant to test a debug build with assertions turned on
+  SetLength(Items, 0);
+
+  // Check that adding too many items raises an exception.
+  // Both breakpoints are here on purpose and the properties of those have
+  // been defined in such a way, that the IDE will not stop due to exceptions
+  // between those. It will not stop on these breakpoints either.
+  // The test whether the exception raises still works!
+  StartExpectingException(EAssertionFailed);
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+
+  StopExpectingException();
+
+  CheckEquals(0, FRingbuffer.Count, 'Buffer must still be empty after adding nothing');
+end;
+
+procedure TestRingbufferObjects.TestAddArrayException;
+var
+  Items: TRingbuffer<TTestItem>.TRingbufferArray;
+  i    : Byte;
+begin
+{ TODO : This test produces some memory leak, not sure how to fix }
+  InitBuffer(Items);
+
+  FRingbuffer.Add(TTestItem.Create('Item1000', 50, 3));
+  CheckAndClearEventFlags(evAdd);
+
+  // Check that adding too many items raises an exception.
+  // Both breakpoints are here on purpose and the properties of those have
+  // been defined in such a way, that the IDE will not stop due to exceptions
+  // between those. It will not stop on these breakpoints either.
+  // The test whether the exception raises still works!
+  StartExpectingException(EBufferFullException);
+
+  // Add some array which does not fit in due to not enough available space
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+
+  StopExpectingException();
+
+//  for i := 0 to length(Items)-1 do
+//    Items[i].Free;
+
+  // fill up buffer "manually"
+  for i := 2 to FRingbuffer.Size do
+    FRingbuffer.Add(TTestItem.Create('Item' + i.ToString, 50, i));
+
+  CheckAndClearEventFlags(evAdd);
+
+  // remove the first element from a completely full buffer
+  FRingbuffer.Remove.Free;
+  CheckAndClearEventFlags(evRemove);
+  // Now end index is smaller start index and space for one element is available
+  // free the no logner used items
+  for i := 2 to length(Items)-1 do
+    Items[i].Free;
+
+  SetLength(Items, 2);
+  Items[0].Name := 'Item10';
+  Items[1].Name := 'Item11';
+
+  // Check that adding too many items raises an exception.
+  // Both breakpoints are here on purpose and the properties of those have
+  // been defined in such a way, that the IDE will not stop due to exceptions
+  // between those. It will not stop on these breakpoints either.
+  // The test whether the exception raises still works!
+  StartExpectingException(EBufferFullException);
+
+  // Add some array which does not fit in due to not enough available space
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+
+  StopExpectingException();
+
+  for i := 0 to length(Items)-1 do
+    Items[i].Free;
+end;
+
+procedure TestRingbufferObjects.TestAddArrayPartiallyFilled;
+var
+  Items: TRingbuffer<TTestItem>.TRingbufferArray;
+  i    : Byte;
+begin
+  FRingbuffer.Add(TTestItem.Create('Item100000', 60, 2));
+  CheckAndClearEventFlags(evAdd);
+
+  SetLength(Items, 1);
+  Items[0] := TTestItem.Create('Item100001', 70, 3);
+  FRingbuffer.Add(Items);
+
+  CheckEquals(2, FRingbuffer.Count, 'Wrong number of items in the buffer');
+  for i := 0 to 1 do
+    CheckEquals('Item'+(i+100000).ToString, FRingbuffer.Peek(i).Name,
+                'Wrong value is in the buffer');
+
+  // Puffer weiter füllen
+  SetLength(Items, 2);
+  Items[0] := TTestItem.Create('Item100002', 80, 4);
+  Items[1] := TTestItem.Create('Item100003', 90, 5);
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+
+  CheckEquals(4, FRingbuffer.Count, 'Wrong number of items in the buffer2');
+  for i := 0 to 3 do
+    CheckEquals('Item'+(i+100000).ToString, FRingbuffer.Peek(i).Name,
+                'Wrong value is in the buffer2');
+  CheckAndClearNoEventFlagsSet;
+end;
+
+procedure TestRingbufferObjects.TestAddArrayWhenEmpty;
+var
+  Items: TRingbuffer<TTestItem>.TRingbufferArray;
+  Item : TTestItem;
+  i    : Byte;
+begin
+  SetLength(Items, 3);
+  Items[0] := TTestItem.Create('Item1000', 10, 0);
+  Items[1] := TTestItem.Create('Item1001', 20, 1);
+  Items[2] := TTestItem.Create('Item1002', 30, 2);
+
+  FRingbuffer.Add(Items);
+  CheckEquals(3, FRingbuffer.Count, 'Wrong count');
+  CheckAndClearEventFlags(evAdd);
+
+  for i := 0 to 2 do
+  begin
+    Item := FRingbuffer.Peek(i);
+    CheckEquals('Item' + (i+1000).ToString, Item.Name, 'Wrong value in buffer');
+  end;
+  CheckAndClearNoEventFlagsSet;
+end;
+
+procedure TestRingbufferObjects.TestAddArrayWhenEmptyFull;
+var
+  Items: TRingbuffer<TTestItem>.TRingbufferArray;
+  Item : TTestItem;
+  i    : Byte;
+begin
+  InitBuffer(Items);
+
+  FRingbuffer.Add(Items);
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong count');
+  CheckAndClearEventFlags(evAdd);
+
+  for i := 0 to FRingbuffer.Size-1 do
+  begin
+    Item := FRingbuffer.Peek(i);
+    CheckEquals('Item' + (i+1000).ToString, Item.Name, 'Wrong value in buffer');
+  end;
+  CheckAndClearNoEventFlagsSet;
+end;
+
+procedure TestRingbufferObjects.TestAddArrayWrap1;
+var
+  Items: TRingbuffer<TTestItem>.TRingbufferArray;
+  i    : Byte;
+begin
+  // Test overflow of one item
+  FRingbuffer.Add(TTestItem.Create('Item1000', 10, 1));
+  FRingbuffer.Add(TTestItem.Create('Item1001', 15, 2));
+  CheckAndClearEventFlags(evAdd);
+  // remove first entry again. Start index points to 2nd item, 1st position is free
+  FRingbuffer.Remove.Free;
+  CheckAndClearEventFlags(evRemove);
+
+  SetLength(Items, FRingbuffer.Size-1);
+  for i := 0 to FRingbuffer.Size-2 do
+    Items[i] := TTestItem.Create('Item' + (i+1002).ToString, i+30, i);;
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong number of items in the buffer');
+
+  for i := 0 to FRingbuffer.Count-1 do
+    CheckEquals('Item' + (i+1001).ToString, FRingbuffer.Peek(i).Name, 'Wrong value is in the buffer');
+end;
+
+procedure TestRingbufferObjects.TestAddArrayWrap3;
+var
+  Items: TRingbuffer<TTestItem>.TRingbufferArray;
+  i    : Byte;
+begin
+  // Test with 3 items overflow. Fill buffer so far that adding 4 items leads to
+  // an overflow of 3 items
+  FRingbuffer.Add(TTestItem.Create('Item1000', 10, 1));
+  FRingbuffer.Add(TTestItem.Create('Item1001', 20, 2));
+  FRingbuffer.Add(TTestItem.Create('Item1002', 30, 3));
+  FRingbuffer.Add(TTestItem.Create('Item1003', 40, 4));
+  CheckAndClearEventFlags(evAdd);
+  // remove first 3 elements again
+  FRingbuffer.Remove.Free;
+  FRingbuffer.Remove.Free;
+  FRingbuffer.Remove.Free;
+  CheckAndClearEventFlags(evRemove);
+
+  SetLength(Items, FRingbuffer.Size-1);
+  for i := 0 to FRingbuffer.Size-2 do
+    Items[i] := TTestItem.Create('Item' + (i+1004).ToString, i + 50, i);
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong number of items is in the buffer');
+
+  for i := 0 to FRingbuffer.Count-1 do
+    CheckEquals('Item' + (i+1003).ToString, FRingbuffer.Peek(i).Name, 'Wrong value is in the buffer');
+end;
+
+procedure TestRingbufferObjects.TestAddException;
+var
+  i    : Byte;
+  Item : TTestItem;
+begin
+{ TODO : This test produces some memory leak, not sure how to fix }
+
+  // Fill buffer completely at first
+  for i := 1 to FRingbuffer.Size do
+  begin
+    Item := TTestItem.Create('Item' + (i-1000).ToString, i+20, i);
+    FRingbuffer.Add(Item);
+
+    CheckEquals(i, FRingbuffer.Count, 'Wrong number of items ('+i.ToString+')');
+    CheckAndClearEventFlags(evAdd);
+  end;
+
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Buffer is not completely full!');
+
+  // Check that adding too many items raises an exception.
+  // Both breakpoints are here on purpose and the properties of those have
+  // been defined in such a way, that the IDE will not stop due to exceptions
+  // between those. It will not stop on these breakpoints either.
+  // The test whether the exception raises still works!
+  StartExpectingException(EBufferFullException);
+
+  // add one item too many
+  Item := TTestItem.Create('Item' + (FRingbuffer.Size+1).ToString, 80, 9);
+  FRingbuffer.Add(Item);
+  CheckAndClearEventFlags(evAdd);
+
+  StopExpectingException();
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count,
+              'Buffer is not completely full any more!');
+  Item.Free;
+end;
+
+procedure TestRingbufferObjects.TestAddNoNotify;
+begin
+  FRingbuffer.Notify := nil;
+  FRingbuffer.Add(TTestItem.Create('Item1000', 10, 1));
+
+  CheckEquals('Item1000', FRingbuffer.Peek(0).Name, 'Wrong value');
+  CheckAndClearNoEventFlagsSet;
+end;
+
+procedure TestRingbufferObjects.TestAddWhenEmpty;
+var
+  i : Byte;
+begin
+  // Fill buffer completely
+  for i := 1 to FRingbuffer.Size  do
+  begin
+    FRingbuffer.Add(TTestItem.Create('Item' + (i-1000).ToString, i, i + FRingbuffer.Size));
+
+    CheckEquals(i,                          FRingbuffer.Count,          'Count is wrong ('+i.ToString+')');
+    CheckEquals('Item' + (i-1000).ToString, FRingbuffer.Peek(i-1).Name, 'Invalid value');
+    CheckAndClearEventFlags(evAdd);
+  end;
+end;
+
+procedure TestRingbufferObjects.TestAddWrapAround;
+var
+  i    : Byte;
+  Item : Integer;
+begin
+  // Fill buffer completely
+  for i := 1 to FRingbuffer.Size do
+  begin
+    Item := i-1000;
+    FRingbuffer.Add(TTestItem.Create('Item' + Item.ToString, i, i + FRingbuffer.Size));
+
+    CheckEquals(i,                          FRingbuffer.Count,     'Count is wrong ('+i.ToString+')');
+    CheckEquals('Item' + (i-1000).ToString, FRingbuffer.Peek(i-1).Name, 'Invalid value');
+    CheckAndClearEventFlags(evAdd);
+  end;
+
+  // Remove first item. End pointer points to last array element now and next
+  // call to add must add at the beginning, means it must detect that it starts
+  // from 0 again
+  FRingbuffer.Remove.Free;
+  CheckAndClearEventFlags(evRemove);
+
+  Item := 6000;
+  FRingbuffer.Add(TTestItem.Create('Item' + Item.ToString, i, i + FRingbuffer.Size));
+  CheckEquals(FRingbuffer.Size,       FRingbuffer.Count,  'Count is wrong ('+
+                                                          FRingbuffer.Count.ToString+')');
+  CheckEquals('Item' + Item.ToString, FRingbuffer.Peek(FRingbuffer.Size-1).Name, 'Wrong value in last item');
+  CheckAndClearEventFlags(evAdd);
+end;
+
+procedure TestRingbufferObjects.TestArrayAddNoNotify;
+var
+  Items : TRingbuffer<TTestItem>.TRingbufferArray;
+  i     : Byte;
+begin
+  FRingbuffer.Notify := nil;
+
+  InitBuffer(Items);
+
+  FRingbuffer.Add(Items);
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count,     'Count is wrong ('+
+                                                       FRingbuffer.Count.ToString+')');
+  CheckAndClearNoEventFlagsSet;
+
+  SetLength(Items, 0);
+  Items := FRingbuffer.Remove(5);
+
+  for i := 0 to High(Items) do
+    CheckEquals('Item'+ (i + 1000).ToString, Items[i].Name,
+                'Wrong value in buffer. Expected: ' + i.ToString + ' Actual: '+Items[i].Name);
+end;
+
+procedure TestRingbufferObjects.TestClear;
+var
+  Items: TRingbuffer<TTestItem>.TRingbufferArray;
+  i    : Byte;
+begin
+  // Puffer teilweise füllen
+  for i := 1 to 3 do
+    FRingbuffer.Add(TTestItem.Create('Item' + (i+1000).ToString, i, i + FRingbuffer.Size));
+
+  CheckEquals(3, FRingbuffer.Count, 'Wrong fill level');
+  CheckAndClearEventFlags(evAdd);
+
+  // und leeren
+  FRingbuffer.Clear;
+  CheckEquals(0, FRingbuffer.Count, 'Buffer is not empty');
+  CheckAndClearEventFlags(evRemove);
+
+  // Leeren Puffer muss man jetzt auch komplett füllen dürfen
+  SetLength(Items, FRingbuffer.Size);
+  for i := 0 to FRingbuffer.Size-1 do
+    Items[i] := TTestItem.Create('Item' + (i+1000).ToString, i, i + FRingbuffer.Size);
+
+  FRingbuffer.Add(Items);
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Buffer must be filled completely');
+  CheckAndClearEventFlags(evAdd);
+
+  // und leeren
+  FRingbuffer.Clear;
+  CheckEquals(0, FRingbuffer.Count, 'Buffer not empty');
+  CheckAndClearEventFlags(evRemove);
+end;
+
+procedure TestRingbufferObjects.TestClearNoNotify;
+begin
+  FRingbuffer.Notify := nil;
+
+  FRingbuffer.Add(TTestItem.Create('TestItem', 40, 1));
+  CheckEquals(1,           FRingbuffer.Count,   'Invalid count');
+  CheckEquals('TestItem', FRingbuffer.Peek(0).Name, 'Invalid buffer contents');
+  CheckAndClearNoEventFlagsSet;
+end;
+
+procedure TestRingbufferObjects.TestCreate;
+var
+  Size, Count: Cardinal;
+begin
+  Size  := FRingBuffer.Size;
+  Count := FRingBuffer.Count;
+
+  CheckEquals(5, Size,  'Invalid buffer size');
+  CheckEquals(0, Count, 'Buffer must be empty directly after creation');
+end;
+
+procedure TestRingbufferObjects.TestDelete;
+var
+  Items       : TRingbuffer<TTestItem>.TRingbufferArray;
+  ReturnValue : TRingbuffer<TTestItem>.TRingbufferArray;
+  i           : Integer;
+begin
+  // Fill buffer
+  InitBuffer(Items);
+
+  FRingbuffer.Add(Items);
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong item count in buffer');
+  CheckAndClearEventFlags(evAdd);
+
+  // The actual deleting
+  FRingbuffer.Delete(1);
+  CheckAndClearEventFlags(evRemove);
+  ReturnValue := FRingBuffer.Peek(0, FRingbuffer.Count);
+  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Wrong item count in buffer after delete');
+
+  for i := 0 to high(ReturnValue) do
+  begin
+    CheckEquals('Item' + (i+1+1000).ToString, ReturnValue[i].Name, 'Wrong value in buffer');
+  end;
+
+  // delete all except one
+  FRingbuffer.Delete(FRingbuffer.Size-2);
+  CheckAndClearEventFlags(evRemove);
+  CheckEquals(1, FRingbuffer.Count, 'Wrong number of items in buffer after 2nd delete');
+  CheckEquals('Item' + (FRingbuffer.Size-1+1000).ToString, FRingbuffer.Peek(0).Name,
+              'Wrong value after 2nd delete');
+end;
+
+procedure TestRingbufferObjects.TestDeleteAll;
+var
+  Items : TRingbuffer<TTestItem>.TRingbufferArray;
+begin
+  // Fill buffer
+  InitBuffer(Items);
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong item count i buffer');
+
+  // Alle Einträge auf einmal löschen
+  FRingbuffer.Delete(FRingbuffer.Size);
+
+  CheckAndClearEventFlags(evRemove);
+  CheckEquals(0, FRingbuffer.Count, 'Wrong number of items in buffer after deleting');
+
+  FRingbuffer.Add(TTestItem.Create('Item123000', 123, 456));
+  CheckAndClearEventFlags(evAdd);
+  CheckEquals('Item123000', FRingbuffer.Peek(0).Name, 'Wrong value in buffer');
+end;
+
+procedure TestRingbufferObjects.TestDeleteException;
+begin
+  // Check that removing items from an empty buffer raises an exception.
+  // Both breakpoints are here on purpose and the properties of those have
+  // been defined in such a way, that the IDE will not stop due to exceptions
+  // between those. It will not stop on these breakpoints either.
+  // The test whether the exception raises still works!
+  StartExpectingException(EArgumentOutOfRangeException);
+
+  // Try to extract an item using a wrong index
+  FRingbuffer.Delete(FRingbuffer.Size+1);
+  CheckAndClearEventFlags(evRemove);
+
+  StopExpectingException();
+end;
+
+procedure TestRingbufferObjects.TestDeleteNoNotify;
+begin
+  FRingbuffer.Notify := nil;
+  FRingBuffer.Add(TTestItem.Create('Item1000', 100, 4));
+
+  CheckAndClearNoEventFlagsSet;
+  FRingbuffer.Delete(1);
+  CheckAndClearNoEventFlagsSet;
+  CheckEquals(0, FRingbuffer.Count, 'Buffer is not empty');
+end;
+
+procedure TestRingbufferObjects.TestDeleteSize0;
+var
+  Items       : TRingbuffer<TTestItem>.TRingbufferArray;
+  i           : Byte;
+begin
+  // Fill buffer completely
+  InitBuffer(Items);
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong count of items in buffer');
+
+  // delete nothing
+  FRingbuffer.Delete(0);
+  // if nothing has been deleted no notification is expected either!
+  CheckAndClearNoEventFlagsSet;
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong count of items in buffer '+
+              'after deleting 0 items');
+
+  // Check values
+  for i := 0 to FRingbuffer.Size-1 do
+    CheckEquals('Item' + (i+1000).ToString, FRingbuffer.Peek(i).Name, 'Wrong value in buffer');
+end;
+
+procedure TestRingbufferObjects.TestDeleteWrap1;
+var
+  Items       : TRingbuffer<TTestItem>.TRingbufferArray;
+  i           : Byte;
+begin
+  // Fill buffer completely
+  InitBuffer(Items);
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong item count');
+
+  // Remove one item and add one so that the buffer wraps over the high end of
+  // the array
+  FRingbuffer.Remove.Free;
+  CheckAndClearEventFlags(evRemove);
+
+  FRingbuffer.Add(TTestItem.Create('Item' + (FRingbuffer.Size+1000).ToString, 40, 8));
+  CheckAndClearEventFlags(evAdd);
+
+  // Delete one element and check buffer
+  FRingbuffer.Delete(1);
+
+  CheckAndClearEventFlags(evRemove);
+  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Wrong number of items after deletion');
+
+  // Check values
+  for i := 0 to FRingbuffer.Size-2 do
+    CheckEquals('Item' + (i+2+1000).ToString, FRingbuffer.Peek(i).Name, 'Wrong value in buffer');
+end;
+
+procedure TestRingbufferObjects.TestDeleteWrap3;
+var
+  Items        : TRingbuffer<TTestItem>.TRingbufferArray;
+  i            : Byte;
+  RemovedItems : TRingbuffer<TTestItem>.TRingbufferArray;
+begin
+  // Fill buffer completely
+  InitBuffer(Items);
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong item count');
+
+  // remove 3 items and add 3 items so that the buffer wraps at the high end of
+  // the array
+  RemovedItems := FRingbuffer.Remove(3);
+  CheckAndClearEventFlags(evRemove);
+
+  for i := 0 to length(RemovedItems) - 1 do
+   RemovedItems[i].Free;
+
+  for i := 0 to 2 do
+    FRingbuffer.Add(TTestItem.Create('Item' + (FRingbuffer.Size+i+1000).ToString, 50 + i, 5 + i));
+
+  CheckAndClearEventFlags(evAdd);
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong item count');
+
+  // Delete one item and check buffer
+  FRingbuffer.Delete(3);
+
+  CheckAndClearEventFlags(evRemove);
+  CheckEquals(FRingbuffer.Size-3, FRingbuffer.Count, 'Wrong item count after deletion');
+
+  // Check values
+  for i := 0 to FRingbuffer.Count-1 do
+    CheckEquals('Item' + (i+6+1000).ToString, FRingbuffer.Peek(i).Name, 'Wrong value in buffer');
+end;
+
+procedure TestRingbufferObjects.TestPeek;
+var
+  ReturnValue : TTestItem;
+  i           : Byte;
+begin
+  FRingbuffer.Add(TTestItem.Create('Item10000', 10, 0));
+  CheckAndClearEventFlags(evAdd);
+
+  ReturnValue := FRingbuffer.Peek(0);
+  CheckAndClearNoEventFlagsSet;
+  CheckEquals('Item10000', ReturnValue.Name, 'Wrong value returned from buffer');
+  // ensure that after peer the value is still in the buffer
+  ReturnValue := FRingbuffer.Peek(0);
+  CheckEquals('Item10000', ReturnValue.Name, 'Wrong value returned from buffer2');
+
+  // must work when buffer is full as well
+  FRingbuffer.Clear;
+  CheckAndClearEventFlags(evRemove);
+
+  for i := 0 to FRingbuffer.Size-1 do
+    FRingbuffer.Add(TTestItem.Create('Item' + (i+100000).ToString, 20 + i, i));
+
+  CheckAndClearEventFlags(evAdd);
+
+  for i := 0 to FRingbuffer.Size-1 do
+  begin
+    ReturnValue := FRingbuffer.Peek(i);
+    CheckEquals('Item' + (i+100000).ToString, ReturnValue.Name, 'Wrong value returned from buffer3');
+  end;
+  CheckAndClearNoEventFlagsSet;
+end;
+
+procedure TestRingbufferObjects.TestPeekArray;
+var
+  Items       : TRingbuffer<TTestItem>.TRingbufferArray;
+  ReturnValue : TRingbuffer<TTestItem>.TRingbufferArray;
+  i           : Byte;
+begin
+  // Fill buffer completely
+  SetLength(Items, FRingbuffer.Size);
+  for i := 0 to FRingbuffer.Size-1 do
+    Items[i] := TTestItem.Create('Item' + (i+100000).ToString, 30+i, i);
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+
+  // fetch all items with peek
+  ReturnValue := FRingbuffer.Peek(0, FRingbuffer.Size);
+  CheckAndClearNoEventFlagsSet;
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Peek may not change buffer count');
+  CheckEquals(FRingbuffer.Size, length(ReturnValue), 'Wrong count of data returned');
+
+  for i := 0 to length(ReturnValue)-1 do
+    CheckEquals('Item' + (i+100000).ToString, ReturnValue[i].Name, 'Wrong value');
+
+  // nur ein Element holen
+  ReturnValue := FRingbuffer.Peek(1, 1);
+  CheckEquals(1,      length(ReturnValue), 'Wrong count of data returned');
+  CheckEquals('Item100001', ReturnValue[0].Name, 'Wrong value');
+
+  // 2 Elemente holen
+  ReturnValue := FRingbuffer.Peek(1, 2);
+  CheckEquals(2,      length(ReturnValue), 'Wrong count of data returned');
+  CheckEquals('Item100001', ReturnValue[0].Name, 'Wrong value');
+  CheckEquals('Item100002', ReturnValue[1].Name, 'Wrong value');
+  CheckAndClearNoEventFlagsSet;
+end;
+
+procedure TestRingbufferObjects.TestPeekArrayException;
+var
+  Items       : TRingbuffer<TTestItem>.TRingbufferArray;
+  ReturnValue : TRingbuffer<TTestItem>.TRingbufferArray;
+  i           : Byte;
+begin
+  // Exception bei Index > Count prüfen
+  FRingbuffer.Add(TTestItem.Create('Item1000', 50, 5));
+  CheckAndClearEventFlags(evAdd);
+
+  // Check that peeking with an invalid index raises an exception.
+  // Both breakpoints are here on purpose and the properties of those have
+  // been defined in such a way, that the IDE will not stop due to exceptions
+  // between those. It will not stop on these breakpoints either.
+  // The test whether the exception raises still works!
+  StartExpectingException(EArgumentOutOfRangeException);
+
+  // Attempt to peek an item with an invalid index
+  ReturnValue := FRingbuffer.Peek(1, 1);
+  CheckAndClearNoEventFlagsSet;
+
+  StopExpectingException();
+
+  // Empty buffer for the next test
+  FRingbuffer.Clear;
+  CheckAndClearEventFlags(evRemove);
+
+  // Fill buffer completely
+  SetLength(Items, FRingbuffer.Size);
+  for i := 0 to FRingbuffer.Size-1 do
+    Items[i] := TTestItem.Create('Item' + (i+1000).ToString, 40+i, i);
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer');
+
+  // Check that peeking with an invalid index raises an exception.
+  // Both breakpoints are here on purpose and the properties of those have
+  // been defined in such a way, that the IDE will not stop due to exceptions
+  // between those. It will not stop on these breakpoints either.
+  // The test whether the exception raises still works!
+  StartExpectingException(EArgumentOutOfRangeException);
+
+  // Try to peek in an empty buffer
+  SetLength(ReturnValue, FRingbuffer.Size+1);
+  ReturnValue := FRingbuffer.Peek(0, FRingbuffer.Size+1);
+  CheckAndClearNoEventFlagsSet;
+
+  StopExpectingException();
+end;
+
+procedure TestRingbufferObjects.TestPeekArraySize0;
+var
+  Items       : TRingbuffer<TTestItem>.TRingbufferArray;
+  ReturnValue : TRingbuffer<TTestItem>.TRingbufferArray;
+  i           : Byte;
+  Item        : TTestItem;
+begin
+  // Fill buffer completely
+  InitBuffer(Items);
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+
+  // peek 0 items
+  SetLength(ReturnValue, 0);
+  ReturnValue := FRingbuffer.Peek(0, 0);
+
+  CheckAndClearNoEventFlagsSet;
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Peek is not allowed to change buffer count');
+
+  // Check buffer contents
+  for i := 0 to FRingbuffer.Size-1 do
+  begin
+    Item := FRingbuffer.Peek(i);
+    CheckAndClearNoEventFlagsSet;
+    CheckEquals('Item' + (i+1000).ToString, Item.Name, 'Wrong value');
+  end;
+end;
+
+procedure TestRingbufferObjects.TestPeekArrayWrap1;
+var
+  Items       : TRingbuffer<TTestItem>.TRingbufferArray;
+  ReturnValue : TRingbuffer<TTestItem>.TRingbufferArray;
+  i           : Integer;
+  s           : TTestItem;
+begin
+  // Fill buffer completely
+  InitBuffer(Items);
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong buffer count');
+
+  // Remove one item and refill, so that the buffer wraps at the high end of the
+  // array and restarts at the low end of the array
+  s := FRingbuffer.Remove;
+  CheckAndClearEventFlags(evRemove);
+  CheckEquals('Item1000', s.Name, 'Removed item has wrong value');
+  s.Free;
+
+  FRingbuffer.Add(TTestItem.Create('Item' + (FRingbuffer.Size+1000).ToString, 30, 3));
+  CheckAndClearEventFlags(evAdd);
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong count after refilling buffer');
+
+  // Peek the complete contents now and check
+  SetLength(ReturnValue, FRingbuffer.Size);
+  ReturnValue := FRingbuffer.Peek(0, FRingbuffer.Size);
+
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong number of items after peek');
+  for i := 0 to high(ReturnValue) do
+    CheckEquals('Item' + (i+1+1000).ToString, ReturnValue[i].Name, 'Wrong value in buffer');
+  CheckAndClearNoEventFlagsSet;
+end;
+
+procedure TestRingbufferObjects.TestPeekArrayWrap3;
+var
+  Items       : TRingbuffer<TTestItem>.TRingbufferArray;
+  ReturnValue : TRingbuffer<TTestItem>.TRingbufferArray;
+  i           : Byte;
+  Item        : TTestItem;
+begin
+  // Fill buffer completely
+  InitBuffer(Items);
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong buffer count');
+
+  // remove 3 items and refill, so that the buffer wraps att the high end of the
+  // array and starts again at its low end
+  for i := 0 to 2 do
+  begin
+    Item := FRingbuffer.Remove;
+    CheckEquals('Item' + (i+1000).ToString, Item.Name, 'Removed item has wrong value');
+    CheckAndClearEventFlags(evRemove);
+    Item.Free;
+  end;
+
+  for i := 0 to 2 do
+    FRingbuffer.Add(TTestItem.Create('Item' + (FRingbuffer.Size+i+1000).ToString, 60 + i, i));
+
+  CheckAndClearEventFlags(evAdd);
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong buffer count after refilling');
+
+  // peek complete buffer contents and check
+  SetLength(ReturnValue, FRingbuffer.Size);
+  ReturnValue := FRingbuffer.Peek(0, FRingbuffer.Size);
+
+  CheckAndClearNoEventFlagsSet;
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong buffer count after peek');
+  for i := 0 to high(ReturnValue) do
+    CheckEquals('Item' + (i+3+1000).ToString, ReturnValue[i].Name, 'Wrong value in buffer');
+end;
+
+procedure TestRingbufferObjects.TestPeekException;
+var
+  ReturnValue: TTestItem;
+begin
+  FRingbuffer.Add(TTestItem.Create('Item123000', 50, 5));
+  CheckAndClearEventFlags(evAdd);
+
+  StartExpectingException(EArgumentOutOfRangeException);
+
+  ReturnValue := FRingbuffer.Peek(0);
+  CheckEquals('Item123000', ReturnValue.Name, 'Wrong value in buffer');
+  CheckAndClearNoEventFlagsSet;
+
+  // Try to read one item after the end of the buffer
+  ReturnValue := FRingbuffer.Peek(1);
+  // Dummy check which should never be reached due to the exception but will
+  // suppress a compiler warning about a never used ReturnValue
+  CheckEquals('Item100', ReturnValue.Name, 'Peekded item is wrong');
+  CheckAndClearNoEventFlagsSet;
+
+  StopExpectingException();
+end;
+
+procedure TestRingbufferObjects.TestPeekWrap1;
+var
+  Items: TRingbuffer<TTestItem>.TRingbufferArray;
+  i    : Byte;
+  Item : TTestItem;
+begin
+  // Fill buffer completely, remove one item and refill. Then remove all items
+  // in a loop (the real test, because that creates an overflow of 1 item over
+  // the high end of the array)
+  InitBuffer(Items);
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+  // Remove 1 item
+  Item := FRingbuffer.Remove;
+  CheckAndClearEventFlags(evRemove);
+  CheckEquals('Item1000',         Item.Name,         'Removed item has wrong value');
+  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Wrong buffer count');
+  Item.Free;
+
+  // 1 Element hinzufügen damit der Puffer wieder voll ist und über die obere
+  // Grenze des Array geht
+  FRingbuffer.Add(TTestItem.Create('Item1005', 35, 3));
+  CheckAndClearEventFlags(evAdd);
+  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Wrong buffer count2');
+
+  // jetzt alle Elemente der Reihe nach entfernen
+  for i := 0 to FRingbuffer.Size-1 do
+  begin
+    Item := FRingbuffer.Peek(i);
+    CheckEquals('Item' + (i+1+1000).ToString, Item.Name, 'Removed item has wrong value (loop)');
+    CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong buffer count (loop)');
+  end;
+
+  CheckAndClearNoEventFlagsSet;
+end;
+
+procedure TestRingbufferObjects.TestPeekWrap3;
+var
+  Items: TRingbuffer<TTestItem>.TRingbufferArray;
+  i    : Byte;
+  Item : TTestItem;
+begin
+  // FIll buffer completely, remove one item and refill. Then remove all items
+  // in a loop (the real test, because that creates an overflow of 1 item over
+  // the high end of the array)
+  SetLength(Items, FRingbuffer.Size);
+  for i := 0 to FRingbuffer.Size-1 do
+    Items[i] := TTestItem.Create('Item' + (i+100000).ToString, 30 + i, i);
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+  // Remove 3 items
+  for i := 0 to 2 do
+  begin
+    Item := FRingbuffer.Remove;
+    CheckEquals('Item' + (i+100000).ToString, Item.Name, 'Removed item has wrong value');
+    Item.Free;
+  end;
+
+  CheckAndClearEventFlags(evRemove);
+  CheckEquals(FRingbuffer.Size-3, FRingbuffer.Count, 'Wrong buffer count');
+
+  // 3 Elemente hinzufügen damit der Puffer wieder voll ist und über die obere
+  // Grenze des Array geht
+  FRingbuffer.Add(TTestItem.Create('Item100005', 50, 5));
+  FRingbuffer.Add(TTestItem.Create('Item100006', 60, 6));
+  FRingbuffer.Add(TTestItem.Create('Item100007', 70, 7));
+  CheckAndClearEventFlags(evAdd);
+  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Wrong buffer count2');
+
+  // jetzt alle Elemente der Reihe nach entfernen
+  for i := 0 to FRingbuffer.Size-1 do
+  begin
+    Item := FRingbuffer.Peek(i);
+
+    CheckEquals('Item' + (i+3+100000).ToString, Item.Name, 'Removed item has wrong value (loop)');
+    CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong buffer count (loop)');
+  end;
+  CheckAndClearNoEventFlagsSet;
+end;
+
+procedure TestRingbufferObjects.TestRemove;
+var
+  ReturnValue : TTestItem;
+  Item        : TTestItem;
+  i           : Byte;
+begin
+  // check with one item first
+  Item := TTestItem.Create('Item1', 5, 0);
+  FRingbuffer.Add(Item);
+  CheckEquals(1, FRingbuffer.Count, 'Wrong number of items');
+  CheckAndClearEventFlags(evAdd);
+
+  ReturnValue := FRingbuffer.Remove;
+  CheckEquals(0, FRingbuffer.Count, 'Wrong number of items2');
+  CheckEquals('Item1', ReturnValue.Name, 'Removed item is wrong');
+  CheckAndClearEventFlags(evRemove);
+  ReturnValue.Free;
+
+  // Now check with full buffer
+  // Fill buffer completely at first
+  for i := FRingbuffer.Size downto 1 do
+  begin
+    Item := TTestItem.Create('Item' + (i+1000).ToString, 30 + i, i);
+    FRingbuffer.Add(Item);
+  end;
+
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Buffer is not full!');
+  CheckAndClearEventFlags(evAdd);
+
+  // Empty buffer completely
+  for i := FRingbuffer.Size downto 1 do
+  begin
+    ReturnValue := FRingbuffer.Remove;
+
+    CheckEquals(i-1,                        FRingbuffer.Count, 'Wrong number of items3');
+    CheckEquals('Item' + (i+1000).ToString, ReturnValue.Name,  'Removed item is wrong2');
+    CheckAndClearEventFlags(evRemove);
+  end;
+
+  CheckEquals(0, FRingbuffer.Count, 'Puffer ist nicht leer!');
+end;
+
+procedure TestRingbufferObjects.TestRemoveArray;
+var
+  Items       : TRingbuffer<TTestItem>.TRingbufferArray;
+  ReturnValue : TRingbuffer<TTestItem>.TRingbufferArray;
+  Count       : Cardinal;
+  i           : Byte;
+
+begin
+  // Fill buffer completely
+  InitBuffer(Items);
+
+  FRingbuffer.Add(Items);
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong number of items');
+  CheckAndClearEventFlags(evAdd);
+
+  // Remove 3 items, check items and buffer count
+  Count := 3;
+  SetLength(ReturnValue, 3);
+  ReturnValue := FRingbuffer.Remove(Count);
+  CheckEquals(FRingbuffer.Size-3, FRingbuffer.Count, 'Wrong number of remaining items in buffer');
+  CheckAndClearEventFlags(evRemove);
+
+  for i := 0 to length(ReturnValue)-1 do
+    CheckEquals('Item' + (i+1000).ToString, ReturnValue[i].Name, 'Wrong value in removed array');
+end;
+
+procedure TestRingbufferObjects.TestRemoveArrayException;
+var
+  Items       : TRingbuffer<TTestItem>.TRingbufferArray;
+  ReturnValue : TRingbuffer<TTestItem>.TRingbufferArray;
+begin
+  // Fill buffer completely
+  InitBuffer(Items);
+
+  FRingbuffer.Add(Items);
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong number of items in buffer!');
+  CheckAndClearEventFlags(evAdd);
+
+  // Check that adding too many items raises an exception.
+  // Both breakpoints are here on purpose and the properties of those have
+  // been defined in such a way, that the IDE will not stop due to exceptions
+  // between those. It will not stop on these breakpoints either.
+  // The test whether the exception raises still works!
+  StartExpectingException(EArgumentOutOfRangeException);
+
+  // bei leerem Puffer versuchen ein Element zu extrahieren
+  SetLength(ReturnValue, FRingbuffer.Size+1);
+  ReturnValue := FRingbuffer.Remove(FRingbuffer.Size+1);
+  CheckAndClearEventFlags(evRemove);
+
+  StopExpectingException();
+end;
+
+procedure TestRingbufferObjects.TestRemoveArrayNoNotify;
+var
+  Items       : TRingbuffer<TTestItem>.TRingbufferArray;
+  ReturnValue : TRingbuffer<TTestItem>.TRingbufferArray;
+  i           : Integer;
+begin
+  FRingbuffer.Notify := nil;
+
+  // Fill buffer completely
+  SetLength(Items, FRingbuffer.Size);
+  for i := 0 to FRingbuffer.Size-1 do
+    Items[i] := TTestItem.Create('Item' + (i + 100000).ToString, i +20, i);
+
+  FRingBuffer.Add(Items);
+  ReturnValue := FRingbuffer.Remove(FRingbuffer.Count);
+
+  CheckAndClearNoEventFlagsSet;
+
+  for i := 0 to High(ReturnValue) do
+    CheckEquals('Item' + (i + 100000).ToString, ReturnValue[i].Name, 'Wrong value. Expected: ' +
+                 i.ToString + ' Actual: ' + ReturnValue[i].Name);
+end;
+
+procedure TestRingbufferObjects.TestRemoveArraySize0;
+var
+  Items       : TRingbuffer<TTestItem>.TRingbufferArray;
+  ReturnValue : TRingbuffer<TTestItem>.TRingbufferArray;
+  i           : Byte;
+  Item        : TTestItem;
+begin
+  // Fill buffer completely
+  InitBuffer(Items);
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+
+  // Remove 0 items
+  SetLength(ReturnValue, 0);
+  ReturnValue := FRingbuffer.Remove(0);
+
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Removing 0 items may not alter count!');
+
+  // Pufferinhalt prüfen
+  for i := 0 to FRingbuffer.Size-1 do
+  begin
+    Item := FRingbuffer.Peek(i);
+    CheckEquals('Item' + (i+1000).ToString, Item.Name, 'Wrong value');
+  end;
+  CheckAndClearNoEventFlagsSet;
+end;
+
+procedure TestRingbufferObjects.TestRemoveArrayWrap1;
+var
+  Items       : TRingbuffer<TTestItem>.TRingbufferArray;
+  ReturnValue : TRingbuffer<TTestItem>.TRingbufferArray;
+  i           : Integer;
+  s           : TTestItem;
+begin
+  // Fill buffer completely
+  InitBuffer(Items);
+
+  FRingbuffer.Add(Items);
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong number of elements in buffer');
+  CheckAndClearEventFlags(evAdd);
+
+  // Remove one element and refill buffer so that the buffer begins at a position
+  // one item above the upper end of the array which results in a begin from its
+  // low end
+  s := FRingbuffer.Remove;
+  CheckEquals('Item1000', s.Name, 'Removed item has wrong value');
+  CheckAndClearEventFlags(evRemove);
+  s.Free;
+
+  FRingbuffer.Add(TTestItem.Create('Item' + (FRingbuffer.Size+1000).ToString, 30, 5));
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong item count after refilling buffer');
+  CheckAndClearEventFlags(evAdd);
+
+  // nun den gesamten Pufferinhalt entnehmen und prüfen
+  SetLength(ReturnValue, FRingbuffer.Size);
+  ReturnValue := FRingbuffer.Remove(FRingbuffer.Size);
+  CheckAndClearEventFlags(evRemove);
+
+  CheckEquals(0, FRingbuffer.Count, 'Wrong item count after removal');
+  for i := 0 to high(ReturnValue) do
+    CheckEquals('Item' + (i+1+1000).ToString, ReturnValue[i].Name, 'Wrong value in buffer');
+end;
+
+procedure TestRingbufferObjects.TestRemoveArrayWrap3;
+var
+  Items       : TRingbuffer<TTestItem>.TRingbufferArray;
+  ReturnValue : TRingbuffer<TTestItem>.TRingbufferArray;
+  i           : Byte;
+  Item        : TTestItem;
+begin
+  // Fill buffer completely
+  InitBuffer(Items);
+
+  FRingbuffer.Add(Items);
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wroing number of items in buffer');
+  CheckAndClearEventFlags(evAdd);
+
+  // Remove 3 elements and refill buffer so that the buffer begins at a position
+  // one item above the upper end of the array which results in a begin from its
+  // low end
+  for i := 0 to 2 do
+  begin
+    Item := FRingbuffer.Remove;
+    CheckEquals('Item' + (i+1000).ToString, Item.Name, 'Removed item has wrong value');
+    CheckAndClearEventFlags(evRemove);
+    Item.Free;
+  end;
+
+  for i := 0 to 2 do
+    FRingbuffer.Add(TTestItem.Create('Item' + (FRingbuffer.Size+i+1000).ToString, 20+i, i));
+
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong item count after refilling');
+  CheckAndClearEventFlags(evAdd);
+
+  // nun den gesamten Pufferinhalt entnehmen und prüfen
+  SetLength(ReturnValue, FRingbuffer.Size);
+  ReturnValue := FRingbuffer.Remove(FRingbuffer.Size);
+  CheckAndClearEventFlags(evRemove);
+
+  CheckEquals(0, FRingbuffer.Count, 'Wrong item count after removal');
+  for i := 0 to high(ReturnValue) do
+    CheckEquals('Item' + (i+3+1000).ToString, ReturnValue[i].Name, 'Wrong value in buffer');
+end;
+
+procedure TestRingbufferObjects.TestRemoveException;
+var
+  ReturnValue : TTestItem;
+begin
+  CheckEquals(0, FRingbuffer.Count, 'Puffer muss bei Prüfungsbeginn leer sein!');
+
+  // Check that removing items from an empty buffer raises an exception.
+  // Both breakpoints are here on purpose and the properties of those have
+  // been defined in such a way, that the IDE will not stop due to exceptions
+  // between those. It will not stop on these breakpoints either.
+  // The test whether the exception raises still works!
+  StartExpectingException(EBufferEmptyException);
+
+  // try to remove an item from empty buffer
+  ReturnValue := FRingbuffer.Remove;
+  // Dummy check which should never be reached due to the exception but will
+  // suppress a compiler warning about a never used ReturnValue
+  CheckEquals('Item100', ReturnValue.Name, 'Removed item is wrong');
+  CheckAndClearEventFlags(evRemove);
+
+  StopExpectingException();
+
+  // CHeck that an not initially empty buffer raises an exception as well
+  FRingbuffer.Add(TTestItem.Create('Item-1000', 50, 5));
+  ReturnValue := FRingbuffer.Remove;
+  CheckEquals('Item-1000', ReturnValue.Name, 'Removed item is wrong');
+  CheckAndClearEventFlags(evRemove);
+
+  // remove one item too many
+  StartExpectingException(EBufferEmptyException);
+
+  // try to remove an item when the buffer is empty
+  ReturnValue := FRingbuffer.Remove;
+
+  // Dummy check which should never be reached due to the exception but will
+  // suppress a compiler warning about a never used ReturnValue
+  CheckEquals('Item100', ReturnValue.Name, 'Removed item is wrong');
+  CheckAndClearEventFlags(evRemove);
+
+  StopExpectingException();
+end;
+
+procedure TestRingbufferObjects.TestRemoveNoNotify;
+begin
+  FRingbuffer.Notify := nil;
+
+  FRingbuffer.Add(TTestItem.Create('Item1000000', 10, 0));
+  CheckAndClearNoEventFlagsSet;
+
+  CheckEquals('Item1000000', FRingbuffer.Remove.Name, 'Removed item is wrong');
+  CheckAndClearNoEventFlagsSet;
+end;
+
+procedure TestRingbufferObjects.TestRemoveWrap1;
+var
+  Items: TRingbuffer<TTestItem>.TRingbufferArray;
+  i    : Byte;
+  Item : TTestItem;
+begin
+  // Fill buffer completely, remove one item and refill and then remove all
+  // items in a loop (that's the real test because there will be 1 item overflow
+  // over the end of the array).
+  InitBuffer(Items);
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+  // Delete 1 item
+  Item := FRingbuffer.Remove;
+  CheckEquals('Item1000',         Item.Name,         'Removed item has wrong value');
+  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Wrong number of items in the buffer');
+  CheckAndClearEventFlags(evRemove);
+  Item.Free;
+
+  // Add 1 item to refill the buffer. Now the buffer spills over the high end
+  // of the array
+  FRingbuffer.Add(TTestItem.Create('Item1005', 40, 5));
+  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Wrong number of items in the buffer2');
+  CheckAndClearEventFlags(evAdd);
+
+  // now remove all items, one by one in a loop
+  for i := 0 to FRingbuffer.Size-1 do
+  begin
+    Item := FRingbuffer.Remove;
+    CheckEquals('Item' + (i+1001).ToString, Item.Name, 'Removed item has wrong value (loop)');
+    CheckEquals(FRingbuffer.Size-(i+1), FRingbuffer.Count, 'Wrong number of items in the buffer (loop)');
+    CheckAndClearEventFlags(evRemove);
+  end;
+end;
+
+procedure TestRingbufferObjects.TestRemoveWrap3;
+var
+  Items: TRingbuffer<TTestItem>.TRingbufferArray;
+  i    : Byte;
+  Item : TTestItem;
+begin
+  // Fill buffer completely, remove one item and refill and then remove all
+  // items in a loop (that's the real test because there will be 1 item overflow
+  // over the end of the array).
+  InitBuffer(Items);
+
+  FRingbuffer.Add(Items);
+  CheckAndClearEventFlags(evAdd);
+  // remove 3 items
+  for i := 0 to 2 do
+  begin
+    Item := FRingbuffer.Remove;
+    CheckEquals('Item' + (i+1000).ToString, Item.Name, 'Removed item has wrong value');
+    CheckAndClearEventFlags(evRemove);
+    Item.Free;
+  end;
+
+  CheckEquals(FRingbuffer.Size-3, FRingbuffer.Count, 'Item count in buffer is wrong');
+
+  // add 3 items to refil the buffer and to wrap it around at the high end of
+  // the array
+  FRingbuffer.Add(TTestItem.Create('Item1005', 50, 1));
+  FRingbuffer.Add(TTestItem.Create('Item1006', 51, 2));
+  FRingbuffer.Add(TTestItem.Create('Item1007', 52, 3));
+  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Wrong number of entries in the buffer');
+  CheckAndClearEventFlags(evAdd);
+
+  // now remove all items one by one
+  for i := 0 to FRingbuffer.Size-1 do
+  begin
+    Item := FRingbuffer.Remove;
+    CheckEquals('Item' + (i+3+1000).ToString, Item.Name, 'Removed item has wrong value (loop)');
+    CheckEquals(FRingbuffer.Size-(i+1), FRingbuffer.Count, 'Wrong item count (loop)');
+    CheckAndClearEventFlags(evRemove);
+  end;
+end;
+
 initialization
   // Alle Testfälle beim Testprogramm registrieren
   RegisterTest(TestTRingbuffer.Suite);
   RegisterTest(TestTRingbufferInt.Suite);
   RegisterTest(TestTRingbufferString.Suite);
+  RegisterTest(TestRingbufferObjects.Suite);
 end.
 
