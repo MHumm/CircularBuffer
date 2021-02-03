@@ -416,6 +416,11 @@ var
   Items: TRingbuffer<Byte>.TRingbufferArray;
   i    : Byte;
 begin
+  // leerer Puffer muss löschbar sein. Test um einen Bugfix zu testen.
+  FRingbuffer.Clear;
+  CheckEquals(0, FRingbuffer.Count, 'Puffer muss nun leer sein');
+  CheckAndClearEventFlags(evRemove);
+
   // Puffer teilweise füllen
   for i := 1 to 3 do
     FRingbuffer.Add(i);

@@ -482,8 +482,10 @@ begin
 
   FreeObjectsIfOwned(FStart, Size - 1);
 
-  if (Count > Count - (Size -FStart)) then
-    FreeObjectsIfOwned(0, Count - (Size -FStart));
+  // We exceet the upper end of the buffer so we need to clear the remaining
+  // objects from the beginning
+  if (FStart + Count > Size) then
+    FreeObjectsIfOwned(0, (FStart + Count) - Size - 1);
 
   if IsManagedType(T) then
     for i := 0 to High(FItems) do
