@@ -101,7 +101,8 @@ type
     procedure CopyItems(var Dest: TRingbufferArray; StartIndex, Count: UInt32); inline;
     /// <summary>
     ///   Frees all object instances in the buffer if OwnsObject is true and
-    ///   the type is an object based type
+    ///   the type is an object based type. Sets the slots within the circular
+    ///   buffer to nil as well.
     /// </summary>
     /// <param name="StartIndex">
     ///   Index of the first item to be deleted. Must be less than <c>EndIndex</c>
@@ -487,7 +488,7 @@ begin
   if (FStart + Count > Size) then
     FreeObjectsIfOwned(0, (FStart + Count) - Size - 1);
 
-  if IsManagedType(T) then
+  if IsManagedType(T) or (GetTypeKind(T) = tkClass) then
     for i := 0 to High(FItems) do
       FItems[i] := Default(T);
 
@@ -529,11 +530,11 @@ begin
       begin
         if (Count > 0) then
         begin
+          FreeObjectsIfOwned(FStart, FStart + Count - 1);
+
           if IsManagedType(T) then
             for i := FStart to FStart + Count - 1 do
               FItems[i] := Default(T);
-
-          FreeObjectsIfOwned(FStart, FStart + Count - 1);
 
           // Startmarker verschieben
           FStart := FStart + Count;
@@ -832,7 +833,7 @@ begin
     result := FItems[FStart];
 
     // for managed types we need to free it or decrement reference counter
-    if IsManagedType(T) then
+    if IsManagedType(T) or (GetTypeKind(T) = tkClass) then
       FItems[FStart] := Default(T);
 
     // Anfangsmarker verschieben

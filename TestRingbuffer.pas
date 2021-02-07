@@ -19,7 +19,7 @@ unit TestRingbuffer;
 interface
 
 uses
-  TestFramework, Ringbuffer, SysUtils;
+  TestFramework, Ringbuffer, SysUtils, Dialogs;
 
 type
   /// <summary>
@@ -4602,61 +4602,74 @@ var
   Items: TRingbuffer<TTestItem>.TRingbufferArray;
   i    : Byte;
 begin
-{ TODO : This test produces some memory leak, not sure how to fix }
   InitBuffer(Items);
+  try
+    FRingbuffer.Add(TTestItem.Create('Item1000', 50, 3));
+    CheckAndClearEventFlags(evAdd);
 
-  FRingbuffer.Add(TTestItem.Create('Item1000', 50, 3));
-  CheckAndClearEventFlags(evAdd);
+    // Check that adding too many items raises an exception.
+    // Both breakpoints are here on purpose and the properties of those have
+    // been defined in such a way, that the IDE will not stop due to exceptions
+    // between those. It will not stop on these breakpoints either.
+    // The test whether the exception raises still works!
+    try
+      // Add some array which does not fit in due to not enough available space
+      FRingbuffer.Add(Items);
+      Fail('Expected EBufferFullException exception not called');
+    except
+      on EBufferFullException do
+        begin
+          CheckAndClearNoEventFlagsSet;
+          CheckEquals(1, FRingbuffer.Count,
+                      'Buffer count is wrong!');
+        end;
+      on e: Exception do
+        Fail('Wrong exception class called: ' + e.ClassName);
+    end;
 
-  // Check that adding too many items raises an exception.
-  // Both breakpoints are here on purpose and the properties of those have
-  // been defined in such a way, that the IDE will not stop due to exceptions
-  // between those. It will not stop on these breakpoints either.
-  // The test whether the exception raises still works!
-  StartExpectingException(EBufferFullException);
+    // fill up buffer "manually"
+    for i := 2 to FRingbuffer.Size do
+      FRingbuffer.Add(TTestItem.Create('Item' + i.ToString, 50, i));
 
-  // Add some array which does not fit in due to not enough available space
-  FRingbuffer.Add(Items);
-  CheckAndClearEventFlags(evAdd);
+    CheckAndClearEventFlags(evAdd);
 
-  StopExpectingException();
-
-//  for i := 0 to length(Items)-1 do
-//    Items[i].Free;
-
-  // fill up buffer "manually"
-  for i := 2 to FRingbuffer.Size do
-    FRingbuffer.Add(TTestItem.Create('Item' + i.ToString, 50, i));
-
-  CheckAndClearEventFlags(evAdd);
-
-  // remove the first element from a completely full buffer
-  FRingbuffer.Remove.Free;
-  CheckAndClearEventFlags(evRemove);
-  // Now end index is smaller start index and space for one element is available
-  // free the no logner used items
-  for i := 2 to length(Items)-1 do
-    Items[i].Free;
+    // remove the first element from a completely full buffer
+    FRingbuffer.Remove.Free;
+    CheckAndClearEventFlags(evRemove);
+  finally
+    // Now end index is smaller start index and space for one element is available
+    // free the no logner used items i := 2
+    for i := 2 to length(Items)-1 do
+      Items[i].Free;
+  end;
 
   SetLength(Items, 2);
-  Items[0].Name := 'Item10';
-  Items[1].Name := 'Item11';
+  try
+    Items[0].Name := 'Item10';
+    Items[1].Name := 'Item11';
 
-  // Check that adding too many items raises an exception.
-  // Both breakpoints are here on purpose and the properties of those have
-  // been defined in such a way, that the IDE will not stop due to exceptions
-  // between those. It will not stop on these breakpoints either.
-  // The test whether the exception raises still works!
-  StartExpectingException(EBufferFullException);
-
-  // Add some array which does not fit in due to not enough available space
-  FRingbuffer.Add(Items);
-  CheckAndClearEventFlags(evAdd);
-
-  StopExpectingException();
-
-  for i := 0 to length(Items)-1 do
-    Items[i].Free;
+    // Check that adding too many items raises an exception.
+    // Both breakpoints are here on purpose and the properties of those have
+    // been defined in such a way, that the IDE will not stop due to exceptions
+    // between those. It will not stop on these breakpoints either.
+    // The test whether the exception raises still works!
+    try
+      // Add some array which does not fit in due to not enough available space
+      FRingbuffer.Add(Items);
+    except
+      on EBufferFullException do
+        begin
+          CheckAndClearNoEventFlagsSet;
+          CheckEquals(4, FRingbuffer.Count,
+                      'Buffer count is wrong!');
+        end;
+      on e: Exception do
+        Fail('Wrong exception class called: ' + e.ClassName);
+    end;
+  finally
+    for i := 0 to length(Items)-1 do
+      Items[i].Free;
+  end;
 end;
 
 procedure TestRingbufferObjects.TestAddArrayPartiallyFilled;
@@ -4795,36 +4808,38 @@ var
   i    : Byte;
   Item : TTestItem;
 begin
-{ TODO : This test produces some memory leak, not sure how to fix }
-
   // Fill buffer completely at first
   for i := 1 to FRingbuffer.Size do
   begin
     Item := TTestItem.Create('Item' + (i-1000).ToString, i+20, i);
     FRingbuffer.Add(Item);
 
-    CheckEquals(i, FRingbuffer.Count, 'Wrong number of items ('+i.ToString+')');
+    CheckEquals(i, FRingbuffer.Count, 'Wrong number of items (' + i.ToString + ')');
     CheckAndClearEventFlags(evAdd);
   end;
 
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Buffer is not completely full!');
 
   // Check that adding too many items raises an exception.
-  // Both breakpoints are here on purpose and the properties of those have
-  // been defined in such a way, that the IDE will not stop due to exceptions
-  // between those. It will not stop on these breakpoints either.
-  // The test whether the exception raises still works!
-  StartExpectingException(EBufferFullException);
-
   // add one item too many
   Item := TTestItem.Create('Item' + (FRingbuffer.Size+1).ToString, 80, 9);
-  FRingbuffer.Add(Item);
-  CheckAndClearEventFlags(evAdd);
-
-  StopExpectingException();
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count,
-              'Buffer is not completely full any more!');
-  Item.Free;
+  try
+    try
+      FRingbuffer.Add(Item);
+      Fail('Expected EBufferFullException exception not called');
+    except
+      on EBufferFullException do
+        begin
+          CheckAndClearNoEventFlagsSet;
+          CheckEquals(FRingbuffer.Size, FRingbuffer.Count,
+                      'Buffer is not completely full any more!');
+        end;
+      on e: Exception do
+        Fail('Wrong exception class called: ' + e.ClassName);
+    end;
+  finally
+    Item.Free;
+  end;
 end;
 
 procedure TestRingbufferObjects.TestAddNoNotify;
@@ -4891,16 +4906,18 @@ begin
   InitBuffer(Items);
 
   FRingbuffer.Add(Items);
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count,     'Count is wrong ('+
-                                                       FRingbuffer.Count.ToString+')');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count,
+              'Count is wrong (' + FRingbuffer.Count.ToString + ')');
   CheckAndClearNoEventFlagsSet;
 
   SetLength(Items, 0);
   Items := FRingbuffer.Remove(5);
 
   for i := 0 to High(Items) do
+  begin
     CheckEquals('Item'+ (i + 1000).ToString, Items[i].Name,
                 'Wrong value in buffer. Expected: ' + i.ToString + ' Actual: '+Items[i].Name);
+  end;
 end;
 
 procedure TestRingbufferObjects.TestClear;
@@ -5495,6 +5512,7 @@ begin
     CheckEquals(i-1,                        FRingbuffer.Count, 'Wrong number of items3');
     CheckEquals('Item' + (i+1000).ToString, ReturnValue.Name,  'Removed item is wrong2');
     CheckAndClearEventFlags(evRemove);
+    ReturnValue.Free;
   end;
 
   CheckEquals(0, FRingbuffer.Count, 'Puffer ist nicht leer!');
@@ -5724,14 +5742,18 @@ begin
 end;
 
 procedure TestRingbufferObjects.TestRemoveNoNotify;
+var
+  Item : TTestItem;
 begin
   FRingbuffer.Notify := nil;
 
   FRingbuffer.Add(TTestItem.Create('Item1000000', 10, 0));
   CheckAndClearNoEventFlagsSet;
 
-  CheckEquals('Item1000000', FRingbuffer.Remove.Name, 'Removed item is wrong');
+  Item := FRingbuffer.Remove;
+  CheckEquals('Item1000000', Item.Name, 'Removed item is wrong');
   CheckAndClearNoEventFlagsSet;
+  Item.Free;
 end;
 
 procedure TestRingbufferObjects.TestRemoveWrap1;
@@ -5767,6 +5789,7 @@ begin
     CheckEquals('Item' + (i+1001).ToString, Item.Name, 'Removed item has wrong value (loop)');
     CheckEquals(FRingbuffer.Size-(i+1), FRingbuffer.Count, 'Wrong number of items in the buffer (loop)');
     CheckAndClearEventFlags(evRemove);
+    Item.Free;
   end;
 end;
 
@@ -5809,6 +5832,7 @@ begin
     CheckEquals('Item' + (i+3+1000).ToString, Item.Name, 'Removed item has wrong value (loop)');
     CheckEquals(FRingbuffer.Size-(i+1), FRingbuffer.Count, 'Wrong item count (loop)');
     CheckAndClearEventFlags(evRemove);
+    Item.Free;
   end;
 end;
 
