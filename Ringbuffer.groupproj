@@ -9,6 +9,9 @@
         <Projects Include="RingpufferTests.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="RingbufferDemo.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +38,23 @@
     <Target Name="RingpufferTests:Make">
         <MSBuild Projects="RingpufferTests.dproj" Targets="Make"/>
     </Target>
+    <Target Name="RingbufferDemo">
+        <MSBuild Projects="RingbufferDemo.dproj"/>
+    </Target>
+    <Target Name="RingbufferDemo:Clean">
+        <MSBuild Projects="RingbufferDemo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="RingbufferDemo:Make">
+        <MSBuild Projects="RingbufferDemo.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="Ringpuffer;RingpufferTests"/>
+        <CallTarget Targets="Ringpuffer;RingpufferTests;RingbufferDemo"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Ringpuffer:Clean;RingpufferTests:Clean"/>
+        <CallTarget Targets="Ringpuffer:Clean;RingpufferTests:Clean;RingbufferDemo:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Ringpuffer:Make;RingpufferTests:Make"/>
+        <CallTarget Targets="Ringpuffer:Make;RingpufferTests:Make;RingbufferDemo:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

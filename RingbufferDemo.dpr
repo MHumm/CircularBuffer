@@ -14,19 +14,19 @@
   specific language governing permissions and limitations
   under the License.
 *****************************************************************************}
-program Ringpuffer;
+program RingbufferDemo;
 
 {$APPTYPE CONSOLE}
 
 {$R *.res}
 
 uses
-  System.SysUtils,
-  Ringbuffer in 'Ringbuffer.pas';
+  System.SysUtils;
 
 begin
   try
-    WriteLn('For a demo look at the RingbufferDemo project');
+    WriteLn('More to come...');
+    ReadLn;
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);
