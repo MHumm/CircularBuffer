@@ -6,10 +6,10 @@
         <Projects Include="Ringpuffer.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="RingbufferDemo.dproj">
+        <Projects Include="UnitTest\RingpufferTests.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="UnitTest\RingpufferTests.dproj">
+        <Projects Include="Demo\RingbufferDemo.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -29,15 +29,6 @@
     <Target Name="Ringpuffer:Make">
         <MSBuild Projects="Ringpuffer.dproj" Targets="Make"/>
     </Target>
-    <Target Name="RingbufferDemo">
-        <MSBuild Projects="RingbufferDemo.dproj"/>
-    </Target>
-    <Target Name="RingbufferDemo:Clean">
-        <MSBuild Projects="RingbufferDemo.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="RingbufferDemo:Make">
-        <MSBuild Projects="RingbufferDemo.dproj" Targets="Make"/>
-    </Target>
     <Target Name="RingpufferTests">
         <MSBuild Projects="UnitTest\RingpufferTests.dproj"/>
     </Target>
@@ -47,14 +38,23 @@
     <Target Name="RingpufferTests:Make">
         <MSBuild Projects="UnitTest\RingpufferTests.dproj" Targets="Make"/>
     </Target>
+    <Target Name="RingbufferDemo">
+        <MSBuild Projects="Demo\RingbufferDemo.dproj"/>
+    </Target>
+    <Target Name="RingbufferDemo:Clean">
+        <MSBuild Projects="Demo\RingbufferDemo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="RingbufferDemo:Make">
+        <MSBuild Projects="Demo\RingbufferDemo.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="Ringpuffer;RingbufferDemo;RingpufferTests"/>
+        <CallTarget Targets="Ringpuffer;RingpufferTests;RingbufferDemo"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Ringpuffer:Clean;RingbufferDemo:Clean;RingpufferTests:Clean"/>
+        <CallTarget Targets="Ringpuffer:Clean;RingpufferTests:Clean;RingbufferDemo:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Ringpuffer:Make;RingbufferDemo:Make;RingpufferTests:Make"/>
+        <CallTarget Targets="Ringpuffer:Make;RingpufferTests:Make;RingbufferDemo:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
