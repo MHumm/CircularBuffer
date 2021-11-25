@@ -3,7 +3,7 @@ Generic circular buffer/ring buffer implementation
 
 # Supported Delphi versions
 At least from XE7 onwards, but most likely earlier versions 
-supporting generics as well. Erarlier versions will not worksdue 
+supporting generics as well. Erarlier versions will not work due 
 to the use of some intrinsics added in XE7.
 
 # Contents
