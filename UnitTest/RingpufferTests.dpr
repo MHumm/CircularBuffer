@@ -27,6 +27,8 @@ uses
   TestInsight.DUnit,
   {$ELSE}
   TestFramework,
+  GUITestRunner,
+  TextTestRunner,
   {$ENDIF }
   TestRingbuffer in 'TestRingbuffer.pas',
   Ringbuffer in '..\Source\Ringbuffer.pas';
