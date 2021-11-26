@@ -74,7 +74,7 @@ begin
   for i := 0 to RecordBuffer.Count - 1 do
   begin
     Person := RecordBuffer.Peek(i);
-    WriteLn('Index: ', i:2, ' Name: ', Person.Name, ' Age: ' + Person.Age.ToString);
+    WriteLn('Index: ', i:2, ' Name: ', Person.Name, ' Age: ', Person.Age);
   end;
 
   WriteLn('Capacity: ', RecordBuffer.Size, ' Fill level: ', RecordBuffer.Count);
