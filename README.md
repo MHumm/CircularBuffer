@@ -2,9 +2,10 @@
 Generic circular buffer/ring buffer implementation
 
 # Supported Delphi versions
-At least from XE7 onwards, but most likely earlier versions 
-supporting generics as well. Erarlier versions will not work due 
-to the use of some intrinsics added in XE7.
+Most likely at least from XE7 onwards, but most likely earlier versions 
+supporting generics as well. Earlier versions will not work due 
+to the use of some intrinsics added in XE7. Last changes were made 
+with 11.0 Alexandria.
 
 # Contents
 The project contains one unit implementing a generic circular buffer class
