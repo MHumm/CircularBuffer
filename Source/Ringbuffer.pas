@@ -1,4 +1,4 @@
-ï»¿{*****************************************************************************
+{*****************************************************************************
   The CircularBuffer team (see file NOTICE.txt) licenses this file
   to you under the Apache License, Version 2.0 (the
   "License"); you may not use this file except in compliance
@@ -198,7 +198,7 @@ type
     ///   Appends the given item to the ring buffer
     /// </summary>
     /// <param name="Item">
-    ///   AnzuhÃ¤ngendes Element
+    ///   Anzuhängendes Element
     /// </param>
     /// <exception cref="EBufferFullException">
     ///   not enough capacity
@@ -242,7 +242,7 @@ type
     ///   Number of elements to retrieve
     /// </param>
     /// <returns>
-    ///   Array mit einer maximalen LÃ¤nge von Count
+    ///   Array mit einer maximalen Länge von Count
     /// </returns>
     /// <exception cref="EBufferEmptyException">
     ///   buffer is empty
@@ -378,7 +378,7 @@ implementation
 
 procedure TRingbuffer<T>.Add(Item: T);
 begin
-  // nur hinzufÃ¼gen wenn entweder noch Platz im Puffer oder wenn Puffer ganz
+  // nur hinzufügen wenn entweder noch Platz im Puffer oder wenn Puffer ganz
   // leer (dann sind Start- und Ende Zeiger gleich, aber das FContaisData Flag
   // ist noch false
   if (Count < Size) or ((Count = Size) and not FContainsData) then
@@ -403,19 +403,19 @@ var
                               // Ende des Arrays
   i                 : UInt32;
 begin
-  assert(length(Items) > 0, 'HinzufÃ¼gen eines leeren Arrays ist nicht sinnvoll');
+  assert(length(Items) > 0, 'Hinzufügen eines leeren Arrays ist nicht sinnvoll');
 
-  // ist Ã¼berhaupt noch soviel Platz im Puffer?
-  // Typecast nach Int64 um W1023 Warnung zu unterdrÃ¼cken
+  // ist überhaupt noch soviel Platz im Puffer?
+  // Typecast nach Int64 um W1023 Warnung zu unterdrücken
   if (length(Items) <= Int64(Size-Count)) then
   begin
     // leeres Array sollte eigentlich nicht vorkommen, aber falls im Release
-    // Build Assertions aus sind sollte es auch nicht abstÃ¼rzen
+    // Build Assertions aus sind sollte es auch nicht abstürzen
     if (length(Items) > 0) then
     begin
-      // Passt das Ã¼bergebene Array im StÃ¼ck in den Puffer und der Puffer Inhalt
-      // geht derzeit auch nicht Ã¼ber die obere Grenze hinaus, oder muss es
-      // gesplittet werden? Typecast nach Int64 um W1023 Warnung zu unterdrÃ¼cken
+      // Passt das übergebene Array im Stück in den Puffer und der Puffer Inhalt
+      // geht derzeit auch nicht über die obere Grenze hinaus, oder muss es
+      // gesplittet werden? Typecast nach Int64 um W1023 Warnung zu unterdrücken
       if (Int64(Size-FNextFree) >= length(Items)) then
       begin
         if not IsManagedType(T) then
@@ -447,7 +447,7 @@ begin
         end;
       end;
 
-      // Endeindex erhÃ¶hen
+      // Endeindex erhöhen
       AdvanceNextFree(length(Items));
       FContainsData := true;
 
@@ -463,12 +463,12 @@ end;
 
 procedure TRingbuffer<T>.AdvanceNextFree(Increment: UInt32);
 var
-  Remaining : UInt32; // Verbleibende SpeicherplÃ¤tze bis zur oberen Array Grenze
+  Remaining : UInt32; // Verbleibende Speicherplätze bis zur oberen Array Grenze
 begin
   Remaining := Size-FNextFree;
 
   inc(FNextFree, Increment);
-  // Ende Marker Ã¼ber das Array-Ende hinaus erhÃ¶ht
+  // Ende Marker über das Array-Ende hinaus erhöht
   if (FNextFree > Size-1) then
     FNextFree := (Increment-Remaining);
 end;
@@ -481,7 +481,8 @@ begin
   FNextFree     := 0;
   FContainsData := false;
 
-  FreeObjectsIfOwned(FStart, Size - 1);
+  if (Size > 0) then
+    FreeObjectsIfOwned(FStart, Size - 1);
 
   // We exceet the upper end of the buffer so we need to clear the remaining
   // objects from the beginning
@@ -516,21 +517,22 @@ end;
 
 procedure TRingbuffer<T>.Delete(Count: UInt32);
 var
-  Remaining : UInt32; // Verbleibende SpeicherplÃ¤tze bis zur oberen Array Grenze
+  Remaining : UInt32; // Verbleibende Speicherplätze bis zur oberen Array Grenze
   i         : Integer;
 begin
   if (Count <= Size) then
   begin
-    // Puffer nur teilweise zu lÃ¶schen?
+    // Puffer nur teilweise zu löschen?
     if (Count < self.Count) then
     begin
       Remaining := Size - FStart;
-      // Pufferinhalt geht nicht Ã¼ber obere Array Grenze hinaus?
+      // Pufferinhalt geht nicht über obere Array Grenze hinaus?
       if (Count < Remaining) then
       begin
         if (Count > 0) then
         begin
-          FreeObjectsIfOwned(FStart, FStart + Count - 1);
+          if ((FStart+Count) > 0) then
+            FreeObjectsIfOwned(FStart, FStart + Count - 1);
 
           if IsManagedType(T) then
             for i := FStart to FStart + Count - 1 do
@@ -544,8 +546,11 @@ begin
       begin
         if (Count > 0) then
         begin
-          FreeObjectsIfOwned(FStart, FStart + Remaining - 1);
-          FreeObjectsIfOwned(0, Count - Remaining - 1);
+          if ((FStart+Remaining) > 0) then
+            FreeObjectsIfOwned(FStart, FStart + Remaining - 1);
+
+          if ((Count-Remaining) > 0) then
+            FreeObjectsIfOwned(0, Count - Remaining - 1);
 
           if IsManagedType(T) then
           begin
@@ -564,12 +569,12 @@ begin
         end;
       end;
 
-      // nur benachrichtigen wenn Ã¼berhaupt was gelÃ¶scht werden sollte
+      // nur benachrichtigen wenn überhaupt was gelöscht werden sollte
       if assigned(FNotify) and (Count > 0) then
         FNotify(Count, evRemove);
     end
     else
-      // alles zu lÃ¶schen
+      // alles zu löschen
       Clear;
   end
   else
@@ -580,7 +585,8 @@ end;
 
 destructor TRingbuffer<T>.Destroy;
 begin
-  FreeObjectsIfOwned(0, Size-1);
+  if (Size > 0) then
+    FreeObjectsIfOwned(0, Size-1);
 
   SetLength(FItems, 0);
 
@@ -599,19 +605,19 @@ begin
   // Puffer ist weder komplett leer noch komplett voll
   if (FNextFree <> FStart) then
   begin
-    // Je nach dem ob der Puffer gerade Ã¼ber das Ende hinaus geht und am Anfang
+    // Je nach dem ob der Puffer gerade über das Ende hinaus geht und am Anfang
     // weiter geht
     if (FNextFree > FStart) then
       result := FNextFree-FStart
     else
     begin
-      // Puffer geht Ã¼ber das Ende hinaus und beginnt am Array Anfang wieder
+      // Puffer geht über das Ende hinaus und beginnt am Array Anfang wieder
       l := (length(FItems)-Int64(FStart))+FNextFree;
       result := abs(l);
     end;
   end
   else
-    // Start = Ende aber es sind daten da? Dann ist Puffer maximal gefÃ¼llt
+    // Start = Ende aber es sind daten da? Dann ist Puffer maximal gefüllt
     if FContainsData then
       result := Size
     else
@@ -675,7 +681,7 @@ begin
   // Is the index in the valid range?
   if (Count <= Size) and (Index < self.Count) then
   begin
-    // Ist Ã¼berhaupt was im Puffer?
+    // Ist überhaupt was im Puffer?
     if (self.Count > 0) then
     begin
       // there are as many items in the buffer as shall be copied
@@ -732,23 +738,23 @@ function TRingbuffer<T>.Remove(RemoveCount: UInt32): TRingbufferArray;
 var
   RemoveableCount   : UInt32;  // Anzahl entfernbarer Elemente, meist Count
   RemainingCount    : UInt32;  // Anzahl Elemente von Start bis Pufferende
-  StillContainsData : Boolean; // EnthÃ¤lt der Puffer nach der Remove Operation
+  StillContainsData : Boolean; // Enthält der Puffer nach der Remove Operation
                                // immer noch Daten?
   i                 : UInt32;
 begin
   if (RemoveCount > 0) then
   begin
-    // wurden mehr Elemente angefordert als Ã¼berhaupt je in den Puffer passen?
+    // wurden mehr Elemente angefordert als überhaupt je in den Puffer passen?
     if (RemoveCount <= Size) then
     begin
-      // Ist Ã¼berhaupt was im Puffer?
+      // Ist überhaupt was im Puffer?
       if (Count > 0) then
       begin
         // es sind soviele Elemente im Puffer wie entfernt werden sollen
         if (RemoveCount <= Count) then
           RemoveableCount := RemoveCount
         else
-          // Nein, also nur soviele entfernen wie Ã¼berhaupt mÃ¶glich
+          // Nein, also nur soviele entfernen wie überhaupt möglich
           RemoveableCount := Count;
 
         SetLength(result, RemoveableCount);
@@ -756,7 +762,7 @@ begin
         // gesetzt werden
         StillContainsData := RemoveCount <> Count;
 
-        // geht der aktuelle Puffer inhalt Ã¼ber die obere Grenze (d.h. klappt um)?
+        // geht der aktuelle Puffer inhalt über die obere Grenze (d.h. klappt um)?
         if ((FStart + RemoveableCount) <= Size)  then
         begin
           // Nein, also Elemente direkt kopierbar
@@ -775,7 +781,7 @@ begin
         end
         else
         begin
-          // 2 Kopieroperationen nÃ¶tig
+          // 2 Kopieroperationen nötig
           RemainingCount := (Size-FStart);
 
           // von Startzeiger bis Pufferende
@@ -827,7 +833,7 @@ function TRingbuffer<T>.Remove: T;
 var
   i : UInt32;
 begin
-  // ist Ã¼berhaupt was im Puffer?
+  // ist überhaupt was im Puffer?
   if Count > 0 then
   begin
     result := FItems[FStart];
@@ -838,7 +844,7 @@ begin
 
     // Anfangsmarker verschieben
     inc(FStart);
-    // obere Grenze Ã¼berschritten?
+    // obere Grenze überschritten?
     if (FStart = Size) then
       FStart := 0;
 
