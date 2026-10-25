@@ -1,0 +1,566 @@
+﻿{
+  "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:c1935e0b-aa8d-478b-950d-5af7adb53d88",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-10-25T09:58:10Z",
+    "component": {
+      "type": "library",
+      "name": "Ringpuffer",
+      "version": "1.1.0.0",
+      "bom-ref": "Ringpuffer",
+      "supplier": {
+        "name": "Markus Humm",
+        "url": [
+          "https://github.com/MHumm/CircularBuffer"
+        ]
+      },
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0",
+            "acknowledgement": "concluded"
+          }
+        },
+        {
+          "license": {
+            "id": "Apache-2.0",
+            "acknowledgement": "declared"
+          }
+        }
+      ],
+      "purl": "pkg:github/MHumm/CircularBuffer@1.1.0.0"
+    },
+    "manufacturer": {
+      "contact": [
+        {
+          "email": "markus.humm@gmail.com"
+        }
+      ]
+    },
+    "properties": [
+      {
+        "name": "net.developer-experts.dx-comply:document.profile",
+        "value": "library-source"
+      }
+    ],
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "author": "Olaf Monien",
+          "name": "DX.Comply",
+          "version": "2.0.2.0"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "file",
+      "name": "Demo/RingbufferDemo.dpr",
+      "version": "1.1.0.0",
+      "bom-ref": "comp-0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "97f08903c51d74fe9f37fe61bf2efaaddd43281b9b37b84b1a13650f9bce19d9"
+        },
+        {
+          "alg": "SHA-512",
+          "content": "e63858cdbc0ef790a6b64631e5fab6fb18fbf7589af0e7b45d3cdf99b0026b3e1f8c90fafeeeb363fb4b8a7e2d4d455d7a77cbe6f8ad4aa4ecdc4ab65868b180"
+        }
+      ],
+      "properties": [
+        {
+          "name": "file:size",
+          "value": "5233"
+        },
+        {
+          "name": "net.developer-experts.dx-comply:relativePath",
+          "value": "Demo/RingbufferDemo.dpr"
+        },
+        {
+          "name": "bsi:component:filename",
+          "value": "RingbufferDemo.dpr"
+        },
+        {
+          "name": "bsi:component:executable",
+          "value": "non-executable"
+        },
+        {
+          "name": "bsi:component:archive",
+          "value": "no archive"
+        },
+        {
+          "name": "bsi:component:structured",
+          "value": "unstructured"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "Demo/RingbufferDemo.dproj",
+      "version": "1.1.0.0",
+      "bom-ref": "comp-1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "679337f117ff3cad6e78a10d62d39b02fd07e30f9654df7342bb18c676bc9b74"
+        },
+        {
+          "alg": "SHA-512",
+          "content": "2c70ec2ed524253830e8ada42b3841a2f31e872bd6674880763baa9370efbdd5daabf578052cf1e8da27c346c923e0342b94ff33d7fce3e68271fff697d2b579"
+        }
+      ],
+      "properties": [
+        {
+          "name": "file:size",
+          "value": "69027"
+        },
+        {
+          "name": "net.developer-experts.dx-comply:relativePath",
+          "value": "Demo/RingbufferDemo.dproj"
+        },
+        {
+          "name": "bsi:component:filename",
+          "value": "RingbufferDemo.dproj"
+        },
+        {
+          "name": "bsi:component:executable",
+          "value": "non-executable"
+        },
+        {
+          "name": "bsi:component:archive",
+          "value": "no archive"
+        },
+        {
+          "name": "bsi:component:structured",
+          "value": "unstructured"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "Demo/RingbufferDemo.res",
+      "version": "1.1.0.0",
+      "bom-ref": "comp-2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b6462367ebef1487d9adb4923b15dabfad0479510c1f4fcc92ff797dfa92ec64"
+        },
+        {
+          "alg": "SHA-512",
+          "content": "be56850e4fb374f8cbfe404647ac0c512766812dd0eafc74f317e61927856dddbd76e39f3026f3ac6a72d239372b6173db9b3e4dd01b23cedb2ca12b9f2ed0a3"
+        }
+      ],
+      "properties": [
+        {
+          "name": "file:size",
+          "value": "96"
+        },
+        {
+          "name": "net.developer-experts.dx-comply:relativePath",
+          "value": "Demo/RingbufferDemo.res"
+        },
+        {
+          "name": "bsi:component:filename",
+          "value": "RingbufferDemo.res"
+        },
+        {
+          "name": "bsi:component:executable",
+          "value": "non-executable"
+        },
+        {
+          "name": "bsi:component:archive",
+          "value": "no archive"
+        },
+        {
+          "name": "bsi:component:structured",
+          "value": "unstructured"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "Ringpuffer.dpr",
+      "version": "1.1.0.0",
+      "bom-ref": "comp-3",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "bdda4439156d2ff3f1dd4926b5a87a26b0468870aace74feea120634364f326f"
+        },
+        {
+          "alg": "SHA-512",
+          "content": "42f56810273182bda238454c22a9928506b418007582c3b2e848295431582a0fc03bd4aaa0212b0287378bbbeac0e1fa7869662b78fcc1982eeeffbba771f368"
+        }
+      ],
+      "properties": [
+        {
+          "name": "file:size",
+          "value": "1161"
+        },
+        {
+          "name": "net.developer-experts.dx-comply:relativePath",
+          "value": "Ringpuffer.dpr"
+        },
+        {
+          "name": "bsi:component:filename",
+          "value": "Ringpuffer.dpr"
+        },
+        {
+          "name": "bsi:component:executable",
+          "value": "non-executable"
+        },
+        {
+          "name": "bsi:component:archive",
+          "value": "no archive"
+        },
+        {
+          "name": "bsi:component:structured",
+          "value": "unstructured"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "Ringpuffer.dproj",
+      "version": "1.1.0.0",
+      "bom-ref": "comp-4",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2eb75fd914c61692e7be029e7441ac1d58f8f6b152e20fa67b17abab85786539"
+        },
+        {
+          "alg": "SHA-512",
+          "content": "a2332627908e3f2015b77cc57ea5bdb3669806030742261e9d2b9362040edd67b4fad7849960f2d6a73ff7911ff8a0182c8ca207e7cc7d9f59d143b83a341a2b"
+        }
+      ],
+      "properties": [
+        {
+          "name": "file:size",
+          "value": "64621"
+        },
+        {
+          "name": "net.developer-experts.dx-comply:relativePath",
+          "value": "Ringpuffer.dproj"
+        },
+        {
+          "name": "bsi:component:filename",
+          "value": "Ringpuffer.dproj"
+        },
+        {
+          "name": "bsi:component:executable",
+          "value": "non-executable"
+        },
+        {
+          "name": "bsi:component:archive",
+          "value": "no archive"
+        },
+        {
+          "name": "bsi:component:structured",
+          "value": "unstructured"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "Ringpuffer.res",
+      "version": "1.1.0.0",
+      "bom-ref": "comp-5",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1e4afed2e69555560cfcacfa4303c9723a5452866288bce672839ea174a879b5"
+        },
+        {
+          "alg": "SHA-512",
+          "content": "d5b49aa2a412a17c4e3b8835297f77a9b51d9716b099c3add91db1bf741a1e76f00890eef64d4d784d5d5721c1eda78efd74edaa0dfb77e6ec94976a77c491d3"
+        }
+      ],
+      "properties": [
+        {
+          "name": "file:size",
+          "value": "152412"
+        },
+        {
+          "name": "net.developer-experts.dx-comply:relativePath",
+          "value": "Ringpuffer.res"
+        },
+        {
+          "name": "bsi:component:filename",
+          "value": "Ringpuffer.res"
+        },
+        {
+          "name": "bsi:component:executable",
+          "value": "non-executable"
+        },
+        {
+          "name": "bsi:component:archive",
+          "value": "no archive"
+        },
+        {
+          "name": "bsi:component:structured",
+          "value": "unstructured"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "Source/Ringbuffer.pas",
+      "version": "1.1.0.0",
+      "bom-ref": "comp-6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a7176564771d9a69bb8620e35939afa9fe5a38b26995682078422c8ddc8cd169"
+        },
+        {
+          "alg": "SHA-512",
+          "content": "2b852557adb36c449e989bf7390ea05877edf221d5fcc3b4cf4eae383f7c2d4340d39f4a21f77a65deda388b0d7bff46d1dac92904f6842ae873d02697ee0336"
+        }
+      ],
+      "properties": [
+        {
+          "name": "file:size",
+          "value": "30784"
+        },
+        {
+          "name": "net.developer-experts.dx-comply:relativePath",
+          "value": "Source/Ringbuffer.pas"
+        },
+        {
+          "name": "bsi:component:filename",
+          "value": "Ringbuffer.pas"
+        },
+        {
+          "name": "bsi:component:executable",
+          "value": "non-executable"
+        },
+        {
+          "name": "bsi:component:archive",
+          "value": "no archive"
+        },
+        {
+          "name": "bsi:component:structured",
+          "value": "unstructured"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "UnitTest/RingpufferTests.dpr",
+      "version": "1.1.0.0",
+      "bom-ref": "comp-7",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8b5ef5037ecf34e09ecfb221663d878331561524397e77074476765eddc0024f"
+        },
+        {
+          "alg": "SHA-512",
+          "content": "c6e9deca48210cde2c8ad233b1324ea467ec1dc8ac8d361e3f7a773166405026b61565f24c4763be0b2acef987f1f815b4f1125ee28059b32c7d11f52eaf20d5"
+        }
+      ],
+      "properties": [
+        {
+          "name": "file:size",
+          "value": "1860"
+        },
+        {
+          "name": "net.developer-experts.dx-comply:relativePath",
+          "value": "UnitTest/RingpufferTests.dpr"
+        },
+        {
+          "name": "bsi:component:filename",
+          "value": "RingpufferTests.dpr"
+        },
+        {
+          "name": "bsi:component:executable",
+          "value": "non-executable"
+        },
+        {
+          "name": "bsi:component:archive",
+          "value": "no archive"
+        },
+        {
+          "name": "bsi:component:structured",
+          "value": "unstructured"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "UnitTest/RingpufferTests.dproj",
+      "version": "1.1.0.0",
+      "bom-ref": "comp-8",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e7d8f3a9bce5d45eb90dc781977d232dd563894c319eca566f447e5c39872275"
+        },
+        {
+          "alg": "SHA-512",
+          "content": "dc00e4cf138824a56d7c513ae5c3fd2d5dd12d166f1bd2ad37dbd38d1b8a20ebd4cae40e606f9d2ff85d4d389bb4acd5b9d68afda2d4759023c3e8e78fdcf5f4"
+        }
+      ],
+      "properties": [
+        {
+          "name": "file:size",
+          "value": "66323"
+        },
+        {
+          "name": "net.developer-experts.dx-comply:relativePath",
+          "value": "UnitTest/RingpufferTests.dproj"
+        },
+        {
+          "name": "bsi:component:filename",
+          "value": "RingpufferTests.dproj"
+        },
+        {
+          "name": "bsi:component:executable",
+          "value": "non-executable"
+        },
+        {
+          "name": "bsi:component:archive",
+          "value": "no archive"
+        },
+        {
+          "name": "bsi:component:structured",
+          "value": "unstructured"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "UnitTest/RingpufferTests.res",
+      "version": "1.1.0.0",
+      "bom-ref": "comp-9",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "aa07c07a0cccf04bcfca9599aa2456b999377c7cf871691194515b70f5d3d20e"
+        },
+        {
+          "alg": "SHA-512",
+          "content": "74986353d129e423f12f82b8c02d0871dc10f956db21d2086eba16d0e7f764d1f9dfdd3185f620da4dc3a9d3f30b96648b91f8052189a6ce32b8a3e442521549"
+        }
+      ],
+      "properties": [
+        {
+          "name": "file:size",
+          "value": "153940"
+        },
+        {
+          "name": "net.developer-experts.dx-comply:relativePath",
+          "value": "UnitTest/RingpufferTests.res"
+        },
+        {
+          "name": "bsi:component:filename",
+          "value": "RingpufferTests.res"
+        },
+        {
+          "name": "bsi:component:executable",
+          "value": "non-executable"
+        },
+        {
+          "name": "bsi:component:archive",
+          "value": "no archive"
+        },
+        {
+          "name": "bsi:component:structured",
+          "value": "unstructured"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "UnitTest/TestRingbuffer.pas",
+      "version": "1.1.0.0",
+      "bom-ref": "comp-10",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "021caed23999db51007719c83f62eeaa73c240ff2ac23a29369ecd7b9b91bcfe"
+        },
+        {
+          "alg": "SHA-512",
+          "content": "6f6e1fa052dd7689132a14a227f05001f5a70db9d7b8fedc1fb2c129195017346c4c61cc62208833bb6c51dcef454e0f674d2c6ea9d360951076a7a7de19033c"
+        }
+      ],
+      "properties": [
+        {
+          "name": "file:size",
+          "value": "194707"
+        },
+        {
+          "name": "net.developer-experts.dx-comply:relativePath",
+          "value": "UnitTest/TestRingbuffer.pas"
+        },
+        {
+          "name": "bsi:component:filename",
+          "value": "TestRingbuffer.pas"
+        },
+        {
+          "name": "bsi:component:executable",
+          "value": "non-executable"
+        },
+        {
+          "name": "bsi:component:archive",
+          "value": "no archive"
+        },
+        {
+          "name": "bsi:component:structured",
+          "value": "unstructured"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "Ringpuffer",
+      "dependsOn": [
+        "comp-0",
+        "comp-1",
+        "comp-2",
+        "comp-3",
+        "comp-4",
+        "comp-5",
+        "comp-6",
+        "comp-7",
+        "comp-8",
+        "comp-9",
+        "comp-10"
+      ]
+    }
+  ],
+  "compositions": [
+    {
+      "aggregate": "complete",
+      "dependencies": [
+        "comp-0",
+        "comp-1",
+        "comp-2",
+        "comp-3",
+        "comp-4",
+        "comp-5",
+        "comp-6",
+        "comp-7",
+        "comp-8",
+        "comp-9",
+        "comp-10"
+      ]
+    },
+    {
+      "aggregate": "unknown",
+      "dependencies": [
+        "Ringpuffer"
+      ]
+    }
+  ]
+}
