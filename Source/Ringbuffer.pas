@@ -1,4 +1,4 @@
-{*****************************************************************************
+ï»¿{*****************************************************************************
   The CircularBuffer team (see file NOTICE.txt) licenses this file
   to you under the Apache License, Version 2.0 (the
   "License"); you may not use this file except in compliance
@@ -45,8 +45,8 @@ type
     evRemove);
 
   /// <summary>
-  ///   Event type triggered by all operations manipulating the number of elements in the ring buffer: Add, Remove,
-  ///   Delete...
+  ///   Event type triggered by all operations manipulating the number of elements
+  ///   in the ring buffer: Add, Remove, Delete...
   /// </summary>
   /// <param name="Count">
   ///   new number of elements in the buffer
@@ -65,8 +65,9 @@ type
   TRingbufferNotify = procedure(Count: UInt32; Event:TRingbufferEventType) of Object;
 
   /// <summary>
-  ///   Implementation of a generic ring buffer for all types without taking any ownership. For a ring buffer freeing
-  ///   all contained objects on Destroy use <c>TObjectRingBuffer&lt;T&gt;</c>.
+  ///   Implementation of a generic ring buffer for all types without taking any
+  ///   ownership. For a ring buffer freeing all contained objects on Destroy
+  ///   use <c>TObjectRingBuffer&lt;T&gt;</c>.
   /// </summary>
   /// <seealso cref="TObjectRingBuffer&lt;T&gt;">
   ///   TObjectRingBuffer&lt;T&gt;
@@ -127,7 +128,8 @@ type
     ///   Index of the next free buffer item, where an element can be written directly
     /// </summary>
     /// <remarks>
-    ///   If <c>FNextFree = FStart</c> the buffer is either empty or full. The actual state is determined by <c>
+    ///   If <c>FNextFree = FStart</c> the buffer is either empty or full. The
+    ///   actual state is determined by <c>
     ///   FContainsData</c>: True means <i>the buffer is full</i>.
     /// </remarks>
     FNextFree     : UInt32;
@@ -135,11 +137,13 @@ type
     ///   Indicates whether the buffer actually contains data.
     /// </summary>
     /// <remarks>
-    ///   If <c>FStart = FNextFree</c> the buffer is either empty or full. This field gives the missing information.
+    ///   If <c>FStart = FNextFree</c> the buffer is either empty or full. This
+    ///   field gives the missing information.
     /// </remarks>
     FContainsData : Boolean;
     /// <summary>
-    ///   This event is triggered by all operations manipulating the number of elements in the ring buffer: Add,
+    ///   This event is triggered by all operations manipulating the number of
+    ///   elements in the ring buffer: Add,
     ///   Remove, Delete... <br />
     /// </summary>
     FNotify       : TRingbufferNotify;
@@ -159,18 +163,21 @@ type
     ///   How much items the Tail should be advanced
     /// </param>
     /// <remarks>
-    ///   The method assumes that the case <c>Tail+ Increment &gt; First</c> is already taken care of by the caller
+    ///   The method assumes that the case <c>Tail+ Increment &gt; First</c> is
+    ///   already taken care of by the caller
     /// </remarks>
     procedure AdvanceNextFree(Increment: UInt32); inline;
     /// <summary>
     ///   Prototype method for freeing objects
     /// </summary>
     /// <param name="StartIndex">
-    ///   Index of the first item to be deleted. Must be less than <c>EndIndex</c> and in the range <c>0 .. Count - 1</c>
+    ///   Index of the first item to be deleted. Must be less than <c>EndIndex</c>
+    ///   and in the range <c>0 .. Count - 1</c>
     ///   . Thus wrapped buffer content cannot be deleted in one go.
     /// </param>
     /// <param name="EndIndex">
-    ///   Index of the last item to be deleted. Must be larger than <c>StartIndex</c> and in the range <c>0 .. Count -
+    ///   Index of the last item to be deleted. Must be larger than <c>StartIndex</c>
+    ///   and in the range <c>0 .. Count -
     ///   1.</c>
     /// </param>
     /// <remarks>
@@ -189,8 +196,9 @@ type
     ///   Frees the ring buffer memory
     /// </summary>
     /// <example>
-    ///   Any object instances in the ring buffer will not be freed. If the ring buffer shall be responsible for
-    ///   managing the lifetime of those objects <c>TObjectRingbuffer&lt;T&gt;</c> would be the better choice!
+    ///   Any object instances in the ring buffer will not be freed. If the ring
+    ///   buffer shall be responsible for managing the lifetime of those objects
+    ///   <c>TObjectRingbuffer&lt;T&gt;</c> would be the better choice!
     /// </example>
     destructor  Destroy; override;
 
@@ -198,7 +206,7 @@ type
     ///   Appends the given item to the ring buffer
     /// </summary>
     /// <param name="Item">
-    ///   Anzuhängendes Element
+    ///   AnzuhÃ¤ngendes Element
     /// </param>
     /// <exception cref="EBufferFullException">
     ///   not enough capacity
@@ -217,8 +225,8 @@ type
     ///   not enough capacity
     /// </exception>
     /// <remarks>
-    ///   The size of the array must be less than the free capacity of the buffer. Otherwise an <c>EBufferFullException</c>
-    ///    is raised.
+    ///   The size of the array must be less than the free capacity of the buffer.
+    ///   Otherwise an <c>EBufferFullException</c> is raised.
     /// </remarks>
     procedure   Add(Items:TRingbufferArray); overload; virtual;
 
@@ -242,7 +250,7 @@ type
     ///   Number of elements to retrieve
     /// </param>
     /// <returns>
-    ///   Array mit einer maximalen Länge von Count
+    ///   Array mit einer maximalen LÃ¤nge von Count
     /// </returns>
     /// <exception cref="EBufferEmptyException">
     ///   buffer is empty
@@ -253,14 +261,15 @@ type
     /// <remarks>
     ///   <list type="bullet">
     ///     <item>
-    ///       If there are less elements in the buffer as requested, only the vailable elements are returned
+    ///       If there are less elements in the buffer as requested, only the
+    ///       vailable elements are returned
     ///     </item>
     ///     <item>
     ///       If the buffer is empty an EBufferEmptyException is raised.
     ///     </item>
     ///     <item>
-    ///       If more elements are requested than the capacity of the buffer an EArgumentOutOfRangeException is
-    ///       raised
+    ///       If more elements are requested than the capacity of the buffer an
+    ///       EArgumentOutOfRangeException is raised
     ///     </item>
     ///   </list>
     /// </remarks>
@@ -279,11 +288,12 @@ type
     ///     Elements are not overridden, but cannot be accessed after being deleted.
     ///   </para>
     ///   <para>
-    ///     If more elements are to be deleted than are available in the buffer, the buffer is cleared.
+    ///     If more elements are to be deleted than are available in the buffer,
+    ///     the buffer is cleared.
     ///   </para>
     ///   <para>
-    ///     If more elements are to be deleted than the capacity of the buffer an <b>EArgumentOutOfRangeException</b>
-    ///     is raised.
+    ///     If more elements are to be deleted than the capacity of the buffer an
+    ///     <b>EArgumentOutOfRangeException</b> is raised.
     ///   </para>
     /// </remarks>
     procedure   Delete(Count: UInt32); virtual;
@@ -299,7 +309,8 @@ type
     ///   Returns an item from the buffer from the given position without removing it
     /// </summary>
     /// <param name="Index">
-    ///   Index of the item to be returned. Range is <c>0 .. Count-1</c>. <c>0</c> is same as Head.
+    ///   Index of the item to be returned. Range is <c>0 .. Count-1</c>. <c>0</c>
+    ///   is same as Head.
     /// </param>
     /// <returns>
     ///   Item at <c>Index</c> position. The item stays in the buffer.
@@ -322,24 +333,27 @@ type
     ///   Number of items to retrieve.
     /// </param>
     /// <returns>
-    ///   The items from <c>Index</c> position up to the requested count or less. The buffer content is not changed.
+    ///   The items from <c>Index</c> position up to the requested count or less.
+    ///   The buffer content is not changed.
     /// </returns>
     /// <exception cref="EArgumentOutOfRangeException">
     ///   <c>Index</c> exceeds <c>Count - 1</c> or the buffer capacity
     /// </exception>
     /// <remarks>
     ///   <para>
-    ///     If Index is larger than <c>Count - 1</c> an <b>EArgumentOutOfRangeException</b> is raised.
+    ///     If Index is larger than <c>Count - 1</c> an <b>EArgumentOutOfRangeException</b>
+    ///     is raised.
     ///   </para>
     ///   <para>
     ///     <c>Count = 0</c> returns an empty array.
     ///   </para>
     ///   <para>
-    ///     If more items are requested than are available in the buffer the number of items returned is capped to
-    ///     the possible number.
+    ///     If more items are requested than are available in the buffer the number
+    ///     of items returned is capped to the possible number.
     ///   </para>
     ///   <para>
-    ///     If more items are requested than the buffer capacity an <b>EArgumentOutOfRangeException</b> is raised.
+    ///     If more items are requested than the buffer capacity an
+    ///     <b>EArgumentOutOfRangeException</b> is raised.
     ///   </para>
     /// </remarks>
     function    Peek(Index, Count: UInt32):TRingbufferArray overload;
@@ -357,7 +371,8 @@ type
       read   GetCount;
 
     /// <summary>
-    ///   This event is triggered by all operations manipulating the number of elements in the ring buffer: Add,Remove,
+    ///   This event is triggered by all operations manipulating the number of
+    ///   elements in the ring buffer: Add,Remove,
     ///   Delete...
     /// </summary>
     property Notify : TRingbufferNotify
@@ -378,7 +393,7 @@ implementation
 
 procedure TRingbuffer<T>.Add(Item: T);
 begin
-  // nur hinzufügen wenn entweder noch Platz im Puffer oder wenn Puffer ganz
+  // nur hinzufÃ¼gen wenn entweder noch Platz im Puffer oder wenn Puffer ganz
   // leer (dann sind Start- und Ende Zeiger gleich, aber das FContaisData Flag
   // ist noch false
   if (Count < Size) or ((Count = Size) and not FContainsData) then
@@ -403,19 +418,19 @@ var
                               // Ende des Arrays
   i                 : UInt32;
 begin
-  assert(length(Items) > 0, 'Hinzufügen eines leeren Arrays ist nicht sinnvoll');
+  assert(length(Items) > 0, 'HinzufÃ¼gen eines leeren Arrays ist nicht sinnvoll');
 
-  // ist überhaupt noch soviel Platz im Puffer?
-  // Typecast nach Int64 um W1023 Warnung zu unterdrücken
+  // ist Ã¼berhaupt noch soviel Platz im Puffer?
+  // Typecast nach Int64 um W1023 Warnung zu unterdrÃ¼cken
   if (length(Items) <= Int64(Size-Count)) then
   begin
     // leeres Array sollte eigentlich nicht vorkommen, aber falls im Release
-    // Build Assertions aus sind sollte es auch nicht abstürzen
+    // Build Assertions aus sind sollte es auch nicht abstÃ¼rzen
     if (length(Items) > 0) then
     begin
-      // Passt das übergebene Array im Stück in den Puffer und der Puffer Inhalt
-      // geht derzeit auch nicht über die obere Grenze hinaus, oder muss es
-      // gesplittet werden? Typecast nach Int64 um W1023 Warnung zu unterdrücken
+      // Passt das Ã¼bergebene Array im StÃ¼ck in den Puffer und der Puffer Inhalt
+      // geht derzeit auch nicht Ã¼ber die obere Grenze hinaus, oder muss es
+      // gesplittet werden? Typecast nach Int64 um W1023 Warnung zu unterdrÃ¼cken
       if (Int64(Size-FNextFree) >= length(Items)) then
       begin
         if not IsManagedType(T) then
@@ -447,7 +462,7 @@ begin
         end;
       end;
 
-      // Endeindex erhöhen
+      // Endeindex erhÃ¶hen
       AdvanceNextFree(length(Items));
       FContainsData := true;
 
@@ -463,12 +478,12 @@ end;
 
 procedure TRingbuffer<T>.AdvanceNextFree(Increment: UInt32);
 var
-  Remaining : UInt32; // Verbleibende Speicherplätze bis zur oberen Array Grenze
+  Remaining : UInt32; // Verbleibende SpeicherplÃ¤tze bis zur oberen Array Grenze
 begin
   Remaining := Size-FNextFree;
 
   inc(FNextFree, Increment);
-  // Ende Marker über das Array-Ende hinaus erhöht
+  // Ende Marker Ã¼ber das Array-Ende hinaus erhÃ¶ht
   if (FNextFree > Size-1) then
     FNextFree := (Increment-Remaining);
 end;
@@ -517,16 +532,16 @@ end;
 
 procedure TRingbuffer<T>.Delete(Count: UInt32);
 var
-  Remaining : UInt32; // Verbleibende Speicherplätze bis zur oberen Array Grenze
+  Remaining : UInt32; // Verbleibende SpeicherplÃ¤tze bis zur oberen Array Grenze
   i         : Integer;
 begin
   if (Count <= Size) then
   begin
-    // Puffer nur teilweise zu löschen?
+    // Puffer nur teilweise zu lÃ¶schen?
     if (Count < self.Count) then
     begin
       Remaining := Size - FStart;
-      // Pufferinhalt geht nicht über obere Array Grenze hinaus?
+      // Pufferinhalt geht nicht Ã¼ber obere Array Grenze hinaus?
       if (Count < Remaining) then
       begin
         if (Count > 0) then
@@ -569,12 +584,12 @@ begin
         end;
       end;
 
-      // nur benachrichtigen wenn überhaupt was gelöscht werden sollte
+      // nur benachrichtigen wenn Ã¼berhaupt was gelÃ¶scht werden sollte
       if assigned(FNotify) and (Count > 0) then
         FNotify(Count, evRemove);
     end
     else
-      // alles zu löschen
+      // alles zu lÃ¶schen
       Clear;
   end
   else
@@ -605,19 +620,19 @@ begin
   // Puffer ist weder komplett leer noch komplett voll
   if (FNextFree <> FStart) then
   begin
-    // Je nach dem ob der Puffer gerade über das Ende hinaus geht und am Anfang
+    // Je nach dem ob der Puffer gerade Ã¼ber das Ende hinaus geht und am Anfang
     // weiter geht
     if (FNextFree > FStart) then
       result := FNextFree-FStart
     else
     begin
-      // Puffer geht über das Ende hinaus und beginnt am Array Anfang wieder
+      // Puffer geht Ã¼ber das Ende hinaus und beginnt am Array Anfang wieder
       l := (length(FItems)-Int64(FStart))+FNextFree;
       result := abs(l);
     end;
   end
   else
-    // Start = Ende aber es sind daten da? Dann ist Puffer maximal gefüllt
+    // Start = Ende aber es sind daten da? Dann ist Puffer maximal gefÃ¼llt
     if FContainsData then
       result := Size
     else
@@ -681,7 +696,7 @@ begin
   // Is the index in the valid range?
   if (Count <= Size) and (Index < self.Count) then
   begin
-    // Ist überhaupt was im Puffer?
+    // Ist Ã¼berhaupt was im Puffer?
     if (self.Count > 0) then
     begin
       // there are as many items in the buffer as shall be copied
@@ -738,23 +753,23 @@ function TRingbuffer<T>.Remove(RemoveCount: UInt32): TRingbufferArray;
 var
   RemoveableCount   : UInt32;  // Anzahl entfernbarer Elemente, meist Count
   RemainingCount    : UInt32;  // Anzahl Elemente von Start bis Pufferende
-  StillContainsData : Boolean; // Enthält der Puffer nach der Remove Operation
+  StillContainsData : Boolean; // EnthÃ¤lt der Puffer nach der Remove Operation
                                // immer noch Daten?
   i                 : UInt32;
 begin
   if (RemoveCount > 0) then
   begin
-    // wurden mehr Elemente angefordert als überhaupt je in den Puffer passen?
+    // wurden mehr Elemente angefordert als Ã¼berhaupt je in den Puffer passen?
     if (RemoveCount <= Size) then
     begin
-      // Ist überhaupt was im Puffer?
+      // Ist Ã¼berhaupt was im Puffer?
       if (Count > 0) then
       begin
         // es sind soviele Elemente im Puffer wie entfernt werden sollen
         if (RemoveCount <= Count) then
           RemoveableCount := RemoveCount
         else
-          // Nein, also nur soviele entfernen wie überhaupt möglich
+          // Nein, also nur soviele entfernen wie Ã¼berhaupt mÃ¶glich
           RemoveableCount := Count;
 
         SetLength(result, RemoveableCount);
@@ -762,7 +777,7 @@ begin
         // gesetzt werden
         StillContainsData := RemoveCount <> Count;
 
-        // geht der aktuelle Puffer inhalt über die obere Grenze (d.h. klappt um)?
+        // geht der aktuelle Puffer inhalt Ã¼ber die obere Grenze (d.h. klappt um)?
         if ((FStart + RemoveableCount) <= Size)  then
         begin
           // Nein, also Elemente direkt kopierbar
@@ -781,7 +796,7 @@ begin
         end
         else
         begin
-          // 2 Kopieroperationen nötig
+          // 2 Kopieroperationen nÃ¶tig
           RemainingCount := (Size-FStart);
 
           // von Startzeiger bis Pufferende
@@ -830,10 +845,8 @@ begin
 end;
 
 function TRingbuffer<T>.Remove: T;
-var
-  i : UInt32;
 begin
-  // ist überhaupt was im Puffer?
+  // ist Ã¼berhaupt was im Puffer?
   if Count > 0 then
   begin
     result := FItems[FStart];
@@ -844,7 +857,7 @@ begin
 
     // Anfangsmarker verschieben
     inc(FStart);
-    // obere Grenze überschritten?
+    // obere Grenze Ã¼berschritten?
     if (FStart = Size) then
       FStart := 0;
 

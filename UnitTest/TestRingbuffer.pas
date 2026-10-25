@@ -1,4 +1,4 @@
-{*****************************************************************************
+ï»¿{*****************************************************************************
   The CircularBuffer team (see file NOTICE.txt) licenses this file
   to you under the Apache License, Version 2.0 (the
   "License"); you may not use this file except in compliance
@@ -42,7 +42,7 @@ type
     /// </summary>
     procedure ClearEventFlags;
     /// <summary>
-    ///   Prüft, ob das richtige Eventflag gesetzt ist
+    ///   PrÃ¼ft, ob das richtige Eventflag gesetzt ist
     /// </summary>
     /// <param name="EventType">
     ///   Art des Events: evAdd oder evRemove, das jeweilige Flag muss true sein
@@ -50,7 +50,7 @@ type
     /// </param>
     procedure CheckEventFlags(EventType : TRingbufferEventType);
     /// <summary>
-    ///   Prüft, ob das richtige Eventflag gesetzt ist und setzt alle Eventflags
+    ///   PrÃ¼ft, ob das richtige Eventflag gesetzt ist und setzt alle Eventflags
     ///   auf false
     /// </summary>
     /// <param name="EventType">
@@ -59,25 +59,25 @@ type
     /// </param>
     procedure CheckAndClearEventFlags(EventType: TRingbufferEventType);
     /// <summary>
-    ///   Prüft, dass keine der Eventflags gesetzt sind und setzt gesetzte zurück,
+    ///   PrÃ¼ft, dass keine der Eventflags gesetzt sind und setzt gesetzte zurÃ¼ck,
     ///   da nachfolgende Tests ja von ungesetzten Flags ausgehen werden
     /// </summary>
     procedure CheckAndClearNoEventFlagsSet;
     /// <summary>
-    ///   Dieses Ereignis wird bei allen Operationen ausgelöst, die einen Einfluss
-    ///   auf den Füllstand des Ringpuffers haben. Hinzufügen, Entfernen, Löschen...
+    ///   Dieses Ereignis wird bei allen Operationen ausgelÃ¶st, die einen Einfluss
+    ///   auf den FÃ¼llstand des Ringpuffers haben. HinzufÃ¼gen, Entfernen, LÃ¶schen...
     /// </summary>
     /// <param name="Count">
     ///   Neue Anzahl der im Puffer befindlichen Elemente
     /// </param>
     /// <param name="Event">
-    ///   Art des auslösenden Events: wenn Add wurde der Füllstand erhöht, wenn
+    ///   Art des auslÃ¶senden Events: wenn Add wurde der FÃ¼llstand erhÃ¶ht, wenn
     ///   Remove wurde er verringert.
     /// </param>
     procedure OnNotify(Count: UInt32; Event:TRingbufferEventType);
   end;
 
-  // Testmethoden für Klasse TRingbuffer
+  // Testmethoden fÃ¼r Klasse TRingbuffer
 
   TestTRingbuffer = class(BaseTestTRingbuffer)
   strict private
@@ -273,7 +273,7 @@ type
   end;
 
   /// <summary>
-  ///   Einfache Datenhaltungsklasse für die Tests von TObjectRingbuffer
+  ///   Einfache Datenhaltungsklasse fÃ¼r die Tests von TObjectRingbuffer
   /// </summary>
   TTestItem = class(TObject)
   public
@@ -285,9 +285,9 @@ type
   end;
 
   /// <summary>
-  ///   Testmethoden für Klasse TObjectRingbuffer. Da die Grundlagen bereits in
-  ///   den anderen Testklassen getestet werden werden hier nur noch die für die
-  ///   Speicherverwaltung nötigen Details getestet.
+  ///   Testmethoden fÃ¼r Klasse TObjectRingbuffer. Da die Grundlagen bereits in
+  ///   den anderen Testklassen getestet werden werden hier nur noch die fÃ¼r die
+  ///   Speicherverwaltung nÃ¶tigen Details getestet.
   /// </summary>
   TestRingbufferObjects = class(BaseTestTRingbuffer)
   strict private
@@ -362,8 +362,8 @@ end;
 
 procedure BaseTestTRingbuffer.CheckAndClearNoEventFlagsSet;
 begin
-  CheckEquals(false, FAdded,   'Hinzufügen Benachrichtigung fälschlicherweise ausgelöst');
-  CheckEquals(false, FRemoved, 'Entfernen Benachrichtigung fälschlicherweise ausgelöst');
+  CheckEquals(false, FAdded,   'HinzufÃ¼gen Benachrichtigung fÃ¤lschlicherweise ausgelÃ¶st');
+  CheckEquals(false, FRemoved, 'Entfernen Benachrichtigung fÃ¤lschlicherweise ausgelÃ¶st');
   ClearEventFlags;
 end;
 
@@ -371,12 +371,12 @@ procedure BaseTestTRingbuffer.CheckEventFlags(EventType: TRingbufferEventType);
 begin
   case EventType of
     evAdd    : begin
-                 CheckEquals(true,  FAdded,   'Hinzufügen Benachrichtigung nicht ausgelöst');
-                 CheckEquals(false, FRemoved, 'Entfernen Benachrichtigung fälschlicherweise ausgelöst');
+                 CheckEquals(true,  FAdded,   'HinzufÃ¼gen Benachrichtigung nicht ausgelÃ¶st');
+                 CheckEquals(false, FRemoved, 'Entfernen Benachrichtigung fÃ¤lschlicherweise ausgelÃ¶st');
                end;
     evRemove : begin
-                 CheckEquals(false, FAdded,   'Hinzufügen Benachrichtigung fälschlicherweise ausgelöst');
-                 CheckEquals(true,  FRemoved, 'Entfernen Benachrichtigung nicht ausgelöst');
+                 CheckEquals(false, FAdded,   'HinzufÃ¼gen Benachrichtigung fÃ¤lschlicherweise ausgelÃ¶st');
+                 CheckEquals(true,  FRemoved, 'Entfernen Benachrichtigung nicht ausgelÃ¶st');
                end;
   end;
 end;
@@ -416,16 +416,16 @@ var
   Items: TRingbuffer<Byte>.TRingbufferArray;
   i    : Byte;
 begin
-  // leerer Puffer muss löschbar sein. Test um einen Bugfix zu testen.
+  // leerer Puffer muss lÃ¶schbar sein. Test um einen Bugfix zu testen.
   FRingbuffer.Clear;
   CheckEquals(0, FRingbuffer.Count, 'Puffer muss nun leer sein');
   CheckAndClearEventFlags(evRemove);
 
-  // Puffer teilweise füllen
+  // Puffer teilweise fÃ¼llen
   for i := 1 to 3 do
     FRingbuffer.Add(i);
 
-  CheckEquals(3, FRingbuffer.Count, 'Falscher Pufferfüllstand');
+  CheckEquals(3, FRingbuffer.Count, 'Falscher PufferfÃ¼llstand');
   CheckAndClearEventFlags(evAdd);
 
   // und leeren
@@ -433,7 +433,7 @@ begin
   CheckEquals(0, FRingbuffer.Count, 'Puffer muss nun leer sein');
   CheckAndClearEventFlags(evRemove);
 
-  // Leeren Puffer muss man jetzt auch komplett füllen dürfen
+  // Leeren Puffer muss man jetzt auch komplett fÃ¼llen dÃ¼rfen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i;
@@ -465,7 +465,7 @@ begin
   Size  := FRingBuffer.Size;
   Count := FRingBuffer.Count;
 
-  CheckEquals(5, Size,  'Falsche Puffergröße');
+  CheckEquals(5, Size,  'Falsche PuffergrÃ¶ÃŸe');
   CheckEquals(0, Count, 'Puffer muss zu Beginn leer sein');
 end;
 
@@ -474,7 +474,7 @@ var
   i    : Byte;
   Item : Byte;
 begin
-  // Puffer ganz füllen
+  // Puffer ganz fÃ¼llen
   for i := 1 to FRingbuffer.Size  do
   begin
     Item := i;
@@ -491,7 +491,7 @@ var
   i    : Byte;
   Item : Byte;
 begin
-  // Puffer ganz füllen
+  // Puffer ganz fÃ¼llen
   for i := 1 to FRingbuffer.Size do
   begin
     Item := i;
@@ -503,7 +503,7 @@ begin
   end;
 
   // erstes Element entfernen, Endezeiger steht jetzt auf letztem Array Element
-  // und nächster Add-Aufruf muss am Anfang ein Item hinzufügen, d.h. kapieren,
+  // und nÃ¤chster Add-Aufruf muss am Anfang ein Item hinzufÃ¼gen, d.h. kapieren,
   // dass es wieder bei 0 los geht
   FRingbuffer.Remove;
   CheckAndClearEventFlags(evRemove);
@@ -605,7 +605,7 @@ begin
   FRingbuffer.Remove;
   CheckAndClearEventFlags(evRemove);
 
-  // Ein einzelnes Element als Array hinzufügen
+  // Ein einzelnes Element als Array hinzufÃ¼gen
   SetLength(Items, 1);
   Items[0] := 100;
 
@@ -614,8 +614,8 @@ begin
 
   for i := 0 to FRingbuffer.Size-2 do
     CheckEquals(i+1, FRingbuffer.Peek(i), 'Pufferinhalt falsch');
-  // später hinzugefügtes Element prüfen
-  CheckEquals(100, FRingbuffer.Peek(FRingbuffer.Size-1), 'Später hinzugefügtes Element hat falschen Wert');
+  // spÃ¤ter hinzugefÃ¼gtes Element prÃ¼fen
+  CheckEquals(100, FRingbuffer.Peek(FRingbuffer.Size-1), 'SpÃ¤ter hinzugefÃ¼gtes Element hat falschen Wert');
 end;
 
 procedure TestTRingbuffer.TestAddArrayEndLessStart3;
@@ -641,7 +641,7 @@ begin
   FRingbuffer.Remove;
   CheckAndClearEventFlags(evRemove);
 
-  // 3 Elemente hinzufügen
+  // 3 Elemente hinzufÃ¼gen
   SetLength(Items, FRingbuffer.Size-2);
   Items[0] := 100;
   Items[1] := 150;
@@ -652,10 +652,10 @@ begin
 
   for i := 0 to 1 do
     CheckEquals(i+3, FRingbuffer.Peek(i), 'Pufferinhalt falsch');
-  // später hinzugefügte Elemente prüfen
-  CheckEquals(100, FRingbuffer.Peek(2), 'Später hinzugefügtes Element hat falschen Wert');
-  CheckEquals(150, FRingbuffer.Peek(3), 'Später hinzugefügtes Element hat falschen Wert');
-  CheckEquals(200, FRingbuffer.Peek(4), 'Später hinzugefügtes Element hat falschen Wert');
+  // spÃ¤ter hinzugefÃ¼gte Elemente prÃ¼fen
+  CheckEquals(100, FRingbuffer.Peek(2), 'SpÃ¤ter hinzugefÃ¼gtes Element hat falschen Wert');
+  CheckEquals(150, FRingbuffer.Peek(3), 'SpÃ¤ter hinzugefÃ¼gtes Element hat falschen Wert');
+  CheckEquals(200, FRingbuffer.Peek(4), 'SpÃ¤ter hinzugefÃ¼gtes Element hat falschen Wert');
 end;
 
 procedure TestTRingbuffer.TestAddArrayEmptyArray;
@@ -664,25 +664,25 @@ var
 begin
   CheckEquals(0, FRingbuffer.Count, 'Puffer muss leer sein');
 
-  // Testet das hinzufügen eines komplett leeren Arrays
-  // Dieser Test ist derzeit dafür ausgelegt, einen Debugbuild mit eingeschalteten
-  // Assertions zu prüfen.
+  // Testet das hinzufÃ¼gen eines komplett leeren Arrays
+  // Dieser Test ist derzeit dafÃ¼r ausgelegt, einen Debugbuild mit eingeschalteten
+  // Assertions zu prÃ¼fen.
   SetLength(Items, 0);
 
-  // Prüfung, dass das Hinzufügen von zuviel Daten eine Exception auslöst
+  // PrÃ¼fung, dass das HinzufÃ¼gen von zuviel Daten eine Exception auslÃ¶st
   // Die beiden Breakpoints sind absichtlich hier. Die Eigenschaften der
   // Breakpoints wurden so angepasst, dass die IDE zwischen diesen beiden
-  // Breakpoints nicht wegen Exceptions anhält und auch nicht an diesen
-  // Breakpoints stoppt. Der Test auf die Auslösung der Exception funktioniert
+  // Breakpoints nicht wegen Exceptions anhÃ¤lt und auch nicht an diesen
+  // Breakpoints stoppt. Der Test auf die AuslÃ¶sung der Exception funktioniert
   // weiterhin!
   StartExpectingException(EAssertionFailed);
 
   FRingbuffer.Add(Items);
-  CheckEquals(false, FAdded, 'Hinzufügen Event fälschlicherweise ausgelöst');
+  CheckEquals(false, FAdded, 'HinzufÃ¼gen Event fÃ¤lschlicherweise ausgelÃ¶st');
 
   StopExpectingException();
 
-  CheckEquals(0, FRingbuffer.Count, 'Puffer muss nach Hinzufügen von nichts immer noch leer sein');
+  CheckEquals(0, FRingbuffer.Count, 'Puffer muss nach HinzufÃ¼gen von nichts immer noch leer sein');
 end;
 
 procedure TestTRingbuffer.TestAddArrayException;
@@ -696,21 +696,21 @@ begin
 
   FRingbuffer.Add(1);
 
-  // Prüfung, dass das Hinzufügen von zuviel Daten eine Exception auslöst
+  // PrÃ¼fung, dass das HinzufÃ¼gen von zuviel Daten eine Exception auslÃ¶st
   // Die beiden Breakpoints sind absichtlich hier. Die Eigenschaften der
   // Breakpoints wurden so angepasst, dass die IDE zwischen diesen beiden
-  // Breakpoints nicht wegen Exceptions anhält und auch nicht an diesen
-  // Breakpoints stoppt. Der Test auf die Auslösung der Exception funktioniert
+  // Breakpoints nicht wegen Exceptions anhÃ¤lt und auch nicht an diesen
+  // Breakpoints stoppt. Der Test auf die AuslÃ¶sung der Exception funktioniert
   // weiterhin!
   StartExpectingException(EBufferFullException);
 
-  // Array hinzufügen der nicht mehr hinein passt
+  // Array hinzufÃ¼gen der nicht mehr hinein passt
   FRingbuffer.Add(Items);
-  CheckEquals(false, FAdded, 'Hinzufügen Event fälschlicherweise ausgelöst');
+  CheckEquals(false, FAdded, 'HinzufÃ¼gen Event fÃ¤lschlicherweise ausgelÃ¶st');
 
   StopExpectingException();
 
-  // Puffer vollends "manuell" füllen
+  // Puffer vollends "manuell" fÃ¼llen
   for i := 2 to FRingbuffer.Size do
     FRingbuffer.Add(i);
 
@@ -721,17 +721,17 @@ begin
   Items[0] := 10;
   Items[1] := 11;
 
-  // Prüfung, dass das Hinzufügen von zuviel Daten eine Exception auslöst
+  // PrÃ¼fung, dass das HinzufÃ¼gen von zuviel Daten eine Exception auslÃ¶st
   // Die beiden Breakpoints sind absichtlich hier. Die Eigenschaften der
   // Breakpoints wurden so angepasst, dass die IDE zwischen diesen beiden
-  // Breakpoints nicht wegen Exceptions anhält und auch nicht an diesen
-  // Breakpoints stoppt. Der Test auf die Auslösung der Exception funktioniert
+  // Breakpoints nicht wegen Exceptions anhÃ¤lt und auch nicht an diesen
+  // Breakpoints stoppt. Der Test auf die AuslÃ¶sung der Exception funktioniert
   // weiterhin!
   StartExpectingException(EBufferFullException);
 
-  // Array hinzufügen der nicht mehr hinein passt
+  // Array hinzufÃ¼gen der nicht mehr hinein passt
   FRingbuffer.Add(Items);
-  CheckEquals(false, FAdded, 'Hinzufügen Event fälschlicherweise ausgelöst');
+  CheckEquals(false, FAdded, 'HinzufÃ¼gen Event fÃ¤lschlicherweise ausgelÃ¶st');
 
   StopExpectingException();
 end;
@@ -753,7 +753,7 @@ begin
   for i := 1 to 2 do
     CheckEquals(i, FRingbuffer.Peek(i-1), 'Falscher Wert im Puffer');
 
-  // Puffer weiter füllen
+  // Puffer weiter fÃ¼llen
   SetLength(Items, 2);
   Items[0] := 3;
   Items[1] := 4;
@@ -770,7 +770,7 @@ var
   Items: TRingbuffer<Byte>.TRingbufferArray;
   i    : Byte;
 begin
-  // Test mit 1 Element Überlauf
+  // Test mit 1 Element Ãœberlauf
   FRingbuffer.Add(1);
   FRingbuffer.Add(2);
   CheckAndClearEventFlags(evAdd);
@@ -798,15 +798,15 @@ var
   Items: TRingbuffer<Byte>.TRingbufferArray;
   i    : Byte;
 begin
-  // Test mit 3 Elementen Überlauf, Puffer soweit füllen, dass Hinzufügen von 4
-  // Elementen zum "Überlauf" von 3 Elementen führt
+  // Test mit 3 Elementen Ãœberlauf, Puffer soweit fÃ¼llen, dass HinzufÃ¼gen von 4
+  // Elementen zum "Ãœberlauf" von 3 Elementen fÃ¼hrt
   FRingbuffer.Add(1);
   FRingbuffer.Add(2);
   FRingbuffer.Add(3);
   FRingbuffer.Add(4);
   CheckAndClearEventFlags(evAdd);
 
-  // erste 3 Einträge wieder entfernen
+  // erste 3 EintrÃ¤ge wieder entfernen
   FRingbuffer.Remove;
   FRingbuffer.Remove;
   FRingbuffer.Remove;
@@ -830,7 +830,7 @@ var
   i    : Byte;
   Item : Byte;
 begin
-  // Puffer zuerst komplett füllen
+  // Puffer zuerst komplett fÃ¼llen
   for i := 1 to FRingbuffer.Size do
   begin
     Item := i;
@@ -842,18 +842,18 @@ begin
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Puffer ist nicht voll!');
   CheckAndClearEventFlags(evAdd);
 
-  // Prüfung, dass das Hinzufügen von zuviel Daten eine Exception auslöst
+  // PrÃ¼fung, dass das HinzufÃ¼gen von zuviel Daten eine Exception auslÃ¶st
   // Die beiden Breakpoints sind absichtlich hier. Die Eigenschaften der
   // Breakpoints wurden so angepasst, dass die IDE zwischen diesen beiden
-  // Breakpoints nicht wegen Exceptions anhält und auch nicht an diesen
-  // Breakpoints stoppt. Der Test auf die Auslösung der Exception funktioniert
+  // Breakpoints nicht wegen Exceptions anhÃ¤lt und auch nicht an diesen
+  // Breakpoints stoppt. Der Test auf die AuslÃ¶sung der Exception funktioniert
   // weiterhin!
   StartExpectingException(EBufferFullException);
 
-  // ein Element zuviel hinzufügen
+  // ein Element zuviel hinzufÃ¼gen
   Item := FRingbuffer.Size+1;
   FRingbuffer.Add(Item);
-  CheckEquals(false, FAdded, 'Hinzufügen benachrichtigung fälschlicherweise ausgelöst');
+  CheckEquals(false, FAdded, 'HinzufÃ¼gen benachrichtigung fÃ¤lschlicherweise ausgelÃ¶st');
 
   StopExpectingException();
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Puffer ist nicht mehr voll!');
@@ -874,7 +874,7 @@ var
   Item        : Byte;
   i           : Byte;
 begin
-  // zuerst mit einem Eintrag prüfen
+  // zuerst mit einem Eintrag prÃ¼fen
   Item := 1;
   FRingbuffer.Add(Item);
   CheckEquals(1, FRingbuffer.Count, 'Anzahl Elemente ist falsch');
@@ -885,8 +885,8 @@ begin
   CheckEquals(1, ReturnValue,       'Entnommenes Element ist falsch');
   CheckAndClearEventFlags(evRemove);
 
-  // Jetzt mit vollem Puffer prüfen
-  // Puffer zuerst komplett füllen
+  // Jetzt mit vollem Puffer prÃ¼fen
+  // Puffer zuerst komplett fÃ¼llen
   for i := FRingbuffer.Size downto 1 do
   begin
     Item := i;
@@ -917,7 +917,7 @@ var
   i           : Byte;
 
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i;
@@ -926,7 +926,7 @@ begin
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer');
   CheckAndClearEventFlags(evAdd);
 
-  // 3 Elemente entnehmen, Elemente und Pufferfüllstand prüfen
+  // 3 Elemente entnehmen, Elemente und PufferfÃ¼llstand prÃ¼fen
   Count := 3;
   SetLength(ReturnValue, 3);
   ReturnValue := FRingbuffer.Remove(Count);
@@ -943,7 +943,7 @@ var
   ReturnValue : TRingbuffer<Byte>.TRingbufferArray;
   i           : Byte;
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i;
@@ -952,11 +952,11 @@ begin
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer');
   CheckAndClearEventFlags(evAdd);
 
-  // Prüfung, dass das Entfernen von mehr Items als Puffergröße eine Exception auslöst
+  // PrÃ¼fung, dass das Entfernen von mehr Items als PuffergrÃ¶ÃŸe eine Exception auslÃ¶st
   // Die beiden Breakpoints sind absichtlich hier. Die Eigenschaften der
   // Breakpoints wurden so angepasst, dass die IDE zwischen diesen beiden
-  // Breakpoints nicht wegen Exceptions anhält und auch nicht an diesen
-  // Breakpoints stoppt. Der Test auf die Auslösung der Exception funktioniert
+  // Breakpoints nicht wegen Exceptions anhÃ¤lt und auch nicht an diesen
+  // Breakpoints stoppt. Der Test auf die AuslÃ¶sung der Exception funktioniert
   // weiterhin!
   StartExpectingException(EArgumentOutOfRangeException);
 
@@ -976,7 +976,7 @@ var
 begin
   FRingbuffer.Notify := nil;
 
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i;
@@ -998,7 +998,7 @@ var
   i           : Byte;
   Item        : Byte;
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i;
@@ -1010,9 +1010,9 @@ begin
   SetLength(ReturnValue, 0);
   ReturnValue := FRingbuffer.Remove(0);
 
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Entnehmen von nix darf Puffergröße nicht ändern');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Entnehmen von nix darf PuffergrÃ¶ÃŸe nicht Ã¤ndern');
 
-  // Pufferinhalt prüfen
+  // Pufferinhalt prÃ¼fen
   for i := 0 to FRingbuffer.Size-1 do
   begin
     Item := FRingbuffer.Peek(i);
@@ -1026,7 +1026,7 @@ var
   ReturnValue : TRingbuffer<Byte>.TRingbufferArray;
   i           : Byte;
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i;
@@ -1035,17 +1035,17 @@ begin
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer');
   CheckAndClearEventFlags(evAdd);
 
-  // Ein Element entnehmen und wieder Auffüllen, damit der Puffer um ein Element
-  // über das obere Array Ende hinaus von unten wieder beginnend geht
+  // Ein Element entnehmen und wieder AuffÃ¼llen, damit der Puffer um ein Element
+  // Ã¼ber das obere Array Ende hinaus von unten wieder beginnend geht
   i := FRingbuffer.Remove;
   CheckEquals(0, i, 'Entnommenes Element hat falschen Wert');
   CheckAndClearEventFlags(evRemove);
 
   FRingbuffer.Add(FRingbuffer.Size);
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer nach wieder Auffüllen');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer nach wieder AuffÃ¼llen');
   CheckAndClearEventFlags(evAdd);
 
-  // nun den gesamten Pufferinhalt entnehmen und prüfen
+  // nun den gesamten Pufferinhalt entnehmen und prÃ¼fen
   SetLength(ReturnValue, FRingbuffer.Size);
   ReturnValue := FRingbuffer.Remove(FRingbuffer.Size);
 
@@ -1063,7 +1063,7 @@ var
   i           : Byte;
   Item        : Byte;
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i;
@@ -1072,8 +1072,8 @@ begin
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer');
   CheckAndClearEventFlags(evAdd);
 
-  // 3 Elemente entnehmen und wieder Auffüllen, damit der Puffer um ein Element
-  // über das obere Array Ende hinaus von unten wieder beginnend geht
+  // 3 Elemente entnehmen und wieder AuffÃ¼llen, damit der Puffer um ein Element
+  // Ã¼ber das obere Array Ende hinaus von unten wieder beginnend geht
   for i := 0 to 2 do
   begin
     Item := FRingbuffer.Remove;
@@ -1084,10 +1084,10 @@ begin
   for i := 0 to 2 do
     FRingbuffer.Add(FRingbuffer.Size+i);
 
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer nach wieder Auffüllen');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer nach wieder AuffÃ¼llen');
   CheckAndClearEventFlags(evAdd);
 
-  // nun den gesamten Pufferinhalt entnehmen und prüfen
+  // nun den gesamten Pufferinhalt entnehmen und prÃ¼fen
   SetLength(ReturnValue, FRingbuffer.Size);
   ReturnValue := FRingbuffer.Remove(FRingbuffer.Size);
 
@@ -1102,31 +1102,31 @@ procedure TestTRingbuffer.TestRemoveException;
 var
   ReturnValue : Byte;
 begin
-  CheckEquals(0, FRingbuffer.Count, 'Puffer muss bei Prüfungsbeginn leer sein!');
+  CheckEquals(0, FRingbuffer.Count, 'Puffer muss bei PrÃ¼fungsbeginn leer sein!');
 
-  // Prüfung, dass das Entfernen von items bei leerem Puffer eine Exception auslöst
+  // PrÃ¼fung, dass das Entfernen von items bei leerem Puffer eine Exception auslÃ¶st
   // Die beiden Breakpoints sind absichtlich hier. Die Eigenschaften der
   // Breakpoints wurden so angepasst, dass die IDE zwischen diesen beiden
-  // Breakpoints nicht wegen Exceptions anhält und auch nicht an diesen
-  // Breakpoints stoppt. Der Test auf die Auslösung der Exception funktioniert
+  // Breakpoints nicht wegen Exceptions anhÃ¤lt und auch nicht an diesen
+  // Breakpoints stoppt. Der Test auf die AuslÃ¶sung der Exception funktioniert
   // weiterhin!
   StartExpectingException(EBufferEmptyException);
 
   // bei leerem Puffer versuchen ein Element zu extrahieren
   ReturnValue := FRingbuffer.Remove;
   // Dummy Abfrage die wg. Exception nie erreicht werden darf aber eine
-  // Compilerwarnung wg. ReturnValue nie benutzt unterdrückt
+  // Compilerwarnung wg. ReturnValue nie benutzt unterdrÃ¼ckt
   CheckEquals(100, ReturnValue, 'Entnommenes Element ist falsch');
-  CheckEquals(false, FRemoved, 'Entfernen Benachrichtigung fälschlicherweise ausgelöst');
+  CheckEquals(false, FRemoved, 'Entfernen Benachrichtigung fÃ¤lschlicherweise ausgelÃ¶st');
   ClearEventFlags;
 
   StopExpectingException();
 
-  // Prüfen, dass es auch bei nicht initial leerem Puffer zu einer Exception kommt
+  // PrÃ¼fen, dass es auch bei nicht initial leerem Puffer zu einer Exception kommt
   FRingbuffer.Add(1);
   ReturnValue := FRingbuffer.Remove;
   CheckEquals(1, ReturnValue, 'Entnommenes Element ist falsch');
-  CheckEquals(false, FRemoved, 'Entfernen Benachrichtigung fälschlicherweise ausgelöst');
+  CheckEquals(false, FRemoved, 'Entfernen Benachrichtigung fÃ¤lschlicherweise ausgelÃ¶st');
   ClearEventFlags;
 
   // einmal zuviel entnehmen
@@ -1135,9 +1135,9 @@ begin
   // bei leerem Puffer versuchen ein Element zu extrahieren
   ReturnValue := FRingbuffer.Remove;
   // Dummy Abfrage die wg. Exception nie erreicht werden darf aber eine
-  // Compilerwarnung wg. ReturnValue nie benutzt unterdrückt
+  // Compilerwarnung wg. ReturnValue nie benutzt unterdrÃ¼ckt
   CheckEquals(100, ReturnValue, 'Entnommenes Element ist falsch');
-  CheckEquals(false, FRemoved, 'Entfernen Benachrichtigung fälschlicherweise ausgelöst');
+  CheckEquals(false, FRemoved, 'Entfernen Benachrichtigung fÃ¤lschlicherweise ausgelÃ¶st');
   ClearEventFlags;
 
   StopExpectingException();
@@ -1160,9 +1160,9 @@ var
   i    : Byte;
   Item : Byte;
 begin
-  // Puffer komplett füllen, ein Element entfernen und wieder auffüllen und dann
+  // Puffer komplett fÃ¼llen, ein Element entfernen und wieder auffÃ¼llen und dann
   // in einer Schleife alle Elemente entfernen (der eigentliche Test, weil es
-  // hier einen Überlauf um 1 Element über das Array Ende gibt
+  // hier einen Ãœberlauf um 1 Element Ã¼ber das Array Ende gibt
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i;
@@ -1170,16 +1170,16 @@ begin
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
 
-  // 1 Element löschen
+  // 1 Element lÃ¶schen
   Item := FRingbuffer.Remove;
   CheckEquals(0,                  Item,              'Entfernter Eintrag hat falschen Wert');
-  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
   CheckAndClearEventFlags(evRemove);
 
-  // 1 Element hinzufügen damit der Puffer wieder voll ist und über die obere
+  // 1 Element hinzufÃ¼gen damit der Puffer wieder voll ist und Ã¼ber die obere
   // Grenze des Array geht
   FRingbuffer.Add(5);
-  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
   CheckAndClearEventFlags(evAdd);
 
   // jetzt alle Elemente der Reihe nach entfernen
@@ -1187,7 +1187,7 @@ begin
   begin
     Item := FRingbuffer.Remove;
     CheckEquals(i+1, Item, 'Entfernter Eintrag hat falschen Wert (Schleife)');
-    CheckEquals(FRingbuffer.Size-(i+1), FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer (Schleife)');
+    CheckEquals(FRingbuffer.Size-(i+1), FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer (Schleife)');
     CheckAndClearEventFlags(evRemove);
   end;
 end;
@@ -1198,9 +1198,9 @@ var
   i    : Byte;
   Item : Byte;
 begin
-  // Puffer komplett füllen, ein Element entfernen und wieder auffüllen und dann
+  // Puffer komplett fÃ¼llen, ein Element entfernen und wieder auffÃ¼llen und dann
   // in einer Schleife alle Elemente entfernen (der eigentliche Test, weil es
-  // hier einen Überlauf um 1 Element über das Array Ende gibt
+  // hier einen Ãœberlauf um 1 Element Ã¼ber das Array Ende gibt
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i;
@@ -1208,7 +1208,7 @@ begin
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
 
-  // 3 Elemente löschen
+  // 3 Elemente lÃ¶schen
   for i := 0 to 2 do
   begin
     Item := FRingbuffer.Remove;
@@ -1216,14 +1216,14 @@ begin
     CheckAndClearEventFlags(evRemove);
   end;
 
-  CheckEquals(FRingbuffer.Size-3, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size-3, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
 
-  // 3 Elemente hinzufügen damit der Puffer wieder voll ist und über die obere
+  // 3 Elemente hinzufÃ¼gen damit der Puffer wieder voll ist und Ã¼ber die obere
   // Grenze des Array geht
   FRingbuffer.Add(5);
   FRingbuffer.Add(6);
   FRingbuffer.Add(7);
-  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
   CheckAndClearEventFlags(evAdd);
 
   // jetzt alle Elemente der Reihe nach entfernen
@@ -1231,7 +1231,7 @@ begin
   begin
     Item := FRingbuffer.Remove;
     CheckEquals(i+3, Item, 'Entfernter Eintrag hat falschen Wert (Schleife)');
-    CheckEquals(FRingbuffer.Size-(i+1), FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer (Schleife)');
+    CheckEquals(FRingbuffer.Size-(i+1), FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer (Schleife)');
     CheckAndClearEventFlags(evRemove);
   end;
 end;
@@ -1248,25 +1248,25 @@ begin
     Items[i] := i;
 
   FRingbuffer.Add(Items);
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
   CheckAndClearEventFlags(evAdd);
 
-  // das eigentliche Löschen
+  // das eigentliche LÃ¶schen
   FRingbuffer.Delete(1);
   CheckAndClearEventFlags(evRemove);
 
   ReturnValue := FRingBuffer.Peek(0, FRingbuffer.Count);
-  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer nach Delete');
+  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer nach Delete');
 
   for i := 0 to high(ReturnValue) do
   begin
     CheckEquals(i+1, ReturnValue[i], 'Falscher Wert im Puffer');
   end;
 
-  // alle bis auf einen löschen
+  // alle bis auf einen lÃ¶schen
   FRingbuffer.Delete(FRingbuffer.Size-2);
   CheckAndClearEventFlags(evRemove);
-  CheckEquals(1,                  FRingbuffer.Count,   'Falsche Anzahl an Einträgen im Puffer nach 2. Delete');
+  CheckEquals(1,                  FRingbuffer.Count,   'Falsche Anzahl an EintrÃ¤gen im Puffer nach 2. Delete');
   CheckEquals(FRingbuffer.Size-1, FRingbuffer.Peek(0), 'Falscher Wert nach 2. Delete');
 end;
 
@@ -1281,14 +1281,14 @@ begin
     Items[i] := i;
 
   FRingbuffer.Add(Items);
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
   CheckAndClearEventFlags(evAdd);
 
-  // Alle Einträge auf einmal löschen
+  // Alle EintrÃ¤ge auf einmal lÃ¶schen
   FRingbuffer.Delete(FRingbuffer.Size);
   CheckAndClearEventFlags(evRemove);
 
-  CheckEquals(0, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer nach dem Löschen');
+  CheckEquals(0, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer nach dem LÃ¶schen');
 
   FRingbuffer.Add(123);
   CheckEquals(123, FRingbuffer.Peek(0), 'Falscher Wert im Puffer');
@@ -1297,11 +1297,11 @@ end;
 
 procedure TestTRingbuffer.TestDeleteException;
 begin
-  // Prüfung, dass das Entfernen von mehr Items als Puffergröße eine Exception auslöst
+  // PrÃ¼fung, dass das Entfernen von mehr Items als PuffergrÃ¶ÃŸe eine Exception auslÃ¶st
   // Die beiden Breakpoints sind absichtlich hier. Die Eigenschaften der
   // Breakpoints wurden so angepasst, dass die IDE zwischen diesen beiden
-  // Breakpoints nicht wegen Exceptions anhält und auch nicht an diesen
-  // Breakpoints stoppt. Der Test auf die Auslösung der Exception funktioniert
+  // Breakpoints nicht wegen Exceptions anhÃ¤lt und auch nicht an diesen
+  // Breakpoints stoppt. Der Test auf die AuslÃ¶sung der Exception funktioniert
   // weiterhin!
   StartExpectingException(EArgumentOutOfRangeException);
 
@@ -1335,16 +1335,16 @@ begin
     Items[i] := i;
 
   FRingbuffer.Add(Items);
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
   CheckAndClearEventFlags(evAdd);
 
-  // nix löschen
+  // nix lÃ¶schen
   FRingbuffer.Delete(0);
   CheckAndClearNoEventFlagsSet;
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer '+
-                                                   'nach Löschen von 0 Einträgen');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer '+
+                                                   'nach LÃ¶schen von 0 EintrÃ¤gen');
 
-  // Werte prüfen
+  // Werte prÃ¼fen
   for i := 0 to FRingbuffer.Size-1 do
     CheckEquals(i, FRingbuffer.Peek(i), 'Falscher Wert im Puffer');
 end;
@@ -1361,9 +1361,9 @@ begin
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
 
-  // Ein Element entfernen und eines hinzufügen, damit Puffer über obere Array
+  // Ein Element entfernen und eines hinzufÃ¼gen, damit Puffer Ã¼ber obere Array
   // Grenze geht
   FRingbuffer.Remove;
   CheckAndClearEventFlags(evRemove);
@@ -1371,13 +1371,13 @@ begin
   FRingbuffer.Add(FRingbuffer.Size);
   CheckAndClearEventFlags(evAdd);
 
-  // Ein Element löschen und Puffer prüfen
+  // Ein Element lÃ¶schen und Puffer prÃ¼fen
   FRingbuffer.Delete(1);
 
   CheckAndClearEventFlags(evRemove);
-  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer nach Löschen');
+  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer nach LÃ¶schen');
 
-  // Werte prüfen
+  // Werte prÃ¼fen
   for i := 0 to FRingbuffer.Size-2 do
     CheckEquals(i+2, FRingbuffer.Peek(i), 'Falscher Wert im Puffer');
 end;
@@ -1394,9 +1394,9 @@ begin
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
 
-  // 3 Elemente entfernen und 3 hinzufügen, damit Puffer über obere Array
+  // 3 Elemente entfernen und 3 hinzufÃ¼gen, damit Puffer Ã¼ber obere Array
   // Grenze geht
   FRingbuffer.Remove(3);
   CheckAndClearEventFlags(evRemove);
@@ -1404,16 +1404,16 @@ begin
   for i := 0 to 2 do
     FRingbuffer.Add(FRingbuffer.Size+i);
 
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
   CheckAndClearEventFlags(evAdd);
 
-  // Ein Element löschen und Puffer prüfen
+  // Ein Element lÃ¶schen und Puffer prÃ¼fen
   FRingbuffer.Delete(3);
 
   CheckAndClearEventFlags(evRemove);
-  CheckEquals(FRingbuffer.Size-3, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer nach Löschen');
+  CheckEquals(FRingbuffer.Size-3, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer nach LÃ¶schen');
 
-  // Werte prüfen
+  // Werte prÃ¼fen
   for i := 0 to FRingbuffer.Count-1 do
     CheckEquals(i+6, FRingbuffer.Peek(i), 'Falscher Wert im Puffer');
 end;
@@ -1427,7 +1427,7 @@ begin
   CheckAndClearEventFlags(evAdd);
 
   ReturnValue := FRingbuffer.Peek(0);
-  // Peek darf Benachrichtigungsmechanismus nicht auslösen
+  // Peek darf Benachrichtigungsmechanismus nicht auslÃ¶sen
   CheckAndClearNoEventFlagsSet;
   CheckEquals(100, ReturnValue, 'Falscher Wert aus dem Puffer geliefert1');
 
@@ -1458,7 +1458,7 @@ var
   ReturnValue : TRingbuffer<Byte>.TRingbufferArray;
   i           : Byte;
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i;
@@ -1468,8 +1468,8 @@ begin
 
   // alle Elemente mittels Peek holen
   ReturnValue := FRingbuffer.Peek(0, FRingbuffer.Size);
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Spicken darf Puffergröße nicht ändern');
-  CheckEquals(FRingbuffer.Size, length(ReturnValue), 'Falsche Größe der gelieferten Daten');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Spicken darf PuffergrÃ¶ÃŸe nicht Ã¤ndern');
+  CheckEquals(FRingbuffer.Size, length(ReturnValue), 'Falsche GrÃ¶ÃŸe der gelieferten Daten');
   CheckAndClearNoEventFlagsSet;
 
   for i := 0 to length(ReturnValue)-1 do
@@ -1477,13 +1477,13 @@ begin
 
   // nur ein Element holen
   ReturnValue := FRingbuffer.Peek(1, 1);
-  CheckEquals(1, length(ReturnValue), 'Falsche Größe der gelieferten Daten');
+  CheckEquals(1, length(ReturnValue), 'Falsche GrÃ¶ÃŸe der gelieferten Daten');
   CheckEquals(1, ReturnValue[0], 'Falscher Wert');
   CheckAndClearNoEventFlagsSet;
 
   // 2 Elemente holen
   ReturnValue := FRingbuffer.Peek(1, 2);
-  CheckEquals(2, length(ReturnValue), 'Falsche Größe der gelieferten Daten');
+  CheckEquals(2, length(ReturnValue), 'Falsche GrÃ¶ÃŸe der gelieferten Daten');
   CheckEquals(1, ReturnValue[0], 'Falscher Wert');
   CheckEquals(2, ReturnValue[1], 'Falscher Wert');
   CheckAndClearNoEventFlagsSet;
@@ -1495,7 +1495,7 @@ var
   ReturnValue : TRingbuffer<Byte>.TRingbufferArray;
   i           : Byte;
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i;
@@ -1503,14 +1503,14 @@ begin
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
 
-  // erstes Element löschen
+  // erstes Element lÃ¶schen
   FRingbuffer.Delete(1);
   CheckAndClearEventFlags(evRemove);
 
   // alle Elemente mittels Peek holen
   ReturnValue := FRingbuffer.Peek(0, FRingbuffer.Size);
-  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Spicken darf Puffergröße nicht ändern');
-  CheckEquals(FRingbuffer.Count, length(ReturnValue), 'Falsche Größe der gelieferten Daten');
+  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Spicken darf PuffergrÃ¶ÃŸe nicht Ã¤ndern');
+  CheckEquals(FRingbuffer.Count, length(ReturnValue), 'Falsche GrÃ¶ÃŸe der gelieferten Daten');
   CheckAndClearNoEventFlagsSet;
 
   for i := 0 to length(ReturnValue)-1 do
@@ -1518,13 +1518,13 @@ begin
 
   // nur ein Element holen
   ReturnValue := FRingbuffer.Peek(1, 1);
-  CheckEquals(1, length(ReturnValue), 'Falsche Größe der gelieferten Daten');
+  CheckEquals(1, length(ReturnValue), 'Falsche GrÃ¶ÃŸe der gelieferten Daten');
   CheckEquals(2, ReturnValue[0], 'Falscher Wert');
   CheckAndClearNoEventFlagsSet;
 
   // 2 Elemente holen
   ReturnValue := FRingbuffer.Peek(1, 2);
-  CheckEquals(2, length(ReturnValue), 'Falsche Größe der gelieferten Daten');
+  CheckEquals(2, length(ReturnValue), 'Falsche GrÃ¶ÃŸe der gelieferten Daten');
   CheckEquals(2, ReturnValue[0], 'Falscher Wert');
   CheckEquals(3, ReturnValue[1], 'Falscher Wert');
   CheckAndClearNoEventFlagsSet;
@@ -1536,15 +1536,15 @@ var
   ReturnValue : TRingbuffer<Byte>.TRingbufferArray;
   i           : Byte;
 begin
-  // Exception bei Index > Count prüfen
+  // Exception bei Index > Count prÃ¼fen
   FRingbuffer.Add(1);
   CheckAndClearEventFlags(evAdd);
 
-  // Prüfung, dass das Entfernen von mehr Items als Puffergröße eine Exception auslöst
+  // PrÃ¼fung, dass das Entfernen von mehr Items als PuffergrÃ¶ÃŸe eine Exception auslÃ¶st
   // Die beiden Breakpoints sind absichtlich hier. Die Eigenschaften der
   // Breakpoints wurden so angepasst, dass die IDE zwischen diesen beiden
-  // Breakpoints nicht wegen Exceptions anhält und auch nicht an diesen
-  // Breakpoints stoppt. Der Test auf die Auslösung der Exception funktioniert
+  // Breakpoints nicht wegen Exceptions anhÃ¤lt und auch nicht an diesen
+  // Breakpoints stoppt. Der Test auf die AuslÃ¶sung der Exception funktioniert
   // weiterhin!
   StartExpectingException(EArgumentOutOfRangeException);
 
@@ -1554,11 +1554,11 @@ begin
 
   StopExpectingException();
 
-  // Puffer für nächsten Test leeren
+  // Puffer fÃ¼r nÃ¤chsten Test leeren
   FRingbuffer.Clear;
   CheckAndClearEventFlags(evRemove);
 
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i;
@@ -1567,11 +1567,11 @@ begin
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer');
   CheckAndClearEventFlags(evAdd);
 
-  // Prüfung, dass das Entfernen von mehr Items als Puffergröße eine Exception auslöst
+  // PrÃ¼fung, dass das Entfernen von mehr Items als PuffergrÃ¶ÃŸe eine Exception auslÃ¶st
   // Die beiden Breakpoints sind absichtlich hier. Die Eigenschaften der
   // Breakpoints wurden so angepasst, dass die IDE zwischen diesen beiden
-  // Breakpoints nicht wegen Exceptions anhält und auch nicht an diesen
-  // Breakpoints stoppt. Der Test auf die Auslösung der Exception funktioniert
+  // Breakpoints nicht wegen Exceptions anhÃ¤lt und auch nicht an diesen
+  // Breakpoints stoppt. Der Test auf die AuslÃ¶sung der Exception funktioniert
   // weiterhin!
   StartExpectingException(EArgumentOutOfRangeException);
 
@@ -1590,7 +1590,7 @@ var
   i           : Byte;
   Item        : Byte;
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i;
@@ -1602,10 +1602,10 @@ begin
   SetLength(ReturnValue, 0);
   ReturnValue := FRingbuffer.Peek(0, 0);
 
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Spicken darf Puffergröße nicht ändern');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Spicken darf PuffergrÃ¶ÃŸe nicht Ã¤ndern');
   CheckAndClearNoEventFlagsSet;
 
-  // Pufferinhalt prüfen
+  // Pufferinhalt prÃ¼fen
   for i := 0 to FRingbuffer.Size-1 do
   begin
     Item := FRingbuffer.Peek(i);
@@ -1620,7 +1620,7 @@ var
   ReturnValue : TRingbuffer<Byte>.TRingbufferArray;
   i           : Byte;
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i;
@@ -1629,17 +1629,17 @@ begin
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer');
   CheckAndClearEventFlags(evAdd);
 
-  // Ein Element entnehmen und wieder Auffüllen, damit der Puffer um ein Element
-  // über das obere Array Ende hinaus von unten wieder beginnend geht
+  // Ein Element entnehmen und wieder AuffÃ¼llen, damit der Puffer um ein Element
+  // Ã¼ber das obere Array Ende hinaus von unten wieder beginnend geht
   i := FRingbuffer.Remove;
   CheckEquals(0, i, 'Entnommenes Element hat falschen Wert');
   CheckAndClearEventFlags(evRemove);
 
   FRingbuffer.Add(FRingbuffer.Size);
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer nach wieder Auffüllen');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer nach wieder AuffÃ¼llen');
   CheckAndClearEventFlags(evAdd);
 
-  // nun den gesamten Pufferinhalt entnehmen und prüfen
+  // nun den gesamten Pufferinhalt entnehmen und prÃ¼fen
   SetLength(ReturnValue, FRingbuffer.Size);
   ReturnValue := FRingbuffer.Peek(0, FRingbuffer.Size);
 
@@ -1657,7 +1657,7 @@ var
   i           : Byte;
   Item        : Byte;
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i;
@@ -1666,8 +1666,8 @@ begin
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer');
   CheckAndClearEventFlags(evAdd);
 
-  // 3 Elemente entnehmen und wieder Auffüllen, damit der Puffer um ein Element
-  // über das obere Array Ende hinaus von unten wieder beginnend geht
+  // 3 Elemente entnehmen und wieder AuffÃ¼llen, damit der Puffer um ein Element
+  // Ã¼ber das obere Array Ende hinaus von unten wieder beginnend geht
   for i := 0 to 2 do
   begin
     Item := FRingbuffer.Remove;
@@ -1678,10 +1678,10 @@ begin
   for i := 0 to 2 do
     FRingbuffer.Add(FRingbuffer.Size+i);
 
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer nach wieder Auffüllen');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer nach wieder AuffÃ¼llen');
   CheckAndClearEventFlags(evAdd);
 
-  // nun den gesamten Pufferinhalt entnehmen und prüfen
+  // nun den gesamten Pufferinhalt entnehmen und prÃ¼fen
   SetLength(ReturnValue, FRingbuffer.Size);
   ReturnValue := FRingbuffer.Peek(0, FRingbuffer.Size);
 
@@ -1708,7 +1708,7 @@ begin
   // Versuchen ein Element hinter dem aktuellen Pufferende zu lesen
   ReturnValue := FRingbuffer.Peek(1);
   // Dummy Abfrage die wg. Exception nie erreicht werden darf aber eine
-  // Compilerwarnung wg. ReturnValue nie benutzt unterdrückt
+  // Compilerwarnung wg. ReturnValue nie benutzt unterdrÃ¼ckt
   CheckEquals(100, ReturnValue, 'Entnommenes Element ist falsch');
   CheckAndClearNoEventFlagsSet;
 
@@ -1721,9 +1721,9 @@ var
   i    : Byte;
   Item : Byte;
 begin
-  // Puffer komplett füllen, ein Element entfernen und wieder auffüllen und dann
+  // Puffer komplett fÃ¼llen, ein Element entfernen und wieder auffÃ¼llen und dann
   // in einer Schleife alle Elemente entfernen (der eigentliche Test, weil es
-  // hier einen Überlauf um 1 Element über das Array Ende gibt
+  // hier einen Ãœberlauf um 1 Element Ã¼ber das Array Ende gibt
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i;
@@ -1731,16 +1731,16 @@ begin
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
 
-  // 1 Element löschen
+  // 1 Element lÃ¶schen
   Item := FRingbuffer.Remove;
   CheckEquals(0,                  Item,              'Entfernter Eintrag hat falschen Wert');
-  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
   CheckAndClearEventFlags(evRemove);
 
-  // 1 Element hinzufügen damit der Puffer wieder voll ist und über die obere
+  // 1 Element hinzufÃ¼gen damit der Puffer wieder voll ist und Ã¼ber die obere
   // Grenze des Array geht
   FRingbuffer.Add(5);
-  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
   CheckAndClearEventFlags(evAdd);
 
   // jetzt alle Elemente der Reihe nach entfernen
@@ -1748,7 +1748,7 @@ begin
   begin
     Item := FRingbuffer.Peek(i);
     CheckEquals(i+1, Item, 'Entfernter Eintrag hat falschen Wert (Schleife)');
-    CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer (Schleife)');
+    CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer (Schleife)');
     CheckAndClearNoEventFlagsSet;
   end;
 end;
@@ -1759,9 +1759,9 @@ var
   i    : Byte;
   Item : Byte;
 begin
-  // Puffer komplett füllen, ein Element entfernen und wieder auffüllen und dann
+  // Puffer komplett fÃ¼llen, ein Element entfernen und wieder auffÃ¼llen und dann
   // in einer Schleife alle Elemente entfernen (der eigentliche Test, weil es
-  // hier einen Überlauf um 1 Element über das Array Ende gibt
+  // hier einen Ãœberlauf um 1 Element Ã¼ber das Array Ende gibt
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i;
@@ -1769,7 +1769,7 @@ begin
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
 
-  // 3 Elemente löschen
+  // 3 Elemente lÃ¶schen
   for i := 0 to 2 do
   begin
     Item := FRingbuffer.Remove;
@@ -1777,14 +1777,14 @@ begin
     CheckAndClearEventFlags(evRemove);
   end;
 
-  CheckEquals(FRingbuffer.Size-3, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size-3, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
 
-  // 3 Elemente hinzufügen damit der Puffer wieder voll ist und über die obere
+  // 3 Elemente hinzufÃ¼gen damit der Puffer wieder voll ist und Ã¼ber die obere
   // Grenze des Array geht
   FRingbuffer.Add(5);
   FRingbuffer.Add(6);
   FRingbuffer.Add(7);
-  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
   CheckAndClearEventFlags(evAdd);
 
   // jetzt alle Elemente der Reihe nach entfernen
@@ -1792,7 +1792,7 @@ begin
   begin
     Item := FRingbuffer.Peek(i);
     CheckEquals(i+3, Item, 'Entfernter Eintrag hat falschen Wert (Schleife)');
-    CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer (Schleife)');
+    CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer (Schleife)');
     CheckAndClearNoEventFlagsSet;
   end;
 end;
@@ -1817,11 +1817,11 @@ var
   Items: TRingbuffer<Integer>.TRingbufferArray;
   i    : Byte;
 begin
-  // Puffer teilweise füllen
+  // Puffer teilweise fÃ¼llen
   for i := 1 to 3 do
     FRingbuffer.Add(i);
 
-  CheckEquals(3, FRingbuffer.Count, 'Falscher Pufferfüllstand');
+  CheckEquals(3, FRingbuffer.Count, 'Falscher PufferfÃ¼llstand');
   CheckAndClearEventFlags(evAdd);
 
   // und leeren
@@ -1829,7 +1829,7 @@ begin
   CheckEquals(0, FRingbuffer.Count, 'Puffer muss nun leer sein');
   CheckAndClearEventFlags(evRemove);
 
-  // Leeren Puffer muss man jetzt auch komplett füllen dürfen
+  // Leeren Puffer muss man jetzt auch komplett fÃ¼llen dÃ¼rfen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i;
@@ -1861,7 +1861,7 @@ begin
   Size  := FRingBuffer.Size;
   Count := FRingBuffer.Count;
 
-  CheckEquals(5, Size,  'Falsche Puffergröße');
+  CheckEquals(5, Size,  'Falsche PuffergrÃ¶ÃŸe');
   CheckEquals(0, Count, 'Puffer muss zu Beginn leer sein');
 end;
 
@@ -1870,7 +1870,7 @@ var
   i    : Byte;
   Item : Integer;
 begin
-  // Puffer ganz füllen
+  // Puffer ganz fÃ¼llen
   for i := 1 to FRingbuffer.Size  do
   begin
     Item := i-1000;
@@ -1887,7 +1887,7 @@ var
   i    : Byte;
   Item : Integer;
 begin
-  // Puffer ganz füllen
+  // Puffer ganz fÃ¼llen
   for i := 1 to FRingbuffer.Size do
   begin
     Item := i-1000;
@@ -1899,7 +1899,7 @@ begin
   end;
 
   // erstes Element entfernen, Endezeiger steht jetzt auf letztem Array Element
-  // und nächster Add-Aufruf muss am Anfang ein Item hinzufügen, d.h. kapieren,
+  // und nÃ¤chster Add-Aufruf muss am Anfang ein Item hinzufÃ¼gen, d.h. kapieren,
   // dass es wieder bei 0 los geht
   FRingbuffer.Remove;
   CheckAndClearEventFlags(evRemove);
@@ -2003,7 +2003,7 @@ begin
   FRingbuffer.Remove;
   CheckAndClearEventFlags(evRemove);
 
-  // Ein einzelnes Element als Array hinzufügen
+  // Ein einzelnes Element als Array hinzufÃ¼gen
   SetLength(Items, 1);
   Items[0] := -100;
 
@@ -2012,8 +2012,8 @@ begin
 
   for i := 0 to FRingbuffer.Size-2 do
     CheckEquals(i+1+1000, FRingbuffer.Peek(i), 'Pufferinhalt falsch');
-  // später hinzugefügtes Element prüfen
-  CheckEquals(-100, FRingbuffer.Peek(FRingbuffer.Size-1), 'Später hinzugefügtes Element hat falschen Wert');
+  // spÃ¤ter hinzugefÃ¼gtes Element prÃ¼fen
+  CheckEquals(-100, FRingbuffer.Peek(FRingbuffer.Size-1), 'SpÃ¤ter hinzugefÃ¼gtes Element hat falschen Wert');
   CheckAndClearNoEventFlagsSet;
 end;
 
@@ -2040,7 +2040,7 @@ begin
   FRingbuffer.Remove;
   CheckAndClearEventFlags(evRemove);
 
-  // 3 Elemente hinzufügen
+  // 3 Elemente hinzufÃ¼gen
   SetLength(Items, FRingbuffer.Size-2);
   Items[0] := 10000;
   Items[1] := 15000;
@@ -2051,10 +2051,10 @@ begin
 
   for i := 0 to 1 do
     CheckEquals(i+3+1000, FRingbuffer.Peek(i), 'Pufferinhalt falsch');
-  // später hinzugefügte Elemente prüfen
-  CheckEquals(10000, FRingbuffer.Peek(2), 'Später hinzugefügtes Element hat falschen Wert');
-  CheckEquals(15000, FRingbuffer.Peek(3), 'Später hinzugefügtes Element hat falschen Wert');
-  CheckEquals(20000, FRingbuffer.Peek(4), 'Später hinzugefügtes Element hat falschen Wert');
+  // spÃ¤ter hinzugefÃ¼gte Elemente prÃ¼fen
+  CheckEquals(10000, FRingbuffer.Peek(2), 'SpÃ¤ter hinzugefÃ¼gtes Element hat falschen Wert');
+  CheckEquals(15000, FRingbuffer.Peek(3), 'SpÃ¤ter hinzugefÃ¼gtes Element hat falschen Wert');
+  CheckEquals(20000, FRingbuffer.Peek(4), 'SpÃ¤ter hinzugefÃ¼gtes Element hat falschen Wert');
   CheckAndClearNoEventFlagsSet;
 end;
 
@@ -2064,16 +2064,16 @@ var
 begin
   CheckEquals(0, FRingbuffer.Count, 'Puffer muss leer sein');
 
-  // Testet das hinzufügen eines komplett leeren Arrays
-  // Dieser Test ist derzeit dafür ausgelegt, einen Debugbuild mit eingeschalteten
-  // Assertions zu prüfen.
+  // Testet das hinzufÃ¼gen eines komplett leeren Arrays
+  // Dieser Test ist derzeit dafÃ¼r ausgelegt, einen Debugbuild mit eingeschalteten
+  // Assertions zu prÃ¼fen.
   SetLength(Items, 0);
 
-  // Prüfung, dass das Hinzufügen von zuviel Daten eine Exception auslöst
+  // PrÃ¼fung, dass das HinzufÃ¼gen von zuviel Daten eine Exception auslÃ¶st
   // Die beiden Breakpoints sind absichtlich hier. Die Eigenschaften der
   // Breakpoints wurden so angepasst, dass die IDE zwischen diesen beiden
-  // Breakpoints nicht wegen Exceptions anhält und auch nicht an diesen
-  // Breakpoints stoppt. Der Test auf die Auslösung der Exception funktioniert
+  // Breakpoints nicht wegen Exceptions anhÃ¤lt und auch nicht an diesen
+  // Breakpoints stoppt. Der Test auf die AuslÃ¶sung der Exception funktioniert
   // weiterhin!
   StartExpectingException(EAssertionFailed);
 
@@ -2082,7 +2082,7 @@ begin
 
   StopExpectingException();
 
-  CheckEquals(0, FRingbuffer.Count, 'Puffer muss nach Hinzufügen von nichts immer noch leer sein');
+  CheckEquals(0, FRingbuffer.Count, 'Puffer muss nach HinzufÃ¼gen von nichts immer noch leer sein');
 end;
 
 procedure TestTRingbufferInt.TestAddArrayException;
@@ -2097,21 +2097,21 @@ begin
   FRingbuffer.Add(1);
   CheckAndClearEventFlags(evAdd);
 
-  // Prüfung, dass das Hinzufügen von zuviel Daten eine Exception auslöst
+  // PrÃ¼fung, dass das HinzufÃ¼gen von zuviel Daten eine Exception auslÃ¶st
   // Die beiden Breakpoints sind absichtlich hier. Die Eigenschaften der
   // Breakpoints wurden so angepasst, dass die IDE zwischen diesen beiden
-  // Breakpoints nicht wegen Exceptions anhält und auch nicht an diesen
-  // Breakpoints stoppt. Der Test auf die Auslösung der Exception funktioniert
+  // Breakpoints nicht wegen Exceptions anhÃ¤lt und auch nicht an diesen
+  // Breakpoints stoppt. Der Test auf die AuslÃ¶sung der Exception funktioniert
   // weiterhin!
   StartExpectingException(EBufferFullException);
 
-  // Array hinzufügen der nicht mehr hinein passt
+  // Array hinzufÃ¼gen der nicht mehr hinein passt
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
 
   StopExpectingException();
 
-  // Puffer vollends "manuell" füllen
+  // Puffer vollends "manuell" fÃ¼llen
   for i := 2 to FRingbuffer.Size do
     FRingbuffer.Add(i);
 
@@ -2125,15 +2125,15 @@ begin
   Items[0] := 10;
   Items[1] := 11;
 
-  // Prüfung, dass das Hinzufügen von zuviel Daten eine Exception auslöst
+  // PrÃ¼fung, dass das HinzufÃ¼gen von zuviel Daten eine Exception auslÃ¶st
   // Die beiden Breakpoints sind absichtlich hier. Die Eigenschaften der
   // Breakpoints wurden so angepasst, dass die IDE zwischen diesen beiden
-  // Breakpoints nicht wegen Exceptions anhält und auch nicht an diesen
-  // Breakpoints stoppt. Der Test auf die Auslösung der Exception funktioniert
+  // Breakpoints nicht wegen Exceptions anhÃ¤lt und auch nicht an diesen
+  // Breakpoints stoppt. Der Test auf die AuslÃ¶sung der Exception funktioniert
   // weiterhin!
   StartExpectingException(EBufferFullException);
 
-  // Array hinzufügen der nicht mehr hinein passt
+  // Array hinzufÃ¼gen der nicht mehr hinein passt
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
 
@@ -2156,7 +2156,7 @@ begin
   for i := 0 to 1 do
     CheckEquals(i+100000, FRingbuffer.Peek(i), 'Falscher Wert im Puffer');
 
-  // Puffer weiter füllen
+  // Puffer weiter fÃ¼llen
   SetLength(Items, 2);
   Items[0] := 100002;
   Items[1] := 100003;
@@ -2174,7 +2174,7 @@ var
   Items: TRingbuffer<Integer>.TRingbufferArray;
   i    : Byte;
 begin
-  // Test mit 1 Element Überlauf
+  // Test mit 1 Element Ãœberlauf
   FRingbuffer.Add(1000);
   FRingbuffer.Add(1001);
   CheckAndClearEventFlags(evAdd);
@@ -2201,14 +2201,14 @@ var
   Items: TRingbuffer<Integer>.TRingbufferArray;
   i    : Byte;
 begin
-  // Test mit 3 Elementen Überlauf, Puffer soweit füllen, dass Hinzufügen von 4
-  // Elementen zum "Überlauf" von 3 Elementen führt
+  // Test mit 3 Elementen Ãœberlauf, Puffer soweit fÃ¼llen, dass HinzufÃ¼gen von 4
+  // Elementen zum "Ãœberlauf" von 3 Elementen fÃ¼hrt
   FRingbuffer.Add(1000);
   FRingbuffer.Add(1001);
   FRingbuffer.Add(1002);
   FRingbuffer.Add(1003);
   CheckAndClearEventFlags(evAdd);
-  // erste 3 Einträge wieder entfernen
+  // erste 3 EintrÃ¤ge wieder entfernen
   FRingbuffer.Remove;
   FRingbuffer.Remove;
   FRingbuffer.Remove;
@@ -2232,7 +2232,7 @@ var
   i    : Byte;
   Item : Integer;
 begin
-  // Puffer zuerst komplett füllen
+  // Puffer zuerst komplett fÃ¼llen
   for i := 1 to FRingbuffer.Size do
   begin
     Item := i-1000;
@@ -2244,15 +2244,15 @@ begin
 
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Puffer ist nicht voll!');
 
-  // Prüfung, dass das Hinzufügen von zuviel Daten eine Exception auslöst
+  // PrÃ¼fung, dass das HinzufÃ¼gen von zuviel Daten eine Exception auslÃ¶st
   // Die beiden Breakpoints sind absichtlich hier. Die Eigenschaften der
   // Breakpoints wurden so angepasst, dass die IDE zwischen diesen beiden
-  // Breakpoints nicht wegen Exceptions anhält und auch nicht an diesen
-  // Breakpoints stoppt. Der Test auf die Auslösung der Exception funktioniert
+  // Breakpoints nicht wegen Exceptions anhÃ¤lt und auch nicht an diesen
+  // Breakpoints stoppt. Der Test auf die AuslÃ¶sung der Exception funktioniert
   // weiterhin!
   StartExpectingException(EBufferFullException);
 
-  // ein Element zuviel hinzufügen
+  // ein Element zuviel hinzufÃ¼gen
   Item := FRingbuffer.Size+1;
   FRingbuffer.Add(Item);
   CheckAndClearEventFlags(evAdd);
@@ -2276,7 +2276,7 @@ var
   Item        : Integer;
   i           : Byte;
 begin
-  // zuerst mit einem Eintrag prüfen
+  // zuerst mit einem Eintrag prÃ¼fen
   Item := 1;
   FRingbuffer.Add(Item);
   CheckEquals(1, FRingbuffer.Count, 'Anzahl Elemente ist falsch');
@@ -2287,8 +2287,8 @@ begin
   CheckEquals(1, ReturnValue,       'Entnommenes Element ist falsch');
   CheckAndClearEventFlags(evRemove);
 
-  // Jetzt mit vollem Puffer prüfen
-  // Puffer zuerst komplett füllen
+  // Jetzt mit vollem Puffer prÃ¼fen
+  // Puffer zuerst komplett fÃ¼llen
   for i := FRingbuffer.Size downto 1 do
   begin
     Item := i+1000;
@@ -2319,7 +2319,7 @@ var
   i           : Byte;
 
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i+1000;
@@ -2328,7 +2328,7 @@ begin
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer');
   CheckAndClearEventFlags(evAdd);
 
-  // 3 Elemente entnehmen, Elemente und Pufferfüllstand prüfen
+  // 3 Elemente entnehmen, Elemente und PufferfÃ¼llstand prÃ¼fen
   Count := 3;
   SetLength(ReturnValue, 3);
   ReturnValue := FRingbuffer.Remove(Count);
@@ -2345,7 +2345,7 @@ var
   ReturnValue : TRingbuffer<Integer>.TRingbufferArray;
   i           : Byte;
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i+1000;
@@ -2354,11 +2354,11 @@ begin
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer');
   CheckAndClearEventFlags(evAdd);
 
-  // Prüfung, dass das Entfernen von mehr Items als Puffergröße eine Exception auslöst
+  // PrÃ¼fung, dass das Entfernen von mehr Items als PuffergrÃ¶ÃŸe eine Exception auslÃ¶st
   // Die beiden Breakpoints sind absichtlich hier. Die Eigenschaften der
   // Breakpoints wurden so angepasst, dass die IDE zwischen diesen beiden
-  // Breakpoints nicht wegen Exceptions anhält und auch nicht an diesen
-  // Breakpoints stoppt. Der Test auf die Auslösung der Exception funktioniert
+  // Breakpoints nicht wegen Exceptions anhÃ¤lt und auch nicht an diesen
+  // Breakpoints stoppt. Der Test auf die AuslÃ¶sung der Exception funktioniert
   // weiterhin!
   StartExpectingException(EArgumentOutOfRangeException);
 
@@ -2378,7 +2378,7 @@ var
 begin
   FRingbuffer.Notify := nil;
 
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i + 100000;
@@ -2400,7 +2400,7 @@ var
   i           : Byte;
   Item        : Integer;
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i-1000;
@@ -2412,9 +2412,9 @@ begin
   SetLength(ReturnValue, 0);
   ReturnValue := FRingbuffer.Remove(0);
 
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Entnehmen von nix darf Puffergröße nicht ändern');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Entnehmen von nix darf PuffergrÃ¶ÃŸe nicht Ã¤ndern');
 
-  // Pufferinhalt prüfen
+  // Pufferinhalt prÃ¼fen
   for i := 0 to FRingbuffer.Size-1 do
   begin
     Item := FRingbuffer.Peek(i);
@@ -2429,7 +2429,7 @@ var
   ReturnValue : TRingbuffer<Integer>.TRingbufferArray;
   i           : Integer;
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i+1000;
@@ -2438,17 +2438,17 @@ begin
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer');
   CheckAndClearEventFlags(evAdd);
 
-  // Ein Element entnehmen und wieder Auffüllen, damit der Puffer um ein Element
-  // über das obere Array Ende hinaus von unten wieder beginnend geht
+  // Ein Element entnehmen und wieder AuffÃ¼llen, damit der Puffer um ein Element
+  // Ã¼ber das obere Array Ende hinaus von unten wieder beginnend geht
   i := FRingbuffer.Remove;
   CheckEquals(1000, i, 'Entnommenes Element hat falschen Wert');
   CheckAndClearEventFlags(evRemove);
 
   FRingbuffer.Add(FRingbuffer.Size+1000);
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer nach wieder Auffüllen');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer nach wieder AuffÃ¼llen');
   CheckAndClearEventFlags(evAdd);
 
-  // nun den gesamten Pufferinhalt entnehmen und prüfen
+  // nun den gesamten Pufferinhalt entnehmen und prÃ¼fen
   SetLength(ReturnValue, FRingbuffer.Size);
   ReturnValue := FRingbuffer.Remove(FRingbuffer.Size);
   CheckAndClearEventFlags(evRemove);
@@ -2465,7 +2465,7 @@ var
   i           : Byte;
   Item        : Integer;
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i+1000;
@@ -2474,8 +2474,8 @@ begin
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer');
   CheckAndClearEventFlags(evAdd);
 
-  // 3 Elemente entnehmen und wieder Auffüllen, damit der Puffer um ein Element
-  // über das obere Array Ende hinaus von unten wieder beginnend geht
+  // 3 Elemente entnehmen und wieder AuffÃ¼llen, damit der Puffer um ein Element
+  // Ã¼ber das obere Array Ende hinaus von unten wieder beginnend geht
   for i := 0 to 2 do
   begin
     Item := FRingbuffer.Remove;
@@ -2486,10 +2486,10 @@ begin
   for i := 0 to 2 do
     FRingbuffer.Add(FRingbuffer.Size+i+1000);
 
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer nach wieder Auffüllen');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer nach wieder AuffÃ¼llen');
   CheckAndClearEventFlags(evAdd);
 
-  // nun den gesamten Pufferinhalt entnehmen und prüfen
+  // nun den gesamten Pufferinhalt entnehmen und prÃ¼fen
   SetLength(ReturnValue, FRingbuffer.Size);
   ReturnValue := FRingbuffer.Remove(FRingbuffer.Size);
   CheckAndClearEventFlags(evRemove);
@@ -2503,26 +2503,26 @@ procedure TestTRingbufferInt.TestRemoveException;
 var
   ReturnValue : Integer;
 begin
-  CheckEquals(0, FRingbuffer.Count, 'Puffer muss bei Prüfungsbeginn leer sein!');
+  CheckEquals(0, FRingbuffer.Count, 'Puffer muss bei PrÃ¼fungsbeginn leer sein!');
 
-  // Prüfung, dass das Entfernen von items bei leerem Puffer eine Exception auslöst
+  // PrÃ¼fung, dass das Entfernen von items bei leerem Puffer eine Exception auslÃ¶st
   // Die beiden Breakpoints sind absichtlich hier. Die Eigenschaften der
   // Breakpoints wurden so angepasst, dass die IDE zwischen diesen beiden
-  // Breakpoints nicht wegen Exceptions anhält und auch nicht an diesen
-  // Breakpoints stoppt. Der Test auf die Auslösung der Exception funktioniert
+  // Breakpoints nicht wegen Exceptions anhÃ¤lt und auch nicht an diesen
+  // Breakpoints stoppt. Der Test auf die AuslÃ¶sung der Exception funktioniert
   // weiterhin!
   StartExpectingException(EBufferEmptyException);
 
   // bei leerem Puffer versuchen ein Element zu extrahieren
   ReturnValue := FRingbuffer.Remove;
   // Dummy Abfrage die wg. Exception nie erreicht werden darf aber eine
-  // Compilerwarnung wg. ReturnValue nie benutzt unterdrückt
+  // Compilerwarnung wg. ReturnValue nie benutzt unterdrÃ¼ckt
   CheckEquals(100, ReturnValue, 'Entnommenes Element ist falsch');
   CheckAndClearEventFlags(evRemove);
 
   StopExpectingException();
 
-  // Prüfen, dass es auch bei nicht initial leerem Puffer zu einer Exception kommt
+  // PrÃ¼fen, dass es auch bei nicht initial leerem Puffer zu einer Exception kommt
   FRingbuffer.Add(-1000);
   ReturnValue := FRingbuffer.Remove;
   CheckEquals(-1000, ReturnValue, 'Entnommenes Element ist falsch');
@@ -2534,7 +2534,7 @@ begin
   // bei leerem Puffer versuchen ein Element zu extrahieren
   ReturnValue := FRingbuffer.Remove;
   // Dummy Abfrage die wg. Exception nie erreicht werden darf aber eine
-  // Compilerwarnung wg. ReturnValue nie benutzt unterdrückt
+  // Compilerwarnung wg. ReturnValue nie benutzt unterdrÃ¼ckt
   CheckEquals(100, ReturnValue, 'Entnommenes Element ist falsch');
   CheckAndClearEventFlags(evRemove);
 
@@ -2558,25 +2558,25 @@ var
   i    : Byte;
   Item : Integer;
 begin
-  // Puffer komplett füllen, ein Element entfernen und wieder auffüllen und dann
+  // Puffer komplett fÃ¼llen, ein Element entfernen und wieder auffÃ¼llen und dann
   // in einer Schleife alle Elemente entfernen (der eigentliche Test, weil es
-  // hier einen Überlauf um 1 Element über das Array Ende gibt
+  // hier einen Ãœberlauf um 1 Element Ã¼ber das Array Ende gibt
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i+1000;
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
-  // 1 Element löschen
+  // 1 Element lÃ¶schen
   Item := FRingbuffer.Remove;
   CheckEquals(1000,               Item,              'Entfernter Eintrag hat falschen Wert');
-  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
   CheckAndClearEventFlags(evRemove);
 
-  // 1 Element hinzufügen damit der Puffer wieder voll ist und über die obere
+  // 1 Element hinzufÃ¼gen damit der Puffer wieder voll ist und Ã¼ber die obere
   // Grenze des Array geht
   FRingbuffer.Add(1005);
-  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
   CheckAndClearEventFlags(evAdd);
 
   // jetzt alle Elemente der Reihe nach entfernen
@@ -2584,7 +2584,7 @@ begin
   begin
     Item := FRingbuffer.Remove;
     CheckEquals(i+1001,                 Item, 'Entfernter Eintrag hat falschen Wert (Schleife)');
-    CheckEquals(FRingbuffer.Size-(i+1), FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer (Schleife)');
+    CheckEquals(FRingbuffer.Size-(i+1), FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer (Schleife)');
     CheckAndClearEventFlags(evRemove);
   end;
 end;
@@ -2595,16 +2595,16 @@ var
   i    : Byte;
   Item : Integer;
 begin
-  // Puffer komplett füllen, ein Element entfernen und wieder auffüllen und dann
+  // Puffer komplett fÃ¼llen, ein Element entfernen und wieder auffÃ¼llen und dann
   // in einer Schleife alle Elemente entfernen (der eigentliche Test, weil es
-  // hier einen Überlauf um 1 Element über das Array Ende gibt
+  // hier einen Ãœberlauf um 1 Element Ã¼ber das Array Ende gibt
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i+1000;
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
-  // 3 Elemente löschen
+  // 3 Elemente lÃ¶schen
   for i := 0 to 2 do
   begin
     Item := FRingbuffer.Remove;
@@ -2612,14 +2612,14 @@ begin
     CheckAndClearEventFlags(evRemove);
   end;
 
-  CheckEquals(FRingbuffer.Size-3, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size-3, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
 
-  // 3 Elemente hinzufügen damit der Puffer wieder voll ist und über die obere
+  // 3 Elemente hinzufÃ¼gen damit der Puffer wieder voll ist und Ã¼ber die obere
   // Grenze des Array geht
   FRingbuffer.Add(1005);
   FRingbuffer.Add(1006);
   FRingbuffer.Add(1007);
-  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
   CheckAndClearEventFlags(evAdd);
 
   // jetzt alle Elemente der Reihe nach entfernen
@@ -2627,7 +2627,7 @@ begin
   begin
     Item := FRingbuffer.Remove;
     CheckEquals(i+3+1000, Item, 'Entfernter Eintrag hat falschen Wert (Schleife)');
-    CheckEquals(FRingbuffer.Size-(i+1), FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer (Schleife)');
+    CheckEquals(FRingbuffer.Size-(i+1), FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer (Schleife)');
     CheckAndClearEventFlags(evRemove);
   end;
 end;
@@ -2644,24 +2644,24 @@ begin
     Items[i] := i+1000;
 
   FRingbuffer.Add(Items);
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
   CheckAndClearEventFlags(evAdd);
 
-  // das eigentliche Löschen
+  // das eigentliche LÃ¶schen
   FRingbuffer.Delete(1);
   CheckAndClearEventFlags(evRemove);
   ReturnValue := FRingBuffer.Peek(0, FRingbuffer.Count);
-  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer nach Delete');
+  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer nach Delete');
 
   for i := 0 to high(ReturnValue) do
   begin
     CheckEquals(i+1+1000, ReturnValue[i], 'Falscher Wert im Puffer');
   end;
 
-  // alle bis auf einen löschen
+  // alle bis auf einen lÃ¶schen
   FRingbuffer.Delete(FRingbuffer.Size-2);
   CheckAndClearEventFlags(evRemove);
-  CheckEquals(1, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer nach 2. Delete');
+  CheckEquals(1, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer nach 2. Delete');
   CheckEquals(FRingbuffer.Size-1+1000, FRingbuffer.Peek(0), 'Falscher Wert nach 2. Delete');
 end;
 
@@ -2677,13 +2677,13 @@ begin
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
 
-  // Alle Einträge auf einmal löschen
+  // Alle EintrÃ¤ge auf einmal lÃ¶schen
   FRingbuffer.Delete(FRingbuffer.Size);
 
   CheckAndClearEventFlags(evRemove);
-  CheckEquals(0, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer nach dem Löschen');
+  CheckEquals(0, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer nach dem LÃ¶schen');
 
   FRingbuffer.Add(123000);
   CheckAndClearEventFlags(evAdd);
@@ -2692,11 +2692,11 @@ end;
 
 procedure TestTRingbufferInt.TestDeleteException;
 begin
-  // Prüfung, dass das Entfernen von mehr Items als Puffergröße eine Exception auslöst
+  // PrÃ¼fung, dass das Entfernen von mehr Items als PuffergrÃ¶ÃŸe eine Exception auslÃ¶st
   // Die beiden Breakpoints sind absichtlich hier. Die Eigenschaften der
   // Breakpoints wurden so angepasst, dass die IDE zwischen diesen beiden
-  // Breakpoints nicht wegen Exceptions anhält und auch nicht an diesen
-  // Breakpoints stoppt. Der Test auf die Auslösung der Exception funktioniert
+  // Breakpoints nicht wegen Exceptions anhÃ¤lt und auch nicht an diesen
+  // Breakpoints stoppt. Der Test auf die AuslÃ¶sung der Exception funktioniert
   // weiterhin!
   StartExpectingException(EArgumentOutOfRangeException);
 
@@ -2731,16 +2731,16 @@ begin
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
 
-  // nix löschen
+  // nix lÃ¶schen
   FRingbuffer.Delete(0);
-  // wenn nix gelöscht auch keine Benachrichtigung!
+  // wenn nix gelÃ¶scht auch keine Benachrichtigung!
   CheckAndClearNoEventFlagsSet;
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer '+
-                                                   'nach Löschen von 0 Einträgen');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer '+
+                                                   'nach LÃ¶schen von 0 EintrÃ¤gen');
 
-  // Werte prüfen
+  // Werte prÃ¼fen
   for i := 0 to FRingbuffer.Size-1 do
     CheckEquals(i+1000, FRingbuffer.Peek(i), 'Falscher Wert im Puffer');
 end;
@@ -2757,9 +2757,9 @@ begin
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
 
-  // Ein Element entfernen und eines hinzufügen, damit Puffer über obere Array
+  // Ein Element entfernen und eines hinzufÃ¼gen, damit Puffer Ã¼ber obere Array
   // Grenze geht
   FRingbuffer.Remove;
   CheckAndClearEventFlags(evRemove);
@@ -2767,13 +2767,13 @@ begin
   FRingbuffer.Add(FRingbuffer.Size+1000);
   CheckAndClearEventFlags(evAdd);
 
-  // Ein Element löschen und Puffer prüfen
+  // Ein Element lÃ¶schen und Puffer prÃ¼fen
   FRingbuffer.Delete(1);
 
   CheckAndClearEventFlags(evRemove);
-  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer nach Löschen');
+  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer nach LÃ¶schen');
 
-  // Werte prüfen
+  // Werte prÃ¼fen
   for i := 0 to FRingbuffer.Size-2 do
     CheckEquals(i+2+1000, FRingbuffer.Peek(i), 'Falscher Wert im Puffer');
 end;
@@ -2790,9 +2790,9 @@ begin
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
 
-  // 3 Elemente entfernen und 3 hinzufügen, damit Puffer über obere Array
+  // 3 Elemente entfernen und 3 hinzufÃ¼gen, damit Puffer Ã¼ber obere Array
   // Grenze geht
   FRingbuffer.Remove(3);
   CheckAndClearEventFlags(evRemove);
@@ -2801,15 +2801,15 @@ begin
     FRingbuffer.Add(FRingbuffer.Size+i+1000);
 
   CheckAndClearEventFlags(evAdd);
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
 
-  // Ein Element löschen und Puffer prüfen
+  // Ein Element lÃ¶schen und Puffer prÃ¼fen
   FRingbuffer.Delete(3);
 
   CheckAndClearEventFlags(evRemove);
-  CheckEquals(FRingbuffer.Size-3, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer nach Löschen');
+  CheckEquals(FRingbuffer.Size-3, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer nach LÃ¶schen');
 
-  // Werte prüfen
+  // Werte prÃ¼fen
   for i := 0 to FRingbuffer.Count-1 do
     CheckEquals(i+6+1000, FRingbuffer.Peek(i), 'Falscher Wert im Puffer');
 end;
@@ -2852,7 +2852,7 @@ var
   ReturnValue : TRingbuffer<Integer>.TRingbufferArray;
   i           : Byte;
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i+100000;
@@ -2863,20 +2863,20 @@ begin
   // alle Elemente mittels Peek holen
   ReturnValue := FRingbuffer.Peek(0, FRingbuffer.Size);
   CheckAndClearNoEventFlagsSet;
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Spicken darf Puffergröße nicht ändern');
-  CheckEquals(FRingbuffer.Size, length(ReturnValue), 'Falsche Größe der gelieferten Daten');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Spicken darf PuffergrÃ¶ÃŸe nicht Ã¤ndern');
+  CheckEquals(FRingbuffer.Size, length(ReturnValue), 'Falsche GrÃ¶ÃŸe der gelieferten Daten');
 
   for i := 0 to length(ReturnValue)-1 do
     CheckEquals(i+100000, ReturnValue[i], 'Falscher Wert');
 
   // nur ein Element holen
   ReturnValue := FRingbuffer.Peek(1, 1);
-  CheckEquals(1,      length(ReturnValue), 'Falsche Größe der gelieferten Daten');
+  CheckEquals(1,      length(ReturnValue), 'Falsche GrÃ¶ÃŸe der gelieferten Daten');
   CheckEquals(100001, ReturnValue[0], 'Falscher Wert');
 
   // 2 Elemente holen
   ReturnValue := FRingbuffer.Peek(1, 2);
-  CheckEquals(2,      length(ReturnValue), 'Falsche Größe der gelieferten Daten');
+  CheckEquals(2,      length(ReturnValue), 'Falsche GrÃ¶ÃŸe der gelieferten Daten');
   CheckEquals(100001, ReturnValue[0], 'Falscher Wert');
   CheckEquals(100002, ReturnValue[1], 'Falscher Wert');
   CheckAndClearNoEventFlagsSet;
@@ -2888,15 +2888,15 @@ var
   ReturnValue : TRingbuffer<Integer>.TRingbufferArray;
   i           : Byte;
 begin
-  // Exception bei Index > Count prüfen
+  // Exception bei Index > Count prÃ¼fen
   FRingbuffer.Add(1000);
   CheckAndClearEventFlags(evAdd);
 
-  // Prüfung, dass das Entfernen von mehr Items als Puffergröße eine Exception auslöst
+  // PrÃ¼fung, dass das Entfernen von mehr Items als PuffergrÃ¶ÃŸe eine Exception auslÃ¶st
   // Die beiden Breakpoints sind absichtlich hier. Die Eigenschaften der
   // Breakpoints wurden so angepasst, dass die IDE zwischen diesen beiden
-  // Breakpoints nicht wegen Exceptions anhält und auch nicht an diesen
-  // Breakpoints stoppt. Der Test auf die Auslösung der Exception funktioniert
+  // Breakpoints nicht wegen Exceptions anhÃ¤lt und auch nicht an diesen
+  // Breakpoints stoppt. Der Test auf die AuslÃ¶sung der Exception funktioniert
   // weiterhin!
   StartExpectingException(EArgumentOutOfRangeException);
 
@@ -2906,11 +2906,11 @@ begin
 
   StopExpectingException();
 
-  // Puffer für nächsten Test leeren
+  // Puffer fÃ¼r nÃ¤chsten Test leeren
   FRingbuffer.Clear;
   CheckAndClearEventFlags(evRemove);
 
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i+1000;
@@ -2919,11 +2919,11 @@ begin
   CheckAndClearEventFlags(evAdd);
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer');
 
-  // Prüfung, dass das Entfernen von mehr Items als Puffergröße eine Exception auslöst
+  // PrÃ¼fung, dass das Entfernen von mehr Items als PuffergrÃ¶ÃŸe eine Exception auslÃ¶st
   // Die beiden Breakpoints sind absichtlich hier. Die Eigenschaften der
   // Breakpoints wurden so angepasst, dass die IDE zwischen diesen beiden
-  // Breakpoints nicht wegen Exceptions anhält und auch nicht an diesen
-  // Breakpoints stoppt. Der Test auf die Auslösung der Exception funktioniert
+  // Breakpoints nicht wegen Exceptions anhÃ¤lt und auch nicht an diesen
+  // Breakpoints stoppt. Der Test auf die AuslÃ¶sung der Exception funktioniert
   // weiterhin!
   StartExpectingException(EArgumentOutOfRangeException);
 
@@ -2942,7 +2942,7 @@ var
   i           : Byte;
   Item        : Integer;
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i+1000;
@@ -2955,9 +2955,9 @@ begin
   ReturnValue := FRingbuffer.Peek(0, 0);
 
   CheckAndClearNoEventFlagsSet;
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Spicken darf Puffergröße nicht ändern');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Spicken darf PuffergrÃ¶ÃŸe nicht Ã¤ndern');
 
-  // Pufferinhalt prüfen
+  // Pufferinhalt prÃ¼fen
   for i := 0 to FRingbuffer.Size-1 do
   begin
     Item := FRingbuffer.Peek(i);
@@ -2972,7 +2972,7 @@ var
   ReturnValue : TRingbuffer<Integer>.TRingbufferArray;
   i           : Integer;
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i+1000;
@@ -2981,17 +2981,17 @@ begin
   CheckAndClearEventFlags(evAdd);
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer');
 
-  // Ein Element entnehmen und wieder Auffüllen, damit der Puffer um ein Element
-  // über das obere Array Ende hinaus von unten wieder beginnend geht
+  // Ein Element entnehmen und wieder AuffÃ¼llen, damit der Puffer um ein Element
+  // Ã¼ber das obere Array Ende hinaus von unten wieder beginnend geht
   i := FRingbuffer.Remove;
   CheckAndClearEventFlags(evRemove);
   CheckEquals(1000, i, 'Entnommenes Element hat falschen Wert');
 
   FRingbuffer.Add(FRingbuffer.Size+1000);
   CheckAndClearEventFlags(evAdd);
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer nach wieder Auffüllen');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer nach wieder AuffÃ¼llen');
 
-  // nun den gesamten Pufferinhalt entnehmen und prüfen
+  // nun den gesamten Pufferinhalt entnehmen und prÃ¼fen
   SetLength(ReturnValue, FRingbuffer.Size);
   ReturnValue := FRingbuffer.Peek(0, FRingbuffer.Size);
 
@@ -3008,7 +3008,7 @@ var
   i           : Byte;
   Item        : Integer;
 begin
-  // Puffer komplett füllen
+  // Puffer komplett fÃ¼llen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i+1000;
@@ -3017,8 +3017,8 @@ begin
   CheckAndClearEventFlags(evAdd);
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer');
 
-  // 3 Elemente entnehmen und wieder Auffüllen, damit der Puffer um ein Element
-  // über das obere Array Ende hinaus von unten wieder beginnend geht
+  // 3 Elemente entnehmen und wieder AuffÃ¼llen, damit der Puffer um ein Element
+  // Ã¼ber das obere Array Ende hinaus von unten wieder beginnend geht
   for i := 0 to 2 do
   begin
     Item := FRingbuffer.Remove;
@@ -3030,9 +3030,9 @@ begin
     FRingbuffer.Add(FRingbuffer.Size+i+1000);
 
   CheckAndClearEventFlags(evAdd);
-  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer nach wieder Auffüllen');
+  CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl Elemente im Puffer nach wieder AuffÃ¼llen');
 
-  // nun den gesamten Pufferinhalt entnehmen und prüfen
+  // nun den gesamten Pufferinhalt entnehmen und prÃ¼fen
   SetLength(ReturnValue, FRingbuffer.Size);
   ReturnValue := FRingbuffer.Peek(0, FRingbuffer.Size);
 
@@ -3058,7 +3058,7 @@ begin
   // Versuchen ein Element hinter dem aktuellen Pufferende zu lesen
   ReturnValue := FRingbuffer.Peek(1);
   // Dummy Abfrage die wg. Exception nie erreicht werden darf aber eine
-  // Compilerwarnung wg. ReturnValue nie benutzt unterdrückt
+  // Compilerwarnung wg. ReturnValue nie benutzt unterdrÃ¼ckt
   CheckEquals(100, ReturnValue, 'Entnommenes Element ist falsch');
   CheckAndClearNoEventFlagsSet;
 
@@ -3071,33 +3071,33 @@ var
   i    : Byte;
   Item : Integer;
 begin
-  // Puffer komplett füllen, ein Element entfernen und wieder auffüllen und dann
+  // Puffer komplett fÃ¼llen, ein Element entfernen und wieder auffÃ¼llen und dann
   // in einer Schleife alle Elemente entfernen (der eigentliche Test, weil es
-  // hier einen Überlauf um 1 Element über das Array Ende gibt
+  // hier einen Ãœberlauf um 1 Element Ã¼ber das Array Ende gibt
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i+1000;
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
-  // 1 Element löschen
+  // 1 Element lÃ¶schen
   Item := FRingbuffer.Remove;
   CheckAndClearEventFlags(evRemove);
   CheckEquals(1000,               Item,              'Entfernter Eintrag hat falschen Wert');
-  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
 
-  // 1 Element hinzufügen damit der Puffer wieder voll ist und über die obere
+  // 1 Element hinzufÃ¼gen damit der Puffer wieder voll ist und Ã¼ber die obere
   // Grenze des Array geht
   FRingbuffer.Add(1005);
   CheckAndClearEventFlags(evAdd);
-  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
 
   // jetzt alle Elemente der Reihe nach entfernen
   for i := 0 to FRingbuffer.Size-1 do
   begin
     Item := FRingbuffer.Peek(i);
     CheckEquals(i+1+1000, Item, 'Entfernter Eintrag hat falschen Wert (Schleife)');
-    CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer (Schleife)');
+    CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer (Schleife)');
   end;
 
   CheckAndClearNoEventFlagsSet;
@@ -3109,16 +3109,16 @@ var
   i    : Byte;
   Item : Integer;
 begin
-  // Puffer komplett füllen, ein Element entfernen und wieder auffüllen und dann
+  // Puffer komplett fÃ¼llen, ein Element entfernen und wieder auffÃ¼llen und dann
   // in einer Schleife alle Elemente entfernen (der eigentliche Test, weil es
-  // hier einen Überlauf um 1 Element über das Array Ende gibt
+  // hier einen Ãœberlauf um 1 Element Ã¼ber das Array Ende gibt
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := i+100000;
 
   FRingbuffer.Add(Items);
   CheckAndClearEventFlags(evAdd);
-  // 3 Elemente löschen
+  // 3 Elemente lÃ¶schen
   for i := 0 to 2 do
   begin
     Item := FRingbuffer.Remove;
@@ -3126,15 +3126,15 @@ begin
   end;
 
   CheckAndClearEventFlags(evRemove);
-  CheckEquals(FRingbuffer.Size-3, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size-3, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
 
-  // 3 Elemente hinzufügen damit der Puffer wieder voll ist und über die obere
+  // 3 Elemente hinzufÃ¼gen damit der Puffer wieder voll ist und Ã¼ber die obere
   // Grenze des Array geht
   FRingbuffer.Add(100005);
   FRingbuffer.Add(100006);
   FRingbuffer.Add(100007);
   CheckAndClearEventFlags(evAdd);
-  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer');
+  CheckEquals(FRingbuffer.Size,   FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer');
 
   // jetzt alle Elemente der Reihe nach entfernen
   for i := 0 to FRingbuffer.Size-1 do
@@ -3142,7 +3142,7 @@ begin
     Item := FRingbuffer.Peek(i);
 
     CheckEquals(i+3+100000,       Item,              'Entfernter Eintrag hat falschen Wert (Schleife)');
-    CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an Einträgen im Puffer (Schleife)');
+    CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Falsche Anzahl an EintrÃ¤gen im Puffer (Schleife)');
   end;
   CheckAndClearNoEventFlagsSet;
 end;
@@ -3184,7 +3184,7 @@ var
   Items: TRingbuffer<string>.TRingbufferArray;
   i    : Byte;
 begin
-  // Puffer teilweise füllen
+  // Puffer teilweise fÃ¼llen
   for i := 1 to 3 do
     FRingbuffer.Add('Item' + i.ToString);
 
@@ -3196,7 +3196,7 @@ begin
   CheckEquals(0, FRingbuffer.Count, 'Buffer is not empty');
   CheckAndClearEventFlags(evRemove);
 
-  // Leeren Puffer muss man jetzt auch komplett füllen dürfen
+  // Leeren Puffer muss man jetzt auch komplett fÃ¼llen dÃ¼rfen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := 'Item' + i.ToString;
@@ -3509,7 +3509,7 @@ begin
     CheckEquals('Item'+(i+100000).ToString, FRingbuffer.Peek(i),
                 'Wrong value is in the buffer');
 
-  // Puffer weiter füllen
+  // Puffer weiter fÃ¼llen
   SetLength(Items, 2);
   Items[0] := 'Item100002';
   Items[1] := 'Item100003';
@@ -3759,7 +3759,7 @@ begin
 
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Removing 0 items may not alter count!');
 
-  // Pufferinhalt prüfen
+  // Pufferinhalt prÃ¼fen
   for i := 0 to FRingbuffer.Size-1 do
   begin
     Item := FRingbuffer.Peek(i);
@@ -3793,7 +3793,7 @@ begin
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong item count after refilling buffer');
   CheckAndClearEventFlags(evAdd);
 
-  // nun den gesamten Pufferinhalt entnehmen und prüfen
+  // nun den gesamten Pufferinhalt entnehmen und prÃ¼fen
   SetLength(ReturnValue, FRingbuffer.Size);
   ReturnValue := FRingbuffer.Remove(FRingbuffer.Size);
   CheckAndClearEventFlags(evRemove);
@@ -3833,7 +3833,7 @@ begin
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong item count after refilling');
   CheckAndClearEventFlags(evAdd);
 
-  // nun den gesamten Pufferinhalt entnehmen und prüfen
+  // nun den gesamten Pufferinhalt entnehmen und prÃ¼fen
   SetLength(ReturnValue, FRingbuffer.Size);
   ReturnValue := FRingbuffer.Remove(FRingbuffer.Size);
   CheckAndClearEventFlags(evRemove);
@@ -3847,7 +3847,7 @@ procedure TestTRingbufferString.TestRemoveException;
 var
   ReturnValue : string;
 begin
-  CheckEquals(0, FRingbuffer.Count, 'Puffer muss bei Prüfungsbeginn leer sein!');
+  CheckEquals(0, FRingbuffer.Count, 'Puffer muss bei PrÃ¼fungsbeginn leer sein!');
 
   // Check that removing items from an empty buffer raises an exception.
   // Both breakpoints are here on purpose and the properties of those have
@@ -4014,7 +4014,7 @@ begin
   CheckAndClearEventFlags(evAdd);
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong item count i buffer');
 
-  // Alle Einträge auf einmal löschen
+  // Alle EintrÃ¤ge auf einmal lÃ¶schen
   FRingbuffer.Delete(FRingbuffer.Size);
 
   CheckAndClearEventFlags(evRemove);
@@ -4215,7 +4215,7 @@ var
   ReturnValue : TRingbuffer<string>.TRingbufferArray;
   i           : Byte;
 begin
-  // Exception bei Index > Count prüfen
+  // Exception bei Index > Count prÃ¼fen
   FRingbuffer.Add('Item1000');
   CheckAndClearEventFlags(evAdd);
 
@@ -4413,7 +4413,7 @@ begin
   CheckEquals('Item1000',         Item,              'Removed item has wrong value');
   CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Wrong buffer count');
 
-  // 1 Element hinzufügen damit der Puffer wieder voll ist und über die obere
+  // 1 Element hinzufÃ¼gen damit der Puffer wieder voll ist und Ã¼ber die obere
   // Grenze des Array geht
   FRingbuffer.Add('Item1005');
   CheckAndClearEventFlags(evAdd);
@@ -4455,7 +4455,7 @@ begin
   CheckAndClearEventFlags(evRemove);
   CheckEquals(FRingbuffer.Size-3, FRingbuffer.Count, 'Wrong buffer count');
 
-  // 3 Elemente hinzufügen damit der Puffer wieder voll ist und über die obere
+  // 3 Elemente hinzufÃ¼gen damit der Puffer wieder voll ist und Ã¼ber die obere
   // Grenze des Array geht
   FRingbuffer.Add('Item100005');
   FRingbuffer.Add('Item100006');
@@ -4689,7 +4689,7 @@ begin
     CheckEquals('Item'+(i+100000).ToString, FRingbuffer.Peek(i).Name,
                 'Wrong value is in the buffer');
 
-  // Puffer weiter füllen
+  // Puffer weiter fÃ¼llen
   SetLength(Items, 2);
   Items[0] := TTestItem.Create('Item100002', 80, 4);
   Items[1] := TTestItem.Create('Item100003', 90, 5);
@@ -4925,7 +4925,7 @@ var
   Items: TRingbuffer<TTestItem>.TRingbufferArray;
   i    : Byte;
 begin
-  // Puffer teilweise füllen
+  // Puffer teilweise fÃ¼llen
   for i := 1 to 3 do
     FRingbuffer.Add(TTestItem.Create('Item' + (i+1000).ToString, i, i + FRingbuffer.Size));
 
@@ -4937,7 +4937,7 @@ begin
   CheckEquals(0, FRingbuffer.Count, 'Buffer is not empty');
   CheckAndClearEventFlags(evRemove);
 
-  // Leeren Puffer muss man jetzt auch komplett füllen dürfen
+  // Leeren Puffer muss man jetzt auch komplett fÃ¼llen dÃ¼rfen
   SetLength(Items, FRingbuffer.Size);
   for i := 0 to FRingbuffer.Size-1 do
     Items[i] := TTestItem.Create('Item' + (i+1000).ToString, i, i + FRingbuffer.Size);
@@ -5016,7 +5016,7 @@ begin
   CheckAndClearEventFlags(evAdd);
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong item count i buffer');
 
-  // Alle Einträge auf einmal löschen
+  // Alle EintrÃ¤ge auf einmal lÃ¶schen
   FRingbuffer.Delete(FRingbuffer.Size);
 
   CheckAndClearEventFlags(evRemove);
@@ -5221,7 +5221,7 @@ var
   ReturnValue : TRingbuffer<TTestItem>.TRingbufferArray;
   i           : Byte;
 begin
-  // Exception bei Index > Count prüfen
+  // Exception bei Index > Count prÃ¼fen
   FRingbuffer.Add(TTestItem.Create('Item1000', 50, 5));
   CheckAndClearEventFlags(evAdd);
 
@@ -5413,7 +5413,7 @@ begin
   CheckEquals(FRingbuffer.Size-1, FRingbuffer.Count, 'Wrong buffer count');
   Item.Free;
 
-  // 1 Element hinzufügen damit der Puffer wieder voll ist und über die obere
+  // 1 Element hinzufÃ¼gen damit der Puffer wieder voll ist und Ã¼ber die obere
   // Grenze des Array geht
   FRingbuffer.Add(TTestItem.Create('Item1005', 35, 3));
   CheckAndClearEventFlags(evAdd);
@@ -5456,7 +5456,7 @@ begin
   CheckAndClearEventFlags(evRemove);
   CheckEquals(FRingbuffer.Size-3, FRingbuffer.Count, 'Wrong buffer count');
 
-  // 3 Elemente hinzufügen damit der Puffer wieder voll ist und über die obere
+  // 3 Elemente hinzufÃ¼gen damit der Puffer wieder voll ist und Ã¼ber die obere
   // Grenze des Array geht
   FRingbuffer.Add(TTestItem.Create('Item100005', 50, 5));
   FRingbuffer.Add(TTestItem.Create('Item100006', 60, 6));
@@ -5613,7 +5613,7 @@ begin
 
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Removing 0 items may not alter count!');
 
-  // Pufferinhalt prüfen
+  // Pufferinhalt prÃ¼fen
   for i := 0 to FRingbuffer.Size-1 do
   begin
     Item := FRingbuffer.Peek(i);
@@ -5648,7 +5648,7 @@ begin
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong item count after refilling buffer');
   CheckAndClearEventFlags(evAdd);
 
-  // nun den gesamten Pufferinhalt entnehmen und prüfen
+  // nun den gesamten Pufferinhalt entnehmen und prÃ¼fen
   SetLength(ReturnValue, FRingbuffer.Size);
   ReturnValue := FRingbuffer.Remove(FRingbuffer.Size);
   CheckAndClearEventFlags(evRemove);
@@ -5689,7 +5689,7 @@ begin
   CheckEquals(FRingbuffer.Size, FRingbuffer.Count, 'Wrong item count after refilling');
   CheckAndClearEventFlags(evAdd);
 
-  // nun den gesamten Pufferinhalt entnehmen und prüfen
+  // nun den gesamten Pufferinhalt entnehmen und prÃ¼fen
   SetLength(ReturnValue, FRingbuffer.Size);
   ReturnValue := FRingbuffer.Remove(FRingbuffer.Size);
   CheckAndClearEventFlags(evRemove);
@@ -5703,7 +5703,7 @@ procedure TestRingbufferObjects.TestRemoveException;
 var
   ReturnValue : TTestItem;
 begin
-  CheckEquals(0, FRingbuffer.Count, 'Puffer muss bei Prüfungsbeginn leer sein!');
+  CheckEquals(0, FRingbuffer.Count, 'Puffer muss bei PrÃ¼fungsbeginn leer sein!');
 
   // Check that removing items from an empty buffer raises an exception.
   // Both breakpoints are here on purpose and the properties of those have
@@ -5837,7 +5837,7 @@ begin
 end;
 
 initialization
-  // Alle Testfälle beim Testprogramm registrieren
+  // Alle TestfÃ¤lle beim Testprogramm registrieren
   RegisterTest(TestTRingbuffer.Suite);
   RegisterTest(TestTRingbufferInt.Suite);
   RegisterTest(TestTRingbufferString.Suite);

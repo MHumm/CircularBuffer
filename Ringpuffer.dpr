@@ -1,4 +1,4 @@
-{*****************************************************************************
+﻿{*****************************************************************************
   The CircularBuffer team (see file NOTICE.txt) licenses this file
   to you under the Apache License, Version 2.0 (the
   "License"); you may not use this file except in compliance
@@ -22,7 +22,7 @@ program Ringpuffer;
 
 uses
   System.SysUtils,
-  Ringbuffer in 'Ringbuffer.pas';
+  Ringbuffer in 'Source\Ringbuffer.pas';
 
 begin
   try
