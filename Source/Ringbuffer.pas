@@ -555,6 +555,9 @@ begin
 
           // Startmarker verschieben
           FStart := FStart + Count;
+          // check for wrap around
+          if FStart=Size then
+             FStart:=0;
         end;
       end
       else
@@ -793,6 +796,9 @@ begin
             end;
 
           inc(FStart, RemoveableCount);
+          // check for wrap around
+          if FStart=Size then
+             FStart:=0; // TG
         end
         else
         begin
