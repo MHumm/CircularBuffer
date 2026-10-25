@@ -129,8 +129,8 @@ type
     /// </summary>
     /// <remarks>
     ///   If <c>FNextFree = FStart</c> the buffer is either empty or full. The
-    ///   actual state is determined by <c>
-    ///   FContainsData</c>: True means <i>the buffer is full</i>.
+    ///   actual state is determined by <c>FContainsData</c>: True means
+    ///   <i>the buffer is full</i>.
     /// </remarks>
     FNextFree     : UInt32;
     /// <summary>
@@ -143,8 +143,7 @@ type
     FContainsData : Boolean;
     /// <summary>
     ///   This event is triggered by all operations manipulating the number of
-    ///   elements in the ring buffer: Add,
-    ///   Remove, Delete... <br />
+    ///   elements in the ring buffer: Add, Remove, Delete...
     /// </summary>
     FNotify       : TRingbufferNotify;
 
@@ -172,16 +171,16 @@ type
     /// </summary>
     /// <param name="StartIndex">
     ///   Index of the first item to be deleted. Must be less than <c>EndIndex</c>
-    ///   and in the range <c>0 .. Count - 1</c>
-    ///   . Thus wrapped buffer content cannot be deleted in one go.
+    ///   and in the range <c>0 .. Count - 1</c>. Thus wrapped buffer content
+    ///   cannot be deleted in one go.
     /// </param>
     /// <param name="EndIndex">
     ///   Index of the last item to be deleted. Must be larger than <c>StartIndex</c>
-    ///   and in the range <c>0 .. Count -
-    ///   1.</c>
+    ///   and in the range <c>0 .. Count - 1.</c>
     /// </param>
     /// <remarks>
-    ///   The current implementation is empty, but is overridden in <c>TObjectRiungBuffer&lt;T&gt;</c>.
+    ///   The current implementation is empty, but is overridden in
+    ///   <c>TObjectRingBuffer&lt;T&gt;</c>.
     /// </remarks>
     procedure FreeOrNilItems(StartIndex, EndIndex: UInt32); virtual;
   public
@@ -212,7 +211,7 @@ type
     ///   not enough capacity
     /// </exception>
     /// <remarks>
-    ///   If there is not enough capacity an <c>EBufferFullException</c> is raised. <br />
+    ///   If there is not enough capacity an <c>EBufferFullException</c> is raised.
     /// </remarks>
     procedure   Add(Item: T); overload; virtual;
     /// <summary>
@@ -319,8 +318,8 @@ type
     ///   <c>Index</c> exceeds available elements
     /// </exception>
     /// <remarks>
-    ///   The allowed range for Index is 0 .. Count-1. If the index is outside this range an
-    ///   EArgumentOutOfRangeException is raised. <br />
+    ///   The allowed range for Index is 0 .. Count-1. If the index is outside
+    ///   this range an EArgumentOutOfRangeException is raised.
     /// </remarks>
     function    Peek(Index: UInt32):T; overload;
     /// <summary>
@@ -372,8 +371,7 @@ type
 
     /// <summary>
     ///   This event is triggered by all operations manipulating the number of
-    ///   elements in the ring buffer: Add,Remove,
-    ///   Delete...
+    ///   elements in the ring buffer: Add,Remove, Delete...
     /// </summary>
     property Notify : TRingbufferNotify
       read   FNotify
