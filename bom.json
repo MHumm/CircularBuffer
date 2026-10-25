@@ -2,10 +2,10 @@
   "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
-  "serialNumber": "urn:uuid:c1935e0b-aa8d-478b-950d-5af7adb53d88",
+  "serialNumber": "urn:uuid:acf11f74-eaf5-438e-a110-83220819aa04",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-10-25T09:58:10Z",
+    "timestamp": "2026-10-25T16:47:02Z",
     "component": {
       "type": "library",
       "name": "Ringpuffer",
@@ -318,17 +318,17 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "a7176564771d9a69bb8620e35939afa9fe5a38b26995682078422c8ddc8cd169"
+          "content": "bb37c2eb28a3d3f0368f9cc47aec1e569c679689bec318160a07e768f130ee48"
         },
         {
           "alg": "SHA-512",
-          "content": "2b852557adb36c449e989bf7390ea05877edf221d5fcc3b4cf4eae383f7c2d4340d39f4a21f77a65deda388b0d7bff46d1dac92904f6842ae873d02697ee0336"
+          "content": "34bcf5345947f0d6cb3791c5077e5796ae52948524b650033ab88be2dbb5155abadacff226a9813565e00159ffc9f884e80554e68b9f27e0d92c98afb74fa0fe"
         }
       ],
       "properties": [
         {
           "name": "file:size",
-          "value": "30784"
+          "value": "30986"
         },
         {
           "name": "net.developer-experts.dx-comply:relativePath",
@@ -486,17 +486,17 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "021caed23999db51007719c83f62eeaa73c240ff2ac23a29369ecd7b9b91bcfe"
+          "content": "b6ac2ac9a0a1771367abd072914d22bd0461c259b65b5698559f1b245a426ee4"
         },
         {
           "alg": "SHA-512",
-          "content": "6f6e1fa052dd7689132a14a227f05001f5a70db9d7b8fedc1fb2c129195017346c4c61cc62208833bb6c51dcef454e0f674d2c6ea9d360951076a7a7de19033c"
+          "content": "6fe8150e052c11138bf3ac2d5404b1a675821c27c5e5ccda4bc967ac7f7657fa3ea00e918ac4e41d7490a0de516613930619d985acaeba5986f9e7e5abd0be19"
         }
       ],
       "properties": [
         {
           "name": "file:size",
-          "value": "194707"
+          "value": "211125"
         },
         {
           "name": "net.developer-experts.dx-comply:relativePath",

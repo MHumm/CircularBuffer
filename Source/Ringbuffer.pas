@@ -277,7 +277,7 @@ type
     /// <summary>
     ///   Removes the given number of elements from the buffers Head
     /// </summary>
-    /// <param name="Count">
+    /// <param name="ACount">
     ///   Number of elements to be deleted
     /// </param>
     /// <exception cref="EArgumentOutOfRangeException">
@@ -296,7 +296,7 @@ type
     ///     <b>EArgumentOutOfRangeException</b> is raised.
     ///   </para>
     /// </remarks>
-    procedure   Delete(Count: UInt32); virtual;
+    procedure   Delete(ACount: UInt32); virtual;
     /// <summary>
     ///   Clears the buffer and initializes Head and Tail
     /// </summary>
@@ -530,45 +530,45 @@ begin
   FNotify       := nil;
 end;
 
-procedure TRingbuffer<T>.Delete(Count: UInt32);
+procedure TRingbuffer<T>.Delete(ACount: UInt32);
 var
   Remaining : UInt32; // Verbleibende Speicherplätze bis zur oberen Array Grenze
   i         : Integer;
 begin
-  if (Count <= Size) then
+  if (ACount <= Size) then
   begin
     // Puffer nur teilweise zu löschen?
-    if (Count < self.Count) then
+    if (ACount < Count) then
     begin
       Remaining := Size - FStart;
       // Pufferinhalt geht nicht über obere Array Grenze hinaus?
-      if (Count < Remaining) then
+      if (ACount < Remaining) then
       begin
-        if (Count > 0) then
+        if (ACount > 0) then
         begin
-          if ((FStart+Count) > 0) then
-            FreeObjectsIfOwned(FStart, FStart + Count - 1);
+          if ((FStart + ACount) > 0) then
+            FreeObjectsIfOwned(FStart, FStart + ACount - 1);
 
           if IsManagedType(T) then
-            for i := FStart to FStart + Count - 1 do
+            for i := FStart to FStart + ACount - 1 do
               FItems[i] := Default(T);
 
           // Startmarker verschieben
-          FStart := FStart + Count;
+          FStart := FStart + ACount;
           // check for wrap around
-          if FStart=Size then
-             FStart:=0;
+          if (FStart = Size) then
+            FStart := 0;
         end;
       end
       else
       begin
-        if (Count > 0) then
+        if (ACount > 0) then
         begin
           if ((FStart+Remaining) > 0) then
             FreeObjectsIfOwned(FStart, FStart + Remaining - 1);
 
-          if ((Count-Remaining) > 0) then
-            FreeObjectsIfOwned(0, Count - Remaining - 1);
+          if ((ACount - Remaining) > 0) then
+            FreeObjectsIfOwned(0, ACount - Remaining - 1);
 
           if IsManagedType(T) then
           begin
@@ -576,20 +576,20 @@ begin
             for i := FStart to Size - 1 do
               FItems[i] := Default(T);
 
-            for i := 0 to Count - Remaining - 1 do
+            for i := 0 to ACount - Remaining - 1 do
               FItems[i] := Default(T);
           end;
 
           // Anzahl der Positionen um die insgesamt verschoben werden soll - Anzahl
           // der Positionen bis zum oberen Array Ende abziehen ergibt neue
           // Startposition vom Array-Anfang aus gesehen.
-          FStart := (Count - Remaining);
+          FStart := (ACount - Remaining);
         end;
       end;
 
       // nur benachrichtigen wenn überhaupt was gelöscht werden sollte
-      if assigned(FNotify) and (Count > 0) then
-        FNotify(Count, evRemove);
+      if assigned(FNotify) and (ACount > 0) then
+        FNotify(ACount, evRemove);
     end
     else
       // alles zu löschen
@@ -597,14 +597,14 @@ begin
   end
   else
     raise EArgumentOutOfRangeException.Create('Cannot delete more that buffer '+
-                                              'size elements. Size: '+Size.ToString+
-                                              ' Elements to be deleted: '+Count.ToString);
+                                              'size elements. Size: ' + Size.ToString +
+                                              ' Elements to be deleted: ' + ACount.ToString);
 end;
 
 destructor TRingbuffer<T>.Destroy;
 begin
-  if (Size > 0) then
-    FreeObjectsIfOwned(0, Size-1);
+  if (Count > 0) then
+    Delete(Count);
 
   SetLength(FItems, 0);
 
@@ -797,8 +797,8 @@ begin
 
           inc(FStart, RemoveableCount);
           // check for wrap around
-          if FStart=Size then
-             FStart:=0; // TG
+          if (FStart = Size) then
+            FStart := 0;
         end
         else
         begin

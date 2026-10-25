@@ -5232,6 +5232,9 @@ begin
     CheckEquals('Item'+ (i + 1000).ToString, Items[i].Name,
                 'Wrong value in buffer. Expected: ' + i.ToString + ' Actual: '+Items[i].Name);
   end;
+
+  for i := 0 to length(Items) - 1 do
+    Items[i].Free;
 end;
 
 procedure TestRingbufferObjects.TestClear;
@@ -5906,6 +5909,9 @@ begin
   for i := 0 to High(ReturnValue) do
     CheckEquals('Item' + (i + 100000).ToString, ReturnValue[i].Name, 'Wrong value. Expected: ' +
                  i.ToString + ' Actual: ' + ReturnValue[i].Name);
+
+  for i := 0 to length(ReturnValue) - 1 do
+    ReturnValue[i].Free;
 end;
 
 procedure TestRingbufferObjects.TestRemoveArraySize0;
@@ -5959,6 +5965,9 @@ begin
   for i := 0 to high(ReturnValue) do
     CheckEquals('Item' + (i).ToString, ReturnValue[i].Name, 'Removed item has wrong value');
 
+  for i := 0 to length(ReturnValue) - 1 do
+    ReturnValue[i].Free;
+
   SetLength(Items, 2);
   for i := 0 to 1 do
     Items[i] := TTestItem.Create('Item' + (Integer(FRingbuffer.Size) + i).ToString, Integer(FRingbuffer.Size) + i, 1);
@@ -5975,6 +5984,9 @@ begin
   CheckEquals(2, FRingbuffer.Count, 'Wrong item count after removing up to array end');
   for i := 0 to high(ReturnValue) do
     CheckEquals('Item' + (i+2).ToString, ReturnValue[i].Name, 'Removed item has wrong value (2)');
+
+  for i := 0 to length(ReturnValue) - 1 do
+    ReturnValue[i].Free;
 
   // the remaining items are located at the beginning of the array
   for i := 0 to 1 do
@@ -6016,6 +6028,9 @@ begin
   CheckAndClearEventFlags(evRemove);
   CheckEquals(FRingbuffer.Size, length(ReturnValue), 'Wrong number of removed items');
   CheckEquals(0, FRingbuffer.Count, 'Buffer should be empty');
+
+  for i := 0 to length(ReturnValue) - 1 do
+    ReturnValue[i].Free;
 
   // add some items to the now empty buffer and check them
   for i := 0 to 2 do
@@ -6075,6 +6090,9 @@ begin
   CheckEquals(0, FRingbuffer.Count, 'Wrong item count after removal');
   for i := 0 to high(ReturnValue) do
     CheckEquals('Item' + (i+1+1000).ToString, ReturnValue[i].Name, 'Wrong value in buffer');
+
+  for i := 0 to length(ReturnValue) - 1 do
+    ReturnValue[i].Free;
 end;
 
 procedure TestRingbufferObjects.TestRemoveArrayWrap3;
@@ -6116,6 +6134,9 @@ begin
   CheckEquals(0, FRingbuffer.Count, 'Wrong item count after removal');
   for i := 0 to high(ReturnValue) do
     CheckEquals('Item' + (i+3+1000).ToString, ReturnValue[i].Name, 'Wrong value in buffer');
+
+  for i := 0 to length(ReturnValue) - 1 do
+    ReturnValue[i].Free;
 end;
 
 procedure TestRingbufferObjects.TestRemoveException;
